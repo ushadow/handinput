@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace HandInputEngine
+namespace HandInput.HandInputEngine
 {
   public class Program
   {
     public static void Main(String[] args)
     {
-      new HandInputEngine();
+      (new HandInputEngine()).Start();
     }
   }
 }

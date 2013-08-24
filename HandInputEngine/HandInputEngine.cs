@@ -9,7 +9,7 @@ using Microsoft.Kinect.Toolkit;
 
 using Common.Logging;
 
-namespace HandInputEngine
+namespace HandInput.HandInputEngine
 {
   class HandInputEngine
   {
@@ -18,10 +18,18 @@ namespace HandInputEngine
     private KinectSensorChooser sensorChooser = new KinectSensorChooser();
     private HandTracker handTracker = new HandTracker();
 
+    /// <summary>
+    /// Creates a new instance of HandInputEngine.
+    /// </summary>
     public HandInputEngine()
     {
       sensorChooser.KinectChanged += new EventHandler<KinectChangedEventArgs>(OnKinectSensorChanged);
       sensorChooser.Start();
+    }
+
+    public void Start()
+    {
+      while (true);
     }
 
     private void OnKinectSensorChanged(object sender, KinectChangedEventArgs e)
