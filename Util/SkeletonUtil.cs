@@ -76,6 +76,11 @@ namespace HandInput.Util
       return (float)Math.Sqrt(Distance2(p1, p2));
     }
 
+    /// <summary>
+    /// Creates a formated string for a SkeletonPoint.
+    /// </summary>
+    /// <param name="sp"></param>
+    /// <returns></returns>
     public static String ToFormatedString(this SkeletonPoint sp)
     {
       return String.Format("({0}, {1}, {2})", sp.X, sp.Y, sp.Z);

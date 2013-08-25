@@ -14,7 +14,7 @@ namespace HandInput.HandInputEngine
   {
     private Skeleton[] skeletonData;
 
-    public void Update(SkeletonFrame sf)
+    public Option<SkeletonPoint> Update(SkeletonFrame sf)
     {
       if (sf != null)
       {
@@ -28,9 +28,11 @@ namespace HandInput.HandInputEngine
         if (trackedIndex >= 0)
         {
           var skeleton = skeletonData[trackedIndex];
+          var handRight = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
+          return new Some<SkeletonPoint>(handRight.Position);
         }
-
       }
+      return new None<SkeletonPoint>();
     }
   }
 }

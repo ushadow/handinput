@@ -2,17 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 
 using Common.Logging;
 
+using HandInput.Util;
+
 namespace HandInput.HandInputEngine
 {
   class HandInputEngine
   {
+    private static readonly SkeletonTrackingMode SkeletonTrackingMode = SkeletonTrackingMode.Seated;
+    private static readonly Boolean SkeletonEnableTrackingInNearMode = true;
+
     private static readonly ILog log = LogManager.GetCurrentClassLogger();
 
     private KinectSensorChooser sensorChooser = new KinectSensorChooser();
@@ -27,11 +32,6 @@ namespace HandInput.HandInputEngine
       sensorChooser.Start();
     }
 
-    public void Start()
-    {
-      while (true);
-    }
-
     private void OnKinectSensorChanged(object sender, KinectChangedEventArgs e)
     {
       // KinectSensorChooser handles stopping the old kinect and starting the new kinect.
@@ -40,7 +40,7 @@ namespace HandInput.HandInputEngine
       {
         log.InfoFormat("The new sensor is null.");    
       }
-
+      EnsureSkeletonStreamState(newSensor.SkeletonStream);
       newSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(OnAllFramesReady);
     }
 
@@ -48,8 +48,19 @@ namespace HandInput.HandInputEngine
     {
       using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
       {
-        handTracker.Update(skeletonFrame);
+        var res = handTracker.Update(skeletonFrame);
+        if (res.IsSome)
+        {
+          log.DebugFormat(SkeletonUtil.ToFormatedString(res.Value));
+        }
       }
+    }
+
+    private void EnsureSkeletonStreamState(SkeletonStream ss)
+    {
+      ss.Enable();
+      ss.TrackingMode = SkeletonTrackingMode;
+      ss.EnableTrackingInNearRange = SkeletonEnableTrackingInNearMode;
     }
   }
 
