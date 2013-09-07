@@ -2,6 +2,7 @@
 using System.Threading;
 
 using Common.Logging;
+using WebSocket;
 
 namespace HandInput.HandInputEngine
 {
@@ -11,9 +12,12 @@ namespace HandInput.HandInputEngine
 
     public static void Main(String[] args)
     {
-      new HandInputEngine();
+      var server = new HandInputServer("127.0.0.1", 8080);
+
+      server.Start();
       Console.Out.WriteLine("Press ENTER to exit.");
       Console.In.ReadLine();
+      server.Stop();
     }
   }
 }
