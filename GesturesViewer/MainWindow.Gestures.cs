@@ -14,12 +14,33 @@ namespace GesturesViewer {
     }
 
     private void RecordGesture() {
+      trainingManager.TrainingEvent += new TrainingEventHandler(OnTrainingEvent);
       trainingManager.Start();
       var binding = new Binding("Status");
       binding.Mode = BindingMode.OneWay;
       statusTextBox.DataContext = trainingManager;
       binding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
       this.statusTextBox.SetBinding(TextBox.TextProperty, binding);
+    }
+
+    private void OnTrainingEvent(TrainingManager sender, TrainingEventArgs e) {
+      switch (e.Type) {
+        case TrainingEventType.Start:
+          var fileName = TrainingRecordFile();
+          Log.Debug(fileName);
+          DirectRecord(fileName);
+          break;
+        case TrainingEventType.End:
+          StopRecord();
+          break;
+      }
+    }
+
+    private String TrainingRecordFile() {
+      var dir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+      var file = Path.Combine(dir, 
+              String.Format("training-{0:dd-MM-yyyy_HH-mm}.replay", DateTime.Now));
+      return file;
     }
 
   }

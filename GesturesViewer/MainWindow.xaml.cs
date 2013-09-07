@@ -19,7 +19,7 @@ namespace GesturesViewer {
   /// Interaction logic for MainWindow.xaml
   /// </summary>
   public partial class MainWindow {
-    private static readonly ILog log = LogManager.GetCurrentClassLogger();
+    private static readonly ILog Log = LogManager.GetCurrentClassLogger();
     
     KinectSensor kinectSensor;
 
@@ -144,9 +144,11 @@ namespace GesturesViewer {
         if (frame == null)
           return;
 
-        if (recorder != null && ((recorder.Options & KinectRecordOptions.Depth) != 0)) {
-          recorder.Record(frame);
-        }
+        try {
+          if (recorder != null && ((recorder.Options & KinectRecordOptions.Depth) != 0)) {
+            recorder.Record(frame);
+          }
+        } catch (ObjectDisposedException) {}
 
         if (!displayDepth)
           return;
@@ -163,9 +165,11 @@ namespace GesturesViewer {
         if (frame == null)
           return;
 
-        if (recorder != null && ((recorder.Options & KinectRecordOptions.Color) != 0)) {
-          recorder.Record(frame);
-        }
+        try {
+          if (recorder != null && ((recorder.Options & KinectRecordOptions.Color) != 0)) {
+            recorder.Record(frame);
+          }
+        } catch (ObjectDisposedException) {}
 
         if (displayDepth)
           return;
@@ -182,8 +186,10 @@ namespace GesturesViewer {
         if (frame == null)
           return;
 
-        if (recorder != null && ((recorder.Options & KinectRecordOptions.Skeletons) != 0))
-          recorder.Record(frame);
+        try {
+          if (recorder != null && ((recorder.Options & KinectRecordOptions.Skeletons) != 0))
+            recorder.Record(frame);
+        } catch (ObjectDisposedException) {}
 
         frame.GetSkeletons(ref skeletons);
 
