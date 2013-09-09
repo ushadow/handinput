@@ -12,14 +12,12 @@ namespace GesturesViewer {
 
   public enum TrainingEventType {Start, End};
   
-  public class TrainingEventArgs {
+  public class TrainingEventArgs : EventArgs {
     public TrainingEventType Type { get; private set; }
     public TrainingEventArgs(TrainingEventType e) {
       Type = e;
     }
   }
-
-  public delegate void TrainingEventHandler(TrainingManager sender, TrainingEventArgs e);
 
   public class TrainingManager : INotifyPropertyChanged {
     private static readonly int WaitTime = 3000; //ms
@@ -37,7 +35,7 @@ namespace GesturesViewer {
       }
     }
     public event PropertyChangedEventHandler PropertyChanged;
-    public event TrainingEventHandler TrainingEvent;
+    public event EventHandler<TrainingEventArgs> TrainingEvent;
 
     private String[] gestures;
     private String status;
