@@ -37,8 +37,7 @@ namespace GesturesViewer {
     }
 
     private String TrainingRecordFile() {
-      var dir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-      var file = Path.Combine(dir, 
+      var file = Path.Combine("G:\\", "data", 
               String.Format("training-{0:dd-MM-yyyy_HH-mm}.replay", DateTime.Now));
       return file;
     }
