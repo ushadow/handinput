@@ -38,8 +38,6 @@ namespace GesturesViewer {
 
     BindableNUICamera nuiCamera;
 
-    private Skeleton[] skeletons;
-
     VoiceCommander voiceCommander;
 
     Int32 depthFrameNumber;
@@ -258,7 +256,10 @@ namespace GesturesViewer {
     }
 
     void replay_AllFramesReady(object sender, ReplayAllFramesReadyEventArgs e) {
-      UpdateDepthFrame(e.DepthImageFrame);
+      var df = e.DepthImageFrame;
+      if (df != null)
+        statusTextBox.Text = df.FrameNumber.ToString();
+      UpdateDepthFrame(df);
       UpdateColorFrame(e.ColorImageFrame);
       UpdateSkeletonFrame(e.SkeletonFrame);
     }

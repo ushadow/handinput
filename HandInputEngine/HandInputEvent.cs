@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Kinect;
 
-namespace HandInput.HandInputEngine {
+namespace HandInput.Engine {
   public class HandInputEvent {
     public DepthImagePoint LeftHand { get; private set; }
     public DepthImagePoint RightHand { get; private set; }

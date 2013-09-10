@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using WebSocket;
 
-namespace HandInput.HandInputEngine {
+using HandInput.Engine;
+
+namespace HandInput.Server {
   class HandInputServer {
     private WebSocketServer server;
     private List<WebSocketConnection> connections = new List<WebSocketConnection>();

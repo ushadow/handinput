@@ -8,7 +8,7 @@ using Microsoft.Kinect;
 
 using HandInput.Util;
 
-namespace HandInput.HandInputEngine {
+namespace HandInput.Engine {
   class HandTracker {
     private Skeleton[] skeletonData;
     private CoordinateMapper coordMapper;

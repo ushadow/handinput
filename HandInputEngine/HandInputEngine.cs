@@ -11,7 +11,7 @@ using Common.Logging;
 
 using HandInput.Util;
 
-namespace HandInput.HandInputEngine {
+namespace HandInput.Engine {
 
   public delegate void HandInputEventHandler(HandInputEngine sender, HandInputEvent e);
 
