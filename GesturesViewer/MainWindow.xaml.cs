@@ -20,7 +20,7 @@ namespace GesturesViewer {
   /// </summary>
   public partial class MainWindow {
     private static readonly ILog Log = LogManager.GetCurrentClassLogger();
-    
+
     KinectSensor kinectSensor;
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
@@ -32,7 +32,7 @@ namespace GesturesViewer {
     bool displayDepth;
 
     KinectRecorder recorder;
-    KinectReplay replay;
+    KinectAllFramesReplay replay;
 
     BindableNUICamera nuiCamera;
 
@@ -106,10 +106,8 @@ namespace GesturesViewer {
       audioBeamAngle.DataContext = audioManager;
 
       kinectSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
-      kinectSensor.ColorFrameReady += kinectRuntime_ColorFrameReady;
 
       kinectSensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
-      kinectSensor.DepthFrameReady += kinectSensor_DepthFrameReady;
 
       kinectSensor.SkeletonStream.Enable(new TransformSmoothParameters {
         Smoothing = 0.5f,
@@ -118,7 +116,8 @@ namespace GesturesViewer {
         JitterRadius = 0.05f,
         MaxDeviationRadius = 0.04f
       });
-      kinectSensor.SkeletonFrameReady += kinectRuntime_SkeletonFrameReady;
+
+      kinectSensor.AllFramesReady += kinectRuntime_AllFrameReady;
 
       skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor, kinectCanvas);
 
@@ -136,68 +135,51 @@ namespace GesturesViewer {
       kinectDisplay.DataContext = colorManager;
     }
 
-    void kinectSensor_DepthFrameReady(object sender, DepthImageFrameReadyEventArgs e) {
+    void UpdateDepthFrame(ReplayDepthImageFrame frame) {
+      if (!displayDepth)
+        return;
+
+      depthManager.Update(frame);
+    }
+
+    void kinectRuntime_AllFrameReady(object sender, AllFramesReadyEventArgs e) {
       if (replay != null && !replay.IsFinished)
         return;
 
-      using (var frame = e.OpenDepthImageFrame()) {
-        if (frame == null)
-          return;
-
+      var time = DateTime.Now;
+      using (var cf = e.OpenColorImageFrame())
+      using (var df = e.OpenDepthImageFrame())
+      using (var sf = e.OpenSkeletonFrame()) {
         try {
-          if (recorder != null && ((recorder.Options & KinectRecordOptions.Depth) != 0)) {
-            recorder.Record(frame);
+          if (recorder != null) {
+            recorder.Record(sf, df, cf, time);
           }
-        } catch (ObjectDisposedException) {}
+        } catch (ObjectDisposedException) { }
 
-        if (!displayDepth)
-          return;
-
-        depthManager.Update(frame);
+        if (cf != null)
+          UpdateColorFrame(cf);
+        
+        if (df != null)
+          UpdateDepthFrame(df);
+        
+        if (sf != null)
+          UpdateSkeletonFrame(sf);
       }
     }
 
-    void kinectRuntime_ColorFrameReady(object sender, ColorImageFrameReadyEventArgs e) {
-      if (replay != null && !replay.IsFinished)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="frame">frame is not null.</param>
+    void UpdateColorFrame(ReplayColorImageFrame frame) {
+      if (displayDepth)
         return;
 
-      using (var frame = e.OpenColorImageFrame()) {
-        if (frame == null)
-          return;
-
-        try {
-          if (recorder != null && ((recorder.Options & KinectRecordOptions.Color) != 0)) {
-            recorder.Record(frame);
-          }
-        } catch (ObjectDisposedException) {}
-
-        if (displayDepth)
-          return;
-
-        colorManager.Update(frame);
-      }
+      colorManager.Update(frame);
     }
 
-    void kinectRuntime_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e) {
-      if (replay != null && !replay.IsFinished)
-        return;
-
-      using (SkeletonFrame frame = e.OpenSkeletonFrame()) {
-        if (frame == null)
-          return;
-
-        try {
-          if (recorder != null && ((recorder.Options & KinectRecordOptions.Skeletons) != 0))
-            recorder.Record(frame);
-        } catch (ObjectDisposedException) {}
-
-        frame.GetSkeletons(ref skeletons);
-
-        if (skeletons.All(s => s.TrackingState == SkeletonTrackingState.NotTracked))
-          return;
-
-        ProcessFrame(frame);
-      }
+    void UpdateSkeletonFrame(ReplaySkeletonFrame frame) {
+      ProcessFrame(frame);
     }
 
     void ProcessFrame(ReplaySkeletonFrame frame) {
@@ -207,7 +189,8 @@ namespace GesturesViewer {
           continue;
 
         contextTracker.Add(skeleton.Position.ToVector3(), skeleton.TrackingId);
-        stabilities.Add(skeleton.TrackingId, contextTracker.IsStableRelativeToCurrentSpeed(skeleton.TrackingId) ? "Stable" : "Non stable");
+        stabilities.Add(skeleton.TrackingId,
+            contextTracker.IsStableRelativeToCurrentSpeed(skeleton.TrackingId) ? "Stable" : "Non stable");
       }
 
       try {
@@ -246,40 +229,35 @@ namespace GesturesViewer {
       }
 
       if (kinectSensor != null) {
-        kinectSensor.DepthFrameReady -= kinectSensor_DepthFrameReady;
-        kinectSensor.SkeletonFrameReady -= kinectRuntime_SkeletonFrameReady;
-        kinectSensor.ColorFrameReady -= kinectRuntime_ColorFrameReady;
+        kinectSensor.AllFramesReady -= kinectRuntime_AllFrameReady;
         kinectSensor.Stop();
         kinectSensor = null;
       }
     }
 
     private void replayButton_Click(object sender, RoutedEventArgs e) {
-      OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select filename", Filter = "Replay files|*.replay" };
+      OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select filename", 
+          Filter = "Replay files|*.replay" };
 
       if (openFileDialog.ShowDialog() == true) {
         if (replay != null) {
-          replay.SkeletonFrameReady -= replay_SkeletonFrameReady;
-          replay.ColorImageFrameReady -= replay_ColorImageFrameReady;
+          replay.AllFramesReady -= replay_AllFramesReady;
           replay.Stop();
         }
         Stream recordStream = File.OpenRead(openFileDialog.FileName);
 
-        replay = new KinectReplay(recordStream);
+        replay = new KinectAllFramesReplay(recordStream);
 
-        replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-        replay.ColorImageFrameReady += replay_ColorImageFrameReady;
-        replay.DepthImageFrameReady += replay_DepthImageFrameReady;
+        replay.AllFramesReady += replay_AllFramesReady;
 
         replay.Start();
       }
     }
 
-    void replay_DepthImageFrameReady(object sender, ReplayDepthImageFrameReadyEventArgs e) {
-      if (!displayDepth)
-        return;
-
-      depthManager.Update(e.DepthImageFrame);
+    void replay_AllFramesReady(object sender, ReplayAllFramesReadyEventArgs e) {
+      UpdateDepthFrame(e.DepthImageFrame);
+      UpdateColorFrame(e.ColorImageFrame);
+      UpdateSkeletonFrame(e.SkeletonFrame);
     }
 
     void replay_ColorImageFrameReady(object sender, ReplayColorImageFrameReadyEventArgs e) {

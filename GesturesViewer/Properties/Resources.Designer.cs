@@ -62,7 +62,8 @@ namespace GesturesViewer.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to SwipeLeft
-        ///SwipeRight.
+        ///SwipeRight
+        ///.
         /// </summary>
         internal static string Gestures {
             get {
