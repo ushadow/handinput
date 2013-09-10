@@ -1,20 +1,22 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
-using System.Windows.Media;
-using Kinect.Toolbox;
-using Microsoft.Kinect;
 using System.Windows.Data;
 using System.Windows.Controls;
+using System.Configuration;
 
 namespace GesturesViewer {
   partial class MainWindow {
-    private void recordGesture_Click(object sender, RoutedEventArgs e) {
+    static readonly String DataDir = ConfigurationSettings.AppSettings["data-dir"];
+
+    StreamWriter sw;
+
+    void recordGesture_Click(object sender, RoutedEventArgs e) {
       RecordGesture();
     }
 
-    private void RecordGesture() {
-      trainingManager.TrainingEvent += new TrainingEventHandler(OnTrainingEvent);
+    void RecordGesture() {
+      trainingManager.TrainingEvent += OnTrainingEvent;
       trainingManager.Start();
       var binding = new Binding("Status");
       binding.Mode = BindingMode.OneWay;
@@ -23,24 +25,24 @@ namespace GesturesViewer {
       this.statusTextBox.SetBinding(TextBox.TextProperty, binding);
     }
 
-    private void OnTrainingEvent(TrainingManager sender, TrainingEventArgs e) {
+    void OnTrainingEvent(Object sender, TrainingEventArgs e) {
       switch (e.Type) {
         case TrainingEventType.Start:
-          var fileName = TrainingRecordFile();
-          Log.Debug(fileName);
+          var timeSuffix = String.Format("-{0:yyyy-MM-dd_HH-mm}", DateTime.Now);
+          var fileName = Path.Combine(DataDir, String.Format("KinectData{0}.replay", timeSuffix));
+          var gtFile = Path.Combine(DataDir, String.Format("KinectDataGTD{0}.txt", timeSuffix));
+          sw = new StreamWriter(File.Create(gtFile));
           DirectRecord(fileName);
           break;
         case TrainingEventType.End:
+          sw.Close();
           StopRecord();
+          break;
+        case TrainingEventType.StartPreStroke:
+          sw.WriteLine("{0} {1} {2}", TrainingEventType.StartPreStroke.ToString(), e.Gesture,
+              depthFrameNumber);
           break;
       }
     }
-
-    private String TrainingRecordFile() {
-      var file = Path.Combine("G:\\", "data", 
-              String.Format("training-{0:dd-MM-yyyy_HH-mm}.replay", DateTime.Now));
-      return file;
-    }
-
   }
 }

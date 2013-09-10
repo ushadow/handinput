@@ -19,15 +19,17 @@ namespace GesturesViewer {
   /// Interaction logic for MainWindow.xaml
   /// </summary>
   public partial class MainWindow {
-    private static readonly ILog Log = LogManager.GetCurrentClassLogger();
+    static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
     KinectSensor kinectSensor;
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
     readonly DepthStreamManager depthManager = new DepthStreamManager();
+    readonly TrainingManager trainingManager = new TrainingManager();
+    readonly ContextTracker contextTracker = new ContextTracker();
+    
     AudioStreamManager audioManager;
     SkeletonDisplayManager skeletonDisplayManager;
-    readonly ContextTracker contextTracker = new ContextTracker();
     EyeTracker eyeTracker;
     bool displayDepth;
 
@@ -40,7 +42,7 @@ namespace GesturesViewer {
 
     VoiceCommander voiceCommander;
 
-    private TrainingManager trainingManager = new TrainingManager();
+    Int32 depthFrameNumber;
 
     public MainWindow() {
       InitializeComponent();
@@ -146,21 +148,22 @@ namespace GesturesViewer {
       if (replay != null && !replay.IsFinished)
         return;
 
-      var time = DateTime.Now;
       using (var cf = e.OpenColorImageFrame())
       using (var df = e.OpenDepthImageFrame())
       using (var sf = e.OpenSkeletonFrame()) {
         try {
           if (recorder != null) {
-            recorder.Record(sf, df, cf, time);
+            recorder.Record(sf, df, cf);
           }
         } catch (ObjectDisposedException) { }
 
         if (cf != null)
           UpdateColorFrame(cf);
-        
-        if (df != null)
+
+        if (df != null) {
+          depthFrameNumber = df.FrameNumber;
           UpdateDepthFrame(df);
+        }
         
         if (sf != null)
           UpdateSkeletonFrame(sf);

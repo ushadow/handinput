@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Timers;
 using System.ComponentModel;
 
@@ -10,16 +7,16 @@ using Common.Logging;
 
 namespace GesturesViewer {
 
-  public enum TrainingEventType {Start, End};
-  
+  public enum TrainingEventType { Start, End, StartPreStroke, StopPostStroke };
+
   public class TrainingEventArgs {
     public TrainingEventType Type { get; private set; }
-    public TrainingEventArgs(TrainingEventType e) {
+    public String Gesture { get; private set; }
+    public TrainingEventArgs(TrainingEventType e, String gesture = null) {
       Type = e;
+      Gesture = gesture;
     }
   }
-
-  public delegate void TrainingEventHandler(TrainingManager sender, TrainingEventArgs e);
 
   public class TrainingManager : INotifyPropertyChanged {
     private static readonly int WaitTime = 3000; //ms
@@ -37,7 +34,7 @@ namespace GesturesViewer {
       }
     }
     public event PropertyChangedEventHandler PropertyChanged;
-    public event TrainingEventHandler TrainingEvent;
+    public event EventHandler<TrainingEventArgs> TrainingEvent;
 
     private String[] gestures;
     private String status;
@@ -45,7 +42,7 @@ namespace GesturesViewer {
     private Int32 counter = 0, repCounter = StartRepCount;
 
     public TrainingManager() {
-      
+
       gestures = Properties.Resources.Gestures.Split(new char[] { '\r', '\n' },
           StringSplitOptions.RemoveEmptyEntries);
       timer.Elapsed += new ElapsedEventHandler(OnTimeEvent);
@@ -68,17 +65,19 @@ namespace GesturesViewer {
 
     private void OnTimeEvent(object source, ElapsedEventArgs e) {
       if (counter < gestures.Count()) {
-        Status = String.Format("{0} #{1}", gestures[counter], repCounter);
+        var gesture = gestures[counter];
+        Status = String.Format("{0} #{1}", gesture, repCounter);
         if (repCounter == NumRepitions) {
           repCounter = StartRepCount;
           counter++;
         } else {
           repCounter++;
         }
+        TrainingEvent(this, new TrainingEventArgs(TrainingEventType.StartPreStroke, gesture));
       } else {
-        TrainingEvent(this, new TrainingEventArgs(TrainingEventType.End));
         timer.Enabled = false;
         Status = "Done";
+        TrainingEvent(this, new TrainingEventArgs(TrainingEventType.End));
       }
     }
 
