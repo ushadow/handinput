@@ -14,7 +14,7 @@ namespace GesturesViewer {
     }
 
     private void RecordGesture() {
-      trainingManager.TrainingEvent += OnTrainingEvent;
+      trainingManager.TrainingEvent += new TrainingEventHandler(OnTrainingEvent);
       trainingManager.Start();
       var binding = new Binding("Status");
       binding.Mode = BindingMode.OneWay;
@@ -23,7 +23,7 @@ namespace GesturesViewer {
       this.statusTextBox.SetBinding(TextBox.TextProperty, binding);
     }
 
-    private void OnTrainingEvent(Object sender, TrainingEventArgs e) {
+    private void OnTrainingEvent(TrainingManager sender, TrainingEventArgs e) {
       switch (e.Type) {
         case TrainingEventType.Start:
           var fileName = TrainingRecordFile();

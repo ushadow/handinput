@@ -20,7 +20,7 @@ namespace GesturesViewer {
   /// </summary>
   public partial class MainWindow {
     private static readonly ILog Log = LogManager.GetCurrentClassLogger();
-
+    
     KinectSensor kinectSensor;
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
@@ -74,7 +74,7 @@ namespace GesturesViewer {
       }
     }
 
-    void  Window_Loaded(object sender, RoutedEventArgs e) {
+    private void Window_Loaded(object sender, RoutedEventArgs e) {
       this.Activate();
       try {
         //listen to any status change for Kinects
@@ -98,7 +98,7 @@ namespace GesturesViewer {
       }
     }
 
-    void Initialize() {
+    private void Initialize() {
       if (kinectSensor == null)
         return;
 
@@ -106,8 +106,10 @@ namespace GesturesViewer {
       audioBeamAngle.DataContext = audioManager;
 
       kinectSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+      kinectSensor.ColorFrameReady += kinectRuntime_ColorFrameReady;
 
       kinectSensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
+      kinectSensor.DepthFrameReady += kinectSensor_DepthFrameReady;
 
       kinectSensor.SkeletonStream.Enable(new TransformSmoothParameters {
         Smoothing = 0.5f,
@@ -116,7 +118,7 @@ namespace GesturesViewer {
         JitterRadius = 0.05f,
         MaxDeviationRadius = 0.04f
       });
-      kinectSensor.AllFramesReady += kinectSensor_AllFrameReady;
+      kinectSensor.SkeletonFrameReady += kinectRuntime_SkeletonFrameReady;
 
       skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor, kinectCanvas);
 
@@ -134,50 +136,32 @@ namespace GesturesViewer {
       kinectDisplay.DataContext = colorManager;
     }
 
-    void kinectSensor_AllFrameReady(object sender, AllFramesReadyEventArgs e) {
-      if (replay != null && !replay.IsFinished) {
-        return;
-      }
-
-      using (var frame = e.OpenDepthImageFrame()) {
-        UpdateDepthFrame(frame);
-      }
-
-      using (var frame = e.OpenColorImageFrame()) {
-        UpdateColorFrame(frame);
-      }
-
-      using (var frame = e.OpenSkeletonFrame()) {
-        UpdateSkeletonFrame(frame);
-      }
-    }
-
-    void UpdateDepthFrame(DepthImageFrame frame) {
-      if (frame == null)
-        return;
-
-      try {
-        if (recorder != null && ((recorder.Options & KinectRecordOptions.Depth) != 0)) {
-          recorder.Record(frame);
-        }
-      } catch (ObjectDisposedException) { }
-
-      if (!displayDepth)
-        return;
-
-      depthManager.Update(frame);
-    }
-
-    private void kinectSensor_DepthFrameReady(object sender, DepthImageFrameReadyEventArgs e) {
+    void kinectSensor_DepthFrameReady(object sender, DepthImageFrameReadyEventArgs e) {
       if (replay != null && !replay.IsFinished)
         return;
 
       using (var frame = e.OpenDepthImageFrame()) {
-        UpdateDepthFrame(frame);
+        if (frame == null)
+          return;
+
+        try {
+          if (recorder != null && ((recorder.Options & KinectRecordOptions.Depth) != 0)) {
+            recorder.Record(frame);
+          }
+        } catch (ObjectDisposedException) {}
+
+        if (!displayDepth)
+          return;
+
+        depthManager.Update(frame);
       }
     }
 
-    private void UpdateColorFrame(ColorImageFrame frame) {
+    void kinectRuntime_ColorFrameReady(object sender, ColorImageFrameReadyEventArgs e) {
+      if (replay != null && !replay.IsFinished)
+        return;
+
+      using (var frame = e.OpenColorImageFrame()) {
         if (frame == null)
           return;
 
@@ -185,31 +169,27 @@ namespace GesturesViewer {
           if (recorder != null && ((recorder.Options & KinectRecordOptions.Color) != 0)) {
             recorder.Record(frame);
           }
-        } catch (ObjectDisposedException) { }
+        } catch (ObjectDisposedException) {}
 
         if (displayDepth)
           return;
 
         colorManager.Update(frame);
-    }
-
-    private void kinectRuntime_ColorFrameReady(object sender, ColorImageFrameReadyEventArgs e) {
-      if (replay != null && !replay.IsFinished)
-        return;
-
-      using (var frame = e.OpenColorImageFrame()) {
-        UpdateColorFrame(frame);
       }
     }
 
-    private void UpdateSkeletonFrame(SkeletonFrame frame) {
+    void kinectRuntime_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e) {
+      if (replay != null && !replay.IsFinished)
+        return;
+
+      using (SkeletonFrame frame = e.OpenSkeletonFrame()) {
         if (frame == null)
           return;
 
         try {
           if (recorder != null && ((recorder.Options & KinectRecordOptions.Skeletons) != 0))
             recorder.Record(frame);
-        } catch (ObjectDisposedException) { }
+        } catch (ObjectDisposedException) {}
 
         frame.GetSkeletons(ref skeletons);
 
@@ -217,14 +197,6 @@ namespace GesturesViewer {
           return;
 
         ProcessFrame(frame);
-    }
-
-    private void kinectRuntime_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e) {
-      if (replay != null && !replay.IsFinished)
-        return;
-
-      using (SkeletonFrame frame = e.OpenSkeletonFrame()) {
-        UpdateSkeletonFrame(frame);
       }
     }
 
