@@ -54,7 +54,7 @@ namespace HandInput.Engine {
 
     private void OnAllFramesReady(Object sender, AllFramesReadyEventArgs e) {
       using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame()) {
-        var res = handTracker.Update(skeletonFrame);
+        var res = handTracker.Update(skeletonFrame, null);
         if (res.IsSome) {
           if (HandInputEvent != null)
             HandInputEvent(this, res.Value);

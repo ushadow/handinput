@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.IO;
 using System.Windows.Input;
+using System.Threading.Tasks.Dataflow;
 
 using Microsoft.Kinect;
 using Microsoft.Win32;
@@ -13,6 +14,8 @@ using Kinect.Toolbox.Record;
 using Kinect.Toolbox.Voice;
 
 using Common.Logging;
+
+using HandInput.Engine;
 
 namespace GesturesViewer {
   /// <summary>
@@ -40,7 +43,9 @@ namespace GesturesViewer {
 
     VoiceCommander voiceCommander;
 
-    Int32 depthFrameNumber;
+    int depthFrameNumber;
+    HandTracker handTracker;
+    BufferBlock<byte[]> buffer = new BufferBlock<byte[]>();
 
     public MainWindow() {
       InitializeComponent();
@@ -133,6 +138,8 @@ namespace GesturesViewer {
       StartVoiceCommander();
 
       kinectDisplay.DataContext = colorManager;
+      handTracker = new HandTracker(kinectSensor.CoordinateMapper);
+      handTracker.StartAsync(buffer);
     }
 
     void UpdateDepthFrame(ReplayDepthImageFrame frame) {
@@ -177,6 +184,7 @@ namespace GesturesViewer {
         return;
 
       colorManager.Update(frame);
+      buffer.Post(colorManager.PixelData);
     }
 
     void UpdateSkeletonFrame(ReplaySkeletonFrame frame) {

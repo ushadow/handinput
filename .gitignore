@@ -5,3 +5,4 @@ packages/*
 !packages/repositories.config
 bin
 obj
+*.dll
