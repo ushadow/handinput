@@ -120,52 +120,68 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="cudart32_42_9.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\cudart32_42_9.dll">
+      <Link>cudart32_42_9.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="cvextern.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\cvextern.dll">
+      <Link>cvextern.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="npp32_42_9.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\npp32_42_9.dll">
+      <Link>npp32_42_9.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_calib3d242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_calib3d242.dll">
+      <Link>opencv_calib3d242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_contrib242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_contrib242.dll">
+      <Link>opencv_contrib242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_core242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_core242.dll">
+      <Link>opencv_core242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_features2d242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_features2d242.dll">
+      <Link>opencv_features2d242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_flann242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_flann242.dll">
+      <Link>opencv_flann242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_gpu242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_gpu242.dll">
+      <Link>opencv_gpu242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_highgui242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_highgui242.dll">
+      <Link>opencv_highgui242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_imgproc242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_imgproc242.dll">
+      <Link>opencv_imgproc242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_legacy242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_legacy242.dll">
+      <Link>opencv_legacy242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_ml242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_ml242.dll">
+      <Link>opencv_ml242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_nonfree242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_nonfree242.dll">
+      <Link>opencv_nonfree242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_objdetect242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_objdetect242.dll">
+      <Link>opencv_objdetect242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="opencv_video242.dll">
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_video242.dll">
+      <Link>opencv_video242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
