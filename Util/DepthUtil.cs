@@ -6,7 +6,6 @@ using System.Windows.Media;
 using System.Windows;
 
 using Microsoft.Kinect;
-using System.Drawing;
 
 namespace HandInput.Util {
   public static class DepthUtil {

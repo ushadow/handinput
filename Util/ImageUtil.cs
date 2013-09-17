@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Media;
 using System.Windows;
-using System.Drawing;
+using drawing = System.Drawing;
 using Microsoft.Kinect;
 using Emgu.CV;
 using Emgu.CV.Structure;
@@ -71,8 +71,8 @@ namespace HandInput.Util {
     /// <param name="point">Point in the image coordinate.</param>
     /// <param name="size">Size of the image.</param>
     /// <returns>The new point in the virtual image coordinate.</returns>
-    public static Point ToVirtualImageCoord(Point point, Size size) {
-      return new Point(point.X, size.Height - point.Y);
+    public static drawing.Point ToVirtualImageCoord(drawing.Point point, drawing.Size size) {
+      return new drawing.Point(point.X, size.Height - point.Y);
     }
 
     /// <summary>
@@ -82,12 +82,12 @@ namespace HandInput.Util {
     /// <param name="point"><c>System.Windows.Point</c> in the image coordinate.</param>
     /// <param name="size"><c>System.Windows.Size</c> of the image.</param>
     /// <returns>The new <c>Syste.Windows.Point</c> in the virtual image coordinate.</returns>
-    public static Point ToVirtualImageCoord(DepthImagePoint point, Size size) {
-      return new Point(point.X, (int)size.Height - point.Y);
+    public static drawing.Point ToVirtualImageCoord(DepthImagePoint point, drawing.Size size) {
+      return new drawing.Point(point.X, (int)size.Height - point.Y);
     }
 
-    public static PointF ToVirtualImageCoord(PointF point, Size size) {
-      return new PointF(point.X, size.Height - point.Y);
+    public static drawing.PointF ToVirtualImageCoord(drawing.PointF point, drawing.Size size) {
+      return new drawing.PointF(point.X, size.Height - point.Y);
     }
 
     /// <summary>
@@ -97,16 +97,16 @@ namespace HandInput.Util {
     /// <param name="point"><c>System.Windows.Point</c> in the image coordinate.</param>
     /// <param name="size"><c>System.Windows.Size</c> of the image.</param>
     /// <returns>The new <c>Syste.Windows.Point</c> in the virtual image coordinate.</returns>
-    public static Point ToVirtualImageCoord(ColorImagePoint point, Size size) {
-      return new Point(point.X, (int)size.Height - point.Y);
+    public static drawing.Point ToVirtualImageCoord(ColorImagePoint point, drawing.Size size) {
+      return new drawing.Point(point.X, (int)size.Height - point.Y);
     }
 
-    public static Point ToImageCoord(Point point, Size size) {
-      return new Point(point.X, size.Height - point.Y);
+    public static drawing.Point ToImageCoord(drawing.Point point, drawing.Size size) {
+      return new drawing.Point(point.X, size.Height - point.Y);
     }
 
-    public static PointF ToImageCoord(PointF point, Size size) {
-      return new PointF(point.X, size.Height - point.Y);
+    public static drawing.PointF ToImageCoord(drawing.PointF point, drawing.Size size) {
+      return new drawing.PointF(point.X, size.Height - point.Y);
     }
 
     public static void CreateMask(Single[, ,] orig, Byte[] mask, int width, bool transparent = true) {
@@ -162,7 +162,7 @@ namespace HandInput.Util {
         }
     }
 
-    public static void CreateMask(byte[] orig, byte[] mask, int width, Rectangle rect,
+    public static void CreateMask(byte[] orig, byte[] mask, int width, drawing.Rectangle rect,
                                   bool transparent) {
       Array.Clear(mask, 0, mask.Length);
       var height = orig.Length / width;
@@ -214,7 +214,7 @@ namespace HandInput.Util {
         }
     }
 
-    static public void ScaleImage<T>(Image<Gray, T> origImage, Rectangle rect, T[] image,
+    static public void ScaleImage<T>(Image<Gray, T> origImage, drawing.Rectangle rect, T[] image,
                                   int scaledWidth) where T : new() {
       Array.Clear(image, 0, image.Length);
 

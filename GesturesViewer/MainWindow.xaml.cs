@@ -5,6 +5,10 @@ using System.Windows;
 using System.IO;
 using System.Windows.Input;
 using System.Threading.Tasks.Dataflow;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Windows.Media;
 
 using Microsoft.Kinect;
 using Microsoft.Win32;
@@ -16,9 +20,7 @@ using Kinect.Toolbox.Voice;
 using Common.Logging;
 
 using HandInput.Engine;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
-using System.Threading;
+using HandInput.Util;
 
 namespace GesturesViewer {
   /// <summary>
@@ -26,18 +28,22 @@ namespace GesturesViewer {
   /// </summary>
   public partial class MainWindow {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
-
-    KinectSensor kinectSensor;
+    static readonly ColorImageFormat ColorImageFormat = ColorImageFormat.RgbResolution640x480Fps30;
+    static readonly DepthImageFormat DepthImageFormat = DepthImageFormat.Resolution640x480Fps30;
+    static readonly int DepthWidth = 640, DepthHeight = 480;
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
     readonly DepthStreamManager depthManager = new DepthStreamManager();
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
 
+
+    KinectSensor kinectSensor;
+
     AudioStreamManager audioManager;
     SkeletonDisplayManager skeletonDisplayManager;
     EyeTracker eyeTracker;
-    bool displayDepth;
+    bool displayDepth = false;
 
     KinectRecorder recorder;
     KinectAllFramesReplay replay;
@@ -45,8 +51,9 @@ namespace GesturesViewer {
     BindableNUICamera nuiCamera;
 
     int depthFrameNumber;
-    BlockingCollection<byte[]> buffer = new BlockingCollection<byte[]>();
+    BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
     Thread handTrackerThread;
+    SaliencyDetector handTracker;
 
     public MainWindow() {
       InitializeComponent();
@@ -111,9 +118,9 @@ namespace GesturesViewer {
       audioManager = new AudioStreamManager(kinectSensor.AudioSource);
       audioBeamAngle.DataContext = audioManager;
 
-      kinectSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+      kinectSensor.ColorStream.Enable(ColorImageFormat);
 
-      kinectSensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
+      kinectSensor.DepthStream.Enable(DepthImageFormat);
 
       kinectSensor.SkeletonStream.Enable(new TransformSmoothParameters {
         Smoothing = 0.5f,
@@ -139,20 +146,24 @@ namespace GesturesViewer {
     }
 
     void StartHandTracker() {
-      var handTracker = new HandTracker(kinectSensor.CoordinateMapper);
+      handTracker = new SaliencyDetector(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
       while (kinectSensor != null && kinectSensor.IsRunning) {
         while (buffer.Count > 1)
           buffer.Take();
         var data = buffer.Take();
-        handTracker.Update(null, data);
+        handTracker.detect(data.DepthData, data.ColorData, data.Skeleton);
+      }
+    }
+
+    void UpdateDisplay() {
+      gesturesCanvas.Children.Clear();
+      if (handTracker.PrevBoundingBox.Width > 0) {
+        VisualUtil.DrawRectangle(gesturesCanvas, handTracker.PrevBoundingBox, Brushes.Red);
       }
     }
 
     void UpdateDepthFrame(ReplayDepthImageFrame frame) {
-      if (!displayDepth)
-        return;
-
-      depthManager.Update(frame);
+      depthManager.Update(frame, displayDepth);
     }
 
     void kinectRuntime_AllFrameReady(object sender, AllFramesReadyEventArgs e) {
@@ -176,9 +187,17 @@ namespace GesturesViewer {
           UpdateDepthFrame(df);
         }
 
-        if (sf != null)
+        if (sf != null) {
           UpdateSkeletonFrame(sf);
+          if (buffer.Count < 1)
+            buffer.Add(new KinectDataPacket {
+              ColorData = colorManager.PixelData,
+              DepthData = depthManager.PixelData,
+              Skeleton = SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons())
+            });
+        }
       }
+      UpdateDisplay();
     }
 
     /// <summary>
@@ -186,12 +205,7 @@ namespace GesturesViewer {
     /// </summary>
     /// <param name="frame">frame is not null.</param>
     void UpdateColorFrame(ReplayColorImageFrame frame) {
-      if (displayDepth)
-        return;
-
-      colorManager.Update(frame);
-      if (buffer.Count < 1)
-        buffer.Add(colorManager.PixelData);
+      colorManager.Update(frame, !displayDepth);
     }
 
     void UpdateSkeletonFrame(ReplaySkeletonFrame frame) {
