@@ -16,6 +16,9 @@ using Kinect.Toolbox.Voice;
 using Common.Logging;
 
 using HandInput.Engine;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace GesturesViewer {
   /// <summary>
@@ -30,7 +33,7 @@ namespace GesturesViewer {
     readonly DepthStreamManager depthManager = new DepthStreamManager();
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
-    
+
     AudioStreamManager audioManager;
     SkeletonDisplayManager skeletonDisplayManager;
     EyeTracker eyeTracker;
@@ -41,11 +44,9 @@ namespace GesturesViewer {
 
     BindableNUICamera nuiCamera;
 
-    VoiceCommander voiceCommander;
-
     int depthFrameNumber;
-    HandTracker handTracker;
-    BufferBlock<byte[]> buffer = new BufferBlock<byte[]>();
+    BlockingCollection<byte[]> buffer = new BlockingCollection<byte[]>();
+    Thread handTrackerThread;
 
     public MainWindow() {
       InitializeComponent();
@@ -132,14 +133,19 @@ namespace GesturesViewer {
 
       elevationSlider.DataContext = nuiCamera;
 
-      voiceCommander = new VoiceCommander("record", "stop");
-      voiceCommander.OrderDetected += voiceCommander_OrderDetected;
-
-      StartVoiceCommander();
-
       kinectDisplay.DataContext = colorManager;
-      handTracker = new HandTracker(kinectSensor.CoordinateMapper);
-      handTracker.StartAsync(buffer);
+      handTrackerThread = new Thread(new ThreadStart(StartHandTracker));
+      handTrackerThread.Start();
+    }
+
+    void StartHandTracker() {
+      var handTracker = new HandTracker(kinectSensor.CoordinateMapper);
+      while (kinectSensor != null && kinectSensor.IsRunning) {
+        while (buffer.Count > 1)
+          buffer.Take();
+        var data = buffer.Take();
+        handTracker.Update(null, data);
+      }
     }
 
     void UpdateDepthFrame(ReplayDepthImageFrame frame) {
@@ -169,7 +175,7 @@ namespace GesturesViewer {
           depthFrameNumber = df.FrameNumber;
           UpdateDepthFrame(df);
         }
-        
+
         if (sf != null)
           UpdateSkeletonFrame(sf);
       }
@@ -184,7 +190,8 @@ namespace GesturesViewer {
         return;
 
       colorManager.Update(frame);
-      buffer.Post(colorManager.PixelData);
+      if (buffer.Count < 1)
+        buffer.Add(colorManager.PixelData);
     }
 
     void UpdateSkeletonFrame(ReplaySkeletonFrame frame) {
@@ -213,18 +220,14 @@ namespace GesturesViewer {
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
       Clean();
+      handTrackerThread.Abort();
+      handTrackerThread.Join();
     }
 
     private void Clean() {
       if (audioManager != null) {
         audioManager.Dispose();
         audioManager = null;
-      }
-
-      if (voiceCommander != null) {
-        voiceCommander.OrderDetected -= voiceCommander_OrderDetected;
-        voiceCommander.Stop();
-        voiceCommander = null;
       }
 
       if (recorder != null) {
@@ -245,8 +248,10 @@ namespace GesturesViewer {
     }
 
     private void replayButton_Click(object sender, RoutedEventArgs e) {
-      OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select filename", 
-          Filter = "Replay files|*.replay" };
+      OpenFileDialog openFileDialog = new OpenFileDialog {
+        Title = "Select filename",
+        Filter = "Replay files|*.replay"
+      };
 
       if (openFileDialog.ShowDialog() == true) {
         if (replay != null) {

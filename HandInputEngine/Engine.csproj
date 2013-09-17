@@ -110,6 +110,10 @@
       <Project>{c6f9c31b-6130-4443-a5cc-ef0664552ecd}</Project>
       <Name>Microsoft.Kinect.Toolkit</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\stip-velocityFeatures\stipdet.vcxproj">
+      <Project>{2dbe5776-da79-425d-a462-3600e8760fdb}</Project>
+      <Name>stipdet</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\WebSocketServer\WebSocketServer\WebSocketServer.csproj">
       <Project>{cc9cfe96-4647-4e8a-89f7-4818b4a006fe}</Project>
       <Name>WebSocketServer</Name>

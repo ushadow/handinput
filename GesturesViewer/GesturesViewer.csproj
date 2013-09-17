@@ -95,7 +95,6 @@
     </Compile>
     <Compile Include="MainWindow.Gestures.cs" />
     <Compile Include="MainWindow.Record.cs" />
-    <Compile Include="MainWindow.Voice.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
