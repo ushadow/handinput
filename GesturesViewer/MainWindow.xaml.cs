@@ -202,7 +202,7 @@ namespace GesturesViewer {
     }
 
     /// <summary>
-    /// 
+    /// Updates the color pixel data and updates the display if necessary.
     /// </summary>
     /// <param name="frame">frame is not null.</param>
     void UpdateColorFrame(ReplayColorImageFrame frame) {
@@ -275,21 +275,12 @@ namespace GesturesViewer {
         }
         Stream recordStream = File.OpenRead(openFileDialog.FileName);
 
-        replay = new KinectAllFramesReplay(recordStream);
-
-        replay.AllFramesReady += replay_AllFramesReady;
-
-        replay.Start();
+        Replay(recordStream);
       }
     }
 
     void replay_AllFramesReady(object sender, ReplayAllFramesReadyEventArgs e) {
-      var df = e.DepthImageFrame;
-      if (df != null)
-        statusTextBox.Text = df.FrameNumber.ToString();
-      UpdateDepthFrame(df);
-      UpdateColorFrame(e.ColorImageFrame);
-      UpdateSkeletonFrame(e.SkeletonFrame);
+      ReplayFrame(e.DepthImageFrame, e.ColorImageFrame, e.SkeletonFrame);
     }
 
     void replay_ColorImageFrameReady(object sender, ReplayColorImageFrameReadyEventArgs e) {
@@ -349,6 +340,12 @@ namespace GesturesViewer {
       switch (e.Key) {
         case Key.Space:
           RecordGesture();
+          break;
+        case Key.P:
+          Pause();
+          break;
+        case Key.S:
+          Start();
           break;
         default:
           break;

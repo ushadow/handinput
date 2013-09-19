@@ -104,7 +104,10 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Slider Minimum="{Binding ElevationMinimum}" Maximum="{Binding ElevationMaximum}" Value="{Binding ElevationAngle, Mode=TwoWay}" x:Name="elevationSlider" Orientation="Vertical" Grid.RowSpan="7"/>
+        <Slider Minimum="{Binding ElevationMinimum}" Maximum="{Binding ElevationMaximum}" Value="{Binding ElevationAngle, Mode=TwoWay}" x:Name="elevationSlider" Orientation="Vertical" Grid.RowSpan="6"/>
+        <Slider Minimum="0" 
+                Value="{Binding ElevationAngle, Mode=TwoWay}" x:Name="frameSlider"
+                Grid.Row="6" Margin="5" ValueChanged="frameSlider_ValueChanged"/>
         <Button Grid.RowSpan="2" Content="View Depth" Margin="267,10,267,0" HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click" x:Name="viewButton"/>
     </Grid>
 </Window>
