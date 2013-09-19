@@ -5,6 +5,8 @@ using drawing = System.Drawing;
 using Microsoft.Kinect;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using Emgu.CV.GPU;
+using System.Threading.Tasks;
 
 namespace HandInput.Util {
   /// <summary>
@@ -24,6 +26,14 @@ namespace HandInput.Util {
     public static bool PixelHasColor(byte[] pixels, int index, Color color) {
       return pixels[index + BlueIndex] == color.B && pixels[index + GreenIndex] == color.G &&
           pixels[index + RedIndex] == color.R;
+    }
+
+    public static void UpdateBgrImage(byte[] src, Byte[, ,] dst, int width, int height) {
+      for (int r = 0; r < height; r++)
+        for (int c = 0; c < width; c++)
+          for (int channel = 0; channel < 3; channel++) {
+            dst[r, c, channel] = src[(r * width + c) * 4 + channel];
+          }
     }
 
     /// <summary>

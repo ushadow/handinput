@@ -33,7 +33,7 @@ namespace GesturesViewer {
     static readonly int DepthWidth = 640, DepthHeight = 480;
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
-    readonly DepthStreamManager depthManager = new DepthStreamManager();
+    readonly DepthDisplayManager depthManager = new DepthDisplayManager();
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
 
@@ -54,6 +54,7 @@ namespace GesturesViewer {
     BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
     Thread handTrackerThread;
     SaliencyDetector handTracker;
+    FPSCounter fpsCounter = new FPSCounter();
 
     public MainWindow() {
       InitializeComponent();
@@ -148,10 +149,9 @@ namespace GesturesViewer {
     void StartHandTracker() {
       handTracker = new SaliencyDetector(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
       while (kinectSensor != null && kinectSensor.IsRunning) {
-        while (buffer.Count > 1)
-          buffer.Take();
         var data = buffer.Take();
         handTracker.detect(data.DepthData, data.ColorData, data.Skeleton);
+        fpsCounter.ComputeFPS();
       }
     }
 
@@ -160,10 +160,11 @@ namespace GesturesViewer {
       if (handTracker.PrevBoundingBox.Width > 0) {
         VisualUtil.DrawRectangle(gesturesCanvas, handTracker.PrevBoundingBox, Brushes.Red);
       }
+      depthManager.Update(handTracker.SmoothedDepth.Bytes, DepthWidth, DepthHeight);
     }
 
     void UpdateDepthFrame(ReplayDepthImageFrame frame) {
-      depthManager.Update(frame, displayDepth);
+      depthManager.Update(frame);
     }
 
     void kinectRuntime_AllFrameReady(object sender, AllFramesReadyEventArgs e) {
@@ -189,7 +190,7 @@ namespace GesturesViewer {
 
         if (sf != null) {
           UpdateSkeletonFrame(sf);
-          if (buffer.Count < 1)
+          if (buffer.Count <= 1)
             buffer.Add(new KinectDataPacket {
               ColorData = colorManager.PixelData,
               DepthData = depthManager.PixelData,

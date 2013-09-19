@@ -25,11 +25,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -74,6 +75,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HandDetector.cs" />
     <Compile Include="HandInputEngine.cs" />
     <Compile Include="HandInputEvent.cs" />
     <Compile Include="HandTracker.cs" />
@@ -128,8 +130,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="C:\Emgu-2.4.2\bin\x86\cublas32_42_9.dll">
+      <Link>cublas32_42_9.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="C:\Emgu-2.4.2\bin\x86\cudart32_42_9.dll">
       <Link>cudart32_42_9.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="C:\Emgu-2.4.2\bin\x86\cufft32_42_9.dll">
+      <Link>cufft32_42_9.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="C:\Emgu-2.4.2\bin\x86\cvextern.dll">
@@ -154,6 +164,10 @@
     </Content>
     <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_features2d242.dll">
       <Link>opencv_features2d242.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_ffmpeg242.dll">
+      <Link>opencv_ffmpeg242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_flann242.dll">
@@ -188,8 +202,20 @@
       <Link>opencv_objdetect242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_photo242.dll">
+      <Link>opencv_photo242.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_stitching242.dll">
+      <Link>opencv_stitching242.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_video242.dll">
       <Link>opencv_video242.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_videostab242.dll">
+      <Link>opencv_videostab242.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
