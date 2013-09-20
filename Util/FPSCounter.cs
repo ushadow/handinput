@@ -20,7 +20,7 @@ namespace HandInput.Util {
       stopwatch.Start();
     }
 
-    public void ComputeFPS() {
+    public void LogFPS() {
       frameCount += 1;
       if (frameCount == MaxCount) {
         var fps = frameCount * 1000 / stopwatch.ElapsedMilliseconds;

@@ -143,6 +143,7 @@ namespace HandInput.GesturesViewer {
 
     void StartTracking() {
       cancellationTokenSource = new CancellationTokenSource();
+      StopReply();
       var token = cancellationTokenSource.Token;
       Task.Factory.StartNew(() => HandTrackingTask(token), token);
     }
@@ -152,7 +153,7 @@ namespace HandInput.GesturesViewer {
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
         var data = buffer.Take();
         handTracker.detect(data.DepthData, data.ColorData, data.Skeleton);
-        fpsCounter.ComputeFPS();
+        fpsCounter.LogFPS();
       }
     }
 
@@ -171,10 +172,6 @@ namespace HandInput.GesturesViewer {
       }
     }
 
-    void UpdateDepthFrame(ReplayDepthImageFrame frame) {
-      depthManager.Update(frame);
-    }
-
     void kinectRuntime_AllFrameReady(object sender, AllFramesReadyEventArgs e) {
       if (replay != null && !replay.IsFinished)
         return;
@@ -189,11 +186,11 @@ namespace HandInput.GesturesViewer {
         } catch (ObjectDisposedException) { }
 
         if (cf != null)
-          UpdateColorFrame(cf);
+          colorManager.Update(cf);
 
         if (df != null) {
           depthFrameNumber = df.FrameNumber;
-          UpdateDepthFrame(df);
+          depthManager.Update(df);
         }
 
         if (sf != null) {
@@ -207,14 +204,6 @@ namespace HandInput.GesturesViewer {
         }
       }
       UpdateDisplay();
-    }
-
-    /// <summary>
-    /// Updates the color pixel data and updates the display if necessary.
-    /// </summary>
-    /// <param name="frame">frame is not null.</param>
-    void UpdateColorFrame(ReplayColorImageFrame frame) {
-      colorManager.Update(frame, !displayDepth);
     }
 
     void UpdateSkeletonDisplay(ReplaySkeletonFrame frame) {

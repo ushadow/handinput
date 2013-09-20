@@ -12,7 +12,7 @@ using Emgu.CV.CvEnum;
 using System.Drawing;
 
 namespace HandInput.Util {
-  public class SkinDetectorGpu {
+  public class SkinDetectorGpu : ISkinDetector {
     [DllImport("GpuProcessor.dll", EntryPoint="FilterSkin")]
     public static extern void FilterSkin(IntPtr src, IntPtr dst);
 

@@ -27,7 +27,7 @@ namespace HandInput.Engine {
 
     private int width, height;
     private MemStorage mem = new MemStorage();
-    private SkinDetectorGpu skinDetector;
+    private ISkinDetector skinDetector;
     private Image<Gray, Byte> alignedSkinMask;
 
     public static int ToWorldDepth(double depth) {

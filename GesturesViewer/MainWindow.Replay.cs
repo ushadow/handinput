@@ -30,20 +30,19 @@ namespace HandInput.GesturesViewer {
       frameSlider.Maximum = replay.FrameCount;
       frameSlider.Value = 0;
 
-      handTracker = new HandInput.Engine.SaliencyDetector(DepthWidth, DepthHeight, 
+      handTracker = new HandInput.Engine.SaliencyDetector(DepthWidth, DepthHeight,
           kinectSensor.CoordinateMapper);
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
       timer.Tick += new EventHandler(OnTimerTick);
-      timer.Start(); 
+      timer.Start();
     }
 
     private void OnTimerTick(object sender, EventArgs e) {
       frameSlider.Value += 1;
     }
 
-    private void frameSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) 
-    {
+    private void frameSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
       int index = (int)e.NewValue;
       var frame = replay.FrameAt(index);
       if (frame != null)
@@ -52,15 +51,16 @@ namespace HandInput.GesturesViewer {
         timer.Stop();
     }
 
-    private void ReplayFrame(ReplayDepthImageFrame df, ReplayColorImageFrame cf, 
+    private void ReplayFrame(ReplayDepthImageFrame df, ReplayColorImageFrame cf,
         ReplaySkeletonFrame sf) {
       if (df != null)
         statusTextBox.Text = df.FrameNumber.ToString();
-      UpdateDepthFrame(df);
-      UpdateColorFrame(cf);
+      depthManager.Update(df);
+      colorManager.Update(cf, !displayDepth);
       UpdateSkeletonDisplay(sf);
-      handTracker.detect(depthManager.PixelData, colorManager.PixelData, 
+      handTracker.detect(depthManager.PixelData, colorManager.PixelData,
           SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
+      fpsCounter.LogFPS();
       UpdateDisplay();
     }
 
@@ -70,6 +70,16 @@ namespace HandInput.GesturesViewer {
           timer.Stop();
         else
           timer.Start();
+      }
+    }
+
+    private void StopReply() {
+      if (timer != null && timer.IsEnabled)
+        timer.Stop();
+
+      if (replay != null) {
+        replay.Dispose();
+        replay = null;
       }
     }
 

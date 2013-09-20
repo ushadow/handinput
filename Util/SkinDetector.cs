@@ -6,7 +6,7 @@ using Emgu.CV.CvEnum;
 using Emgu.CV.GPU;
 
 namespace HandInput.Util {
-  public class SkinDetector {
+  public class SkinDetector : ISkinDetector {
     public static readonly StructuringElementEx Rect6 = new StructuringElementEx(5, 5, 3, 3,
         Emgu.CV.CvEnum.CV_ELEMENT_SHAPE.CV_SHAPE_RECT);
     private int width, height;
