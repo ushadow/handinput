@@ -5,9 +5,9 @@ using System.Windows.Data;
 using System.Windows.Controls;
 using System.Configuration;
 
-namespace GesturesViewer {
+namespace HandInput.GesturesViewer {
   partial class MainWindow {
-    static readonly String DataDir = ConfigurationSettings.AppSettings["data-dir"];
+    static readonly String DataDir = ConfigurationManager.AppSettings["data-dir"];
 
     StreamWriter sw;
 

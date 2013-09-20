@@ -8,7 +8,7 @@
     <ProjectGuid>{39F18801-83CF-4957-94DE-7529D2E3A8E9}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GesturesViewer</RootNamespace>
+    <RootNamespace>HandInput.GesturesViewer</RootNamespace>
     <AssemblyName>GesturesViewer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>

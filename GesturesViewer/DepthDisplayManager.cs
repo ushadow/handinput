@@ -10,7 +10,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Windows;
 
-namespace GesturesViewer {
+namespace HandInput.GesturesViewer {
+  /// <summary>
+  /// Manages the visualization of depth data.
+  /// </summary>
   class DepthDisplayManager : Notifier, IStreamManager {
     public short[] PixelData { get; private set; }
     public WriteableBitmap Bitmap { get; private set; }

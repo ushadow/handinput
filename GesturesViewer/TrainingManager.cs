@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 using Common.Logging;
 
-namespace GesturesViewer {
+namespace HandInput.GesturesViewer {
 
   public enum TrainingEventType { Start, End, StartPreStroke, StopPostStroke };
 

@@ -22,7 +22,7 @@ using Common.Logging;
 using HandInput.Engine;
 using HandInput.Util;
 
-namespace GesturesViewer {
+namespace HandInput.GesturesViewer {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// </summary>
@@ -36,7 +36,6 @@ namespace GesturesViewer {
     readonly DepthDisplayManager depthManager = new DepthDisplayManager();
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
-
 
     KinectSensor kinectSensor;
 
@@ -52,7 +51,7 @@ namespace GesturesViewer {
 
     int depthFrameNumber;
     BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
-    Thread handTrackerThread;
+    CancellationTokenSource cancellationTokenSource;
     SaliencyDetector handTracker;
     FPSCounter fpsCounter = new FPSCounter();
 
@@ -132,9 +131,7 @@ namespace GesturesViewer {
       });
 
       kinectSensor.AllFramesReady += kinectRuntime_AllFrameReady;
-
       skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor, kinectCanvas);
-
       kinectSensor.Start();
 
       nuiCamera = new BindableNUICamera(kinectSensor);
@@ -142,25 +139,36 @@ namespace GesturesViewer {
       elevationSlider.DataContext = nuiCamera;
 
       kinectDisplay.DataContext = colorManager;
-      handTrackerThread = new Thread(new ThreadStart(StartHandTracker));
-      handTrackerThread.Start();
     }
 
-    void StartHandTracker() {
+    void StartTracking() {
+      cancellationTokenSource = new CancellationTokenSource();
+      var token = cancellationTokenSource.Token;
+      Task.Factory.StartNew(() => HandTrackingTask(token), token);
+    }
+
+    void HandTrackingTask(CancellationToken token) {
       handTracker = new SaliencyDetector(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
-      while (kinectSensor != null && kinectSensor.IsRunning) {
+      while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
         var data = buffer.Take();
         handTracker.detect(data.DepthData, data.ColorData, data.Skeleton);
         fpsCounter.ComputeFPS();
       }
     }
 
+    void CancelTracking() {
+      if (cancellationTokenSource != null)
+        cancellationTokenSource.Cancel();
+    }
+
     void UpdateDisplay() {
       gesturesCanvas.Children.Clear();
-      if (handTracker.PrevBoundingBox.Width > 0) {
-        VisualUtil.DrawRectangle(gesturesCanvas, handTracker.PrevBoundingBox, Brushes.Red);
+      if (handTracker != null) {
+        if (handTracker.PrevBoundingBox.Width > 0) {
+          VisualUtil.DrawRectangle(gesturesCanvas, handTracker.PrevBoundingBox, Brushes.Red);
+        }
+        depthManager.Update(handTracker.SmoothedDepth.Bytes, DepthWidth, DepthHeight);
       }
-      depthManager.Update(handTracker.SmoothedDepth.Bytes, DepthWidth, DepthHeight);
     }
 
     void UpdateDepthFrame(ReplayDepthImageFrame frame) {
@@ -189,7 +197,7 @@ namespace GesturesViewer {
         }
 
         if (sf != null) {
-          UpdateSkeletonFrame(sf);
+          UpdateSkeletonDisplay(sf);
           if (buffer.Count <= 1)
             buffer.Add(new KinectDataPacket {
               ColorData = colorManager.PixelData,
@@ -209,11 +217,7 @@ namespace GesturesViewer {
       colorManager.Update(frame, !displayDepth);
     }
 
-    void UpdateSkeletonFrame(ReplaySkeletonFrame frame) {
-      ProcessFrame(frame);
-    }
-
-    void ProcessFrame(ReplaySkeletonFrame frame) {
+    void UpdateSkeletonDisplay(ReplaySkeletonFrame frame) {
       Dictionary<int, string> stabilities = new Dictionary<int, string>();
       foreach (var skeleton in frame.Skeletons) {
         if (skeleton.TrackingState != SkeletonTrackingState.Tracked)
@@ -235,11 +239,11 @@ namespace GesturesViewer {
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
       Clean();
-      handTrackerThread.Abort();
-      handTrackerThread.Join();
     }
 
     private void Clean() {
+      CancelTracking();
+
       if (audioManager != null) {
         audioManager.Dispose();
         audioManager = null;
@@ -260,38 +264,6 @@ namespace GesturesViewer {
         kinectSensor.Stop();
         kinectSensor = null;
       }
-    }
-
-    private void replayButton_Click(object sender, RoutedEventArgs e) {
-      OpenFileDialog openFileDialog = new OpenFileDialog {
-        Title = "Select filename",
-        Filter = "Replay files|*.replay"
-      };
-
-      if (openFileDialog.ShowDialog() == true) {
-        if (replay != null) {
-          replay.AllFramesReady -= replay_AllFramesReady;
-          replay.Stop();
-        }
-        Stream recordStream = File.OpenRead(openFileDialog.FileName);
-
-        Replay(recordStream);
-      }
-    }
-
-    void replay_AllFramesReady(object sender, ReplayAllFramesReadyEventArgs e) {
-      ReplayFrame(e.DepthImageFrame, e.ColorImageFrame, e.SkeletonFrame);
-    }
-
-    void replay_ColorImageFrameReady(object sender, ReplayColorImageFrameReadyEventArgs e) {
-      if (displayDepth)
-        return;
-
-      colorManager.Update(e.ColorImageFrame);
-    }
-
-    void replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e) {
-      ProcessFrame(e.SkeletonFrame);
     }
 
     private void Button_Click(object sender, RoutedEventArgs e) {
@@ -342,10 +314,10 @@ namespace GesturesViewer {
           RecordGesture();
           break;
         case Key.P:
-          Pause();
+          TogglePlay();
           break;
-        case Key.S:
-          Start();
+        case Key.T:
+          StartTracking();
           break;
         default:
           break;

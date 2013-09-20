@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 
-namespace GesturesViewer
+namespace HandInput.GesturesViewer
 {
     /// <summary>
     /// Interaction logic for App.xaml
