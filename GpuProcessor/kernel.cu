@@ -43,7 +43,7 @@ __declspec(dllexport) void __stdcall FilterSkin(void* src_, void* dst_) {
   GpuMat* src = reinterpret_cast<GpuMat*>(src_);
   GpuMat* dst = reinterpret_cast<GpuMat*>(dst_);
 
-  dim3 dimBlock(16, 16);
+  dim3 dimBlock(20, 15);
   int rows = src->rows;
   int cols = src->cols;
   int srcStep = src->step1();
