@@ -79,11 +79,13 @@
     <Compile Include="HandInputEngine.cs" />
     <Compile Include="HandInputEvent.cs" />
     <Compile Include="HandTracker.cs" />
+    <Compile Include="IProcessor.cs" />
     <Compile Include="KinectDataPacket.cs" />
     <Compile Include="PlayerDetector.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaliencyDetector.cs" />
+    <Compile Include="SalientFeatureProcessor.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

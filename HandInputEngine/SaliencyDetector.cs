@@ -89,41 +89,41 @@ namespace HandInput.Engine {
       CvInvoke.cvSmooth(playerDepthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5,
                         0, 0);
 
-      //if (t > 1) {
-      //  CvInvoke.cvAbsDiff(SmoothedDepth.Ptr, Diff0.Ptr, Diff0.Ptr);
-      //  //CvInvoke.cvErode(Diff0.Ptr, Diff0.Ptr, StructuringElement.Ptr, 1);
-      //  DiffMask0.CopyTo(DiffMask1);
-      //  CvInvoke.cvThreshold(Diff0.Ptr, DiffMask0.Ptr, 2, 255, THRESH.CV_THRESH_BINARY);
+      if (t > 1) {
+        CvInvoke.cvAbsDiff(SmoothedDepth.Ptr, Diff0.Ptr, Diff0.Ptr);
+        //CvInvoke.cvErode(Diff0.Ptr, Diff0.Ptr, StructuringElement.Ptr, 1);
+        DiffMask0.CopyTo(DiffMask1);
+        CvInvoke.cvThreshold(Diff0.Ptr, DiffMask0.Ptr, 2, 255, THRESH.CV_THRESH_BINARY);
 
-      //  if (t > 2) {
-      //    // Makes diffMask1 the motion mask at t - 1.
-      //    CvInvoke.cvAnd(DiffMask0.Ptr, DiffMask1.Ptr, DiffMask1.Ptr, IntPtr.Zero);
-      //    // Makes diffMask1 the motion mask at t - 0. 
-      //    CvInvoke.cvXor(DiffMask0.Ptr, DiffMask1.Ptr, DiffMask1.Ptr, IntPtr.Zero);
-      //    CvInvoke.cvMorphologyEx(DiffMask1.Ptr, DiffMask1.Ptr, IntPtr.Zero, IntPtr.Zero,
-      //                            CV_MORPH_OP.CV_MOP_OPEN, 1);
-      //    ComputeCumulativeDist(Diff0, diffCumulativeDist);
-      //    ComputeCumulativeDist(SmoothedDepth, depthCumulativeDist);
-      //    CvInvoke.cvZero(SaliencyProb);
-      //    var diffMaskData = DiffMask1.Data;
-      //    var diffData = Diff0.Data;
-      //    var depthData = SmoothedDepth.Data;
-      //    var probData = SaliencyProb.Data;
-      //    for (int i = 0; i < DiffMask1.Height; i++)
-      //      for (int j = 0; j < DiffMask1.Width; j++) {
-      //        if (diffMaskData[i, j, 0] > 0) {
-      //          var diffBin = diffData[i, j, 0];
-      //          var depthBin = depthData[i, j, 0];
-      //          probData[i, j, 0] = diffCumulativeDist[diffBin] * depthCumulativeDist[depthBin];
-      //        }
-      //      }
-      //    var skeHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
-      //    PrevBoundingBox = FindBestBoundingBox(skeHandJoint);
-      //    if (PrevBoundingBox.Width > 0)
-      //      res = new Some<Vector3D>(RelativePosToShoulder(PrevBoundingBox, skeleton));
-      //  }
-      //}
-      //SmoothedDepth.CopyTo(Diff0);
+        if (t > 2) {
+          // Makes diffMask1 the motion mask at t - 1.
+          CvInvoke.cvAnd(DiffMask0.Ptr, DiffMask1.Ptr, DiffMask1.Ptr, IntPtr.Zero);
+          // Makes diffMask1 the motion mask at t - 0. 
+          CvInvoke.cvXor(DiffMask0.Ptr, DiffMask1.Ptr, DiffMask1.Ptr, IntPtr.Zero);
+          CvInvoke.cvMorphologyEx(DiffMask1.Ptr, DiffMask1.Ptr, IntPtr.Zero, IntPtr.Zero,
+                                  CV_MORPH_OP.CV_MOP_OPEN, 1);
+          ComputeCumulativeDist(Diff0, diffCumulativeDist);
+          ComputeCumulativeDist(SmoothedDepth, depthCumulativeDist);
+          CvInvoke.cvZero(SaliencyProb);
+          var diffMaskData = DiffMask1.Data;
+          var diffData = Diff0.Data;
+          var depthData = SmoothedDepth.Data;
+          var probData = SaliencyProb.Data;
+          for (int i = 0; i < DiffMask1.Height; i++)
+            for (int j = 0; j < DiffMask1.Width; j++) {
+              if (diffMaskData[i, j, 0] > 0) {
+                var diffBin = diffData[i, j, 0];
+                var depthBin = depthData[i, j, 0];
+                probData[i, j, 0] = diffCumulativeDist[diffBin] * depthCumulativeDist[depthBin];
+              }
+            }
+          var skeHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
+          PrevBoundingBox = FindBestBoundingBox(skeHandJoint);
+          if (PrevBoundingBox.Width > 0)
+            res = new Some<Vector3D>(RelativePosToShoulder(PrevBoundingBox, skeleton));
+        }
+      }
+      SmoothedDepth.CopyTo(Diff0);
       return res;
     }
 
