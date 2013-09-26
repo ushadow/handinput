@@ -4,26 +4,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using System.Windows.Media.Media3D;
+using System.Drawing;
 
 using Microsoft.Kinect;
 
 using HandInput.Util;
 
 using Common.Logging;
+
+using Emgu.CV.GPU;
 using Emgu.CV;
 using Emgu.CV.Structure;
-using System.Drawing;
+using Emgu.CV.CvEnum;
+
+using handinput;
 
 namespace HandInput.Engine {
-  class SalientFeatureProcessor {
+  public class SalientFeatureProcessor {
     private static readonly ILog Log = LogManager.GetCurrentClassLogger();
     private static readonly int FeatureImageWidth = 64;
 
-    private List<Byte[]> imageList = new List<Byte[]>();
     private Vector3D prevRelPos;
     private Vector3D prevVel;
+    private MFeatureProcessor featureProcessor = new MFeatureProcessor(FeatureImageWidth, 
+        FeatureImageWidth);
+    private Image<Gray, Byte> scaled = new Image<Gray,byte>(FeatureImageWidth, FeatureImageWidth);
 
-    public void ProcessFeature(Option<Vector3D> relPos, Image<Gray, Byte> depthImage, 
+    public void Compute(Option<Vector3D> relPos, Image<Gray, Byte> depthImage, 
         Rectangle bb) {
 
       if (relPos.IsSome) {
@@ -31,6 +38,7 @@ namespace HandInput.Engine {
           var v = Vector3D.Subtract(relPos.Value, prevRelPos);
           if (prevVel != null) {
             var acc = Vector3D.Subtract(v, prevVel);
+            ComputeImageFeature(depthImage, bb);
           }
           prevVel = v;
         }
@@ -38,10 +46,11 @@ namespace HandInput.Engine {
       }
     }
 
-    private void AddImageFeature(Image<Gray, Byte> depthImage, Rectangle bb) {
-      byte[] image = new byte[FeatureImageWidth * FeatureImageWidth];
-      ImageUtil.ScaleImage<Byte>(depthImage, bb, image, FeatureImageWidth);
-      imageList.Add(image);
+    public void ComputeImageFeature(Image<Gray, Byte> image, Rectangle bb) {
+      image.ROI = bb;
+      CvInvoke.cvResize(image.Ptr, scaled.Ptr, INTER.CV_INTER_LINEAR); 
+      featureProcessor.Compute(scaled.Ptr);
+      image.ROI = Rectangle.Empty;
     }
   }
 }

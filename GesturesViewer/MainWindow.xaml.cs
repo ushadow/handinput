@@ -53,6 +53,7 @@ namespace HandInput.GesturesViewer {
     BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
     CancellationTokenSource cancellationTokenSource;
     SaliencyDetector handTracker;
+    SalientFeatureProcessor featureProcessor;
     FPSCounter fpsCounter = new FPSCounter();
 
     public MainWindow() {

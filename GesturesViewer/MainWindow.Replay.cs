@@ -32,6 +32,7 @@ namespace HandInput.GesturesViewer {
 
       handTracker = new HandInput.Engine.SaliencyDetector(DepthWidth, DepthHeight,
           kinectSensor.CoordinateMapper);
+      featureProcessor = new SalientFeatureProcessor();
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
       timer.Tick += new EventHandler(OnTimerTick);
@@ -58,8 +59,9 @@ namespace HandInput.GesturesViewer {
       depthManager.Update(df);
       colorManager.Update(cf, !displayDepth);
       UpdateSkeletonDisplay(sf);
-      handTracker.detect(depthManager.PixelData, colorManager.PixelData,
+      var relPos = handTracker.detect(depthManager.PixelData, colorManager.PixelData,
           SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
+      featureProcessor.Compute(relPos, handTracker.SmoothedDepth, handTracker.PrevBoundingBox);
       fpsCounter.LogFPS();
       UpdateDisplay();
     }

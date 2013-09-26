@@ -11,3 +11,5 @@ Release
 Debug
 *.pdb
 *.user
+*.sdf
+*.vcxproj.filters
