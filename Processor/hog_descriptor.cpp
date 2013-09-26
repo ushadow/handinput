@@ -27,40 +27,41 @@ namespace handinput {
       t = t<-1 ? -1 : (t>1 ? 1 : t);
       a_[i] = (float) acos( t );
     }
+    acmult_ = (kTableSize - 1) / 2.2f;
   }
 
   /* compute gradient magnitude and orientation at each location */
-  void HOGDescriptor::gradMag(float *I, float *M, float *O, int h, int w, int d) {
+  void HOGDescriptor::GradMag(float *I, float *M, float *O, int h, int w, int d) {
     int x, y, c, a=w*h; double m, m1, dx, dx1, dy, dy1, rx, ry;
-    float *Ix, *Ix0, *Ix1, *Iy0, *Iy1, *M0; float o, *O0;
-    float *acost = a_, acMult=(25000-1)/2.2f;
-    for( x=0; x<w; x++ ) {
-      rx=.5; M0=M+x*h; O0=O+x*h; Ix=I+x*h; Ix0=Ix-h; Ix1=Ix+h;
-      if(x==0) { Ix0=Ix; rx=1; } else if(x==w-1) { Ix1=Ix; rx=1; }
-      for( y=0; y<h; y++ ) {
-        if(y==0) {   Iy0=Ix-0; Iy1=Ix+1; ry=1; }
-        if(y==1) {   Iy0=Ix-1; Iy1=Ix+1; ry=.5; }
-        if(y==h-1) { Iy0=Ix-1; Iy1=Ix+0; ry=1; }
-        dy=(*Iy1-*Iy0)*ry; dx=(*Ix1-*Ix0)*rx; m=dx*dx+dy*dy;
+    float *Iy, *Ix0, *Ix1, *Iy0, *Iy1, *M0; float o, *O0;
+    float *acost = a_; 
+    for (y = 0; y < h; y++) {
+      ry=.5; M0 = M + y * w; O0 = O + y * w; Iy = I + y * w; Iy0 = Iy - w; Iy1 = Iy + w;
+      if (y == 0) { Iy0 = Iy; ry=1; } else if( y == h - 1) { Iy1 = Iy; ry=1; }
+      for (x = 0; x < w; x++ ) {
+        if (x == 0) { Ix0 = Iy - 0; Ix1 = Iy + 1; rx = 1; }
+        if (x == 1) { Ix0 = Iy - 1; Ix1 = Iy + 1; rx = .5; }
+        if (x == h - 1) { Ix0 = Iy - 1; Ix1 = Iy + 0; rx = 1; }
+        dy = (*Iy1 - *Iy0) * ry; dx = (*Ix1-*Ix0) * rx; m = dx*dx+dy*dy;
         for(c=1; c<d; c++) {
           dy1=(*(Iy1+c*a)-*(Iy0+c*a))*ry; dx1=(*(Ix1+c*a)-*(Ix0+c*a))*rx;
           m1=dx1*dx1+dy1*dy1; if(m1>m) { m=m1; dx=dx1; dy=dy1; }
         }
         if( m==0 ) { o=0; } else {
           m=sqrt(m); /* o=acos(dx/m); */
-          o = acost[(int)((dx/m+1.1f)*acMult)];
+          o = acost[(int)((dx/m+1.1f) * acmult_ )];
           if( o>PI-1e-5 ) o=0; else if( dy<0 ) o=(float)PI-o;
         }
         *(M0++) = m; *(O0++) = o;
-        Ix0++; Ix1++; Iy0++; Iy1++; Ix++;
+        Ix0++; Ix1++; Iy0++; Iy1++; Iy++;
       }
     }
   }
 
   /* compute obin gradient histograms per sBin x sBin block of pixels */
-  void HOGDescriptor::gradHist(float *M, float *O, float *H, int h, int w, int d,
+  void HOGDescriptor::GradHist(float *M, float *O, float *H, int h, int w, int d,
     int sBin, int obin, bool sSoft, bool oSoft ) {
-      const int hb=h/sBin, wb=w/sBin, h0=hb*sBin, w0=wb*sBin, nb=wb*hb;
+      const int hb = h/sBin, wb=w/sBin, h0=hb*sBin, w0=wb*sBin, nb=wb*hb;
       const double s=sBin, sInv=1/s, sInv2=1/s/s, oMult=(double)obin/PI;
       float *H0; int x, y, xy, o0, o1, xb0, yb0, obin1=obin*nb;
       double od0, od1, o, m, m0, m1, xb, yb, xd0, xd1, yd0, yd1;
@@ -98,19 +99,19 @@ namespace handinput {
   }
 
   /* compute HOG features given gradient histograms */
-  void HOGDescriptor::hog(float *H, float *HG, int h, int w, int d, int sBin, int obin ) {
+  void HOGDescriptor::Hog(float *H, float *HG, int h, int w, int d, int sBin, int obin ) {
     float *N, *N1, *H1, *HG1, n; int o, x, y, x1, y1, hb, wb, nb, hb1, wb1, nb1;
     double eps = 1e-4/4.0/sBin/sBin/sBin/sBin; /* precise backward equality */
-    hb=h/sBin; wb=w/sBin; nb=wb*hb; hb1=hb-2; wb1=wb-2; nb1=hb1*wb1;
-    if(hb1<=0 || wb1<=0) return; 
+    hb = h / sBin; wb = w / sBin; nb = wb * hb; hb1 = hb - 2; wb1 = wb - 2; nb1 = hb1 * wb1;
+    if(hb1 <= 0 || wb1 <= 0) return; 
     N = new float[nb];
-    for(o=0; o<obin; o++) for(x=0; x<nb; x++) N[x]+=H[x+o*nb]*H[x+o*nb];
-    for( x=0; x<wb1; x++ ) for( y=0; y<hb1; y++ ) {
-      HG1 = HG + x*hb1 + y; /* perform 4 normalizations per spatial block */
+    for (o = 0; o < obin; o++) for(x=0; x<nb; x++) N[x]+=H[x+o*nb]*H[x+o*nb];
+    for (x = 0; x < wb1; x++ ) for( y=0; y<hb1; y++ ) {
+      HG1 = HG + x * hb1 + y; /* perform 4 normalizations per spatial block */
       for(x1=1; x1>=0; x1--) for(y1=1; y1>=0; y1--) {
-        N1 = N + (x+x1)*hb + (y+y1);  H1 = H + (x+1)*hb + (y+1);
+        N1 = N + (x + x1) * hb + (y+y1);  H1 = H + (x+1)*hb + (y+1);
         n = 1.0/sqrt(*N1 + *(N1+1) + *(N1+hb) + *(N1+hb+1) + eps);
-        for(o=0; o<obin; o++) { *HG1=mind(*H1*n, 0.2); HG1+=nb1; H1+=nb; }
+        for(o=0; o<obin; o++) { *HG1=mind(*H1 * n, 0.2); HG1+=nb1; H1+=nb; }
       }
     } 
     delete N;
@@ -122,8 +123,8 @@ namespace handinput {
   void HOGDescriptor::Compute(float* I, float* HG) {
     if (hb1_ == 0 || wb1_ == 0)
       return;
-    gradMag(I, M_.get(), O_.get(), h_, w_, d_);
-    gradHist(M_.get(), O_.get(), H_.get(), h_, w_, d_, sbin_, obin_, true, true );
-    hog(H_.get(), HG, h_, w_, d_, sbin_, obin_);
+    GradMag(I, M_.get(), O_.get(), h_, w_, d_);
+    GradHist(M_.get(), O_.get(), H_.get(), h_, w_, d_, sbin_, obin_, true, true );
+    Hog(H_.get(), HG, h_, w_, d_, sbin_, obin_);
   }
 }
