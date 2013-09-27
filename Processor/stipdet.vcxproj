@@ -142,6 +142,7 @@
       <PrecompiledHeaderFile>pcheader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opencv_core242.lib;opencv_imgproc242.lib;opencv_highgui242.lib;opencv_video242.lib;opencv_objdetect242.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -181,6 +182,7 @@
   <ItemGroup>
     <ClCompile Include="cmdline.cpp" />
     <ClCompile Include="cvutil.cpp" />
+    <ClCompile Include="feature_processor.cpp" />
     <ClCompile Include="harrisbuffer.cpp" />
     <ClCompile Include="hog_descriptor.cpp" />
     <ClCompile Include="MFeatureProcessor.cpp" />
@@ -195,6 +197,7 @@
   <ItemGroup>
     <ClInclude Include="cmdline.h" />
     <ClInclude Include="cvutil.h" />
+    <ClInclude Include="feature_processor.h" />
     <ClInclude Include="harrisbuffer.h" />
     <ClInclude Include="hog_descriptor.h" />
     <ClInclude Include="MFeatureProcessor.h" />

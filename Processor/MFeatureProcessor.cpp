@@ -2,15 +2,21 @@
 #include "MFeatureProcessor.h"
 
 namespace handinput {
+
   MFeatureProcessor::MFeatureProcessor(int w, int h) {
-    hog_ = new HOGDescriptor(w, h, kCellSize, kNBins);
+    processor_ = new FeatureProcessor(w, h);
   }
 
-  void MFeatureProcessor::Compute(System::IntPtr imagePtr) {
-    IplImage* image = reinterpret_cast<IplImage*>(imagePtr.ToPointer()); 
-    IplImage* double_image = cvCreateImage(cvSize(64, 64), IPL_DEPTH_32F, 1);
-    cvConvert(image, double_image);
-    std::unique_ptr<float[]> descriptor(new float[hog_->Length()]);
-    hog_->Compute((float*) double_image->imageData, descriptor.get());
-  }
+  float* MFeatureProcessor::Compute(System::IntPtr image_ptr) {
+    IplImage* image = reinterpret_cast<IplImage*>(image_ptr.ToPointer()); 
+    cv::Mat mat(image);
+    return processor_->Compute(mat);
+ }
+
+  void MFeatureProcessor::Visualize(System::IntPtr image_ptr, float* descriptorValues) {   
+    using cv::Mat;
+    IplImage* image = reinterpret_cast<IplImage*>(image_ptr.ToPointer()); 
+    Mat mat(image);
+    Mat visu = processor_->Visualize(mat, descriptorValues);
+  } 
 }

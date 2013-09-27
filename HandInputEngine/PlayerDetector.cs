@@ -21,7 +21,7 @@ namespace HandInput.Engine {
     public Image<Gray, Byte> PlayerMask { get; private set; }
 
     /// <summary>
-    /// Depth value image for the player. Non-player pixels are 0.
+    /// Scaled depth value image for the player. Non-player and non-skin pixels are 0.
     /// </summary>
     public Image<Gray, Byte> PlayerDepthImage { get; private set; }
 
@@ -112,8 +112,8 @@ namespace HandInput.Engine {
       return polyPtr;
     }
 
-    private void UpdatePlayerDepthImage(short[] depthFrame, Byte[,,] playerMask, Byte[,,] skinMask) 
-    {
+    private void UpdatePlayerDepthImage(short[] depthFrame, Byte[, ,] playerMask, 
+        Byte[, ,] skinMask) {
       CvInvoke.cvZero(PlayerDepthImage.Ptr);
       var data = PlayerDepthImage.Data;
 
@@ -129,7 +129,7 @@ namespace HandInput.Engine {
         }
     }
 
-    private bool IsPlayerPixel(Byte[,,] playerMask, Byte[, ,] skinMask, int x, int y) {
+    private bool IsPlayerPixel(Byte[, ,] playerMask, Byte[, ,] skinMask, int x, int y) {
       return (skinMask == null || skinMask[y, x, 0] > 0) && playerMask[y, x, 0] > 0;
     }
 

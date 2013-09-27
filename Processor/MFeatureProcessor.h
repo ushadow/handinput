@@ -1,18 +1,19 @@
 #pragma once
 #include "pcheader.h"
-#include "hog_descriptor.h"
+#include "feature_processor.h"
 
 namespace handinput {
 public ref class MFeatureProcessor {
 public:
+  // w: width of the image.
+  // h: height of the image.
   MFeatureProcessor(int w, int h);
-  void Compute(System::IntPtr image);
   ~MFeatureProcessor() { this->!MFeatureProcessor(); }
-  !MFeatureProcessor() { delete hog_; }
+  !MFeatureProcessor() { delete processor_; } 
+  float* Compute(System::IntPtr image);
+  void Visualize(System::IntPtr image_ptr, float* descriptor);
 private:
-  static const int kCellSize = 4;
-  static const int kNBins = 9;
-  HOGDescriptor* hog_; 
+  FeatureProcessor* processor_; 
 };
 }
 

@@ -5,7 +5,6 @@
 
 #define _HAS_ITERATOR_DEBUGGING 0
 
-//#ifdef USE_PCH
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>
@@ -22,6 +21,5 @@
 #include "cv.h"
 #include "highgui.h"
 #include "opencv2\objdetect\objdetect.hpp"
-//#endif
 
 
