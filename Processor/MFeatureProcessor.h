@@ -10,8 +10,8 @@ public:
   MFeatureProcessor(int w, int h);
   ~MFeatureProcessor() { this->!MFeatureProcessor(); }
   !MFeatureProcessor() { delete processor_; } 
-  float* Compute(System::IntPtr image);
-  void Visualize(System::IntPtr image_ptr, float* descriptor);
+  void Compute(System::IntPtr image);
+  void Visualize(System::IntPtr image_ptr);
 private:
   FeatureProcessor* processor_; 
 };

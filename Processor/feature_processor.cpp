@@ -19,11 +19,11 @@ namespace handinput {
     return descriptor_.get();
   }
 
-  cv::Mat FeatureProcessor::Visualize(cv::Mat& orig_image, float* descriptor) {
+  cv::Mat FeatureProcessor::Visualize(cv::Mat& orig_image) {
     using cv::Mat;
     using cv::Size;
 
-    int zoomFac = 3;
+    int zoomFac = 6;
     Mat visu;
     cv::resize(orig_image, visu, Size(orig_image.cols * zoomFac, orig_image.rows * zoomFac));
 
@@ -52,7 +52,7 @@ namespace handinput {
     for (int bin = 0; bin < kNBins; bin++) {
       for (int cellx = 0; cellx < wb; cellx++) {
         for (int celly = 0; celly < hb; celly++) {
-          float gradientStrength = descriptor[ descriptorDataIdx ];
+          float gradientStrength = descriptor_[ descriptorDataIdx ];
           descriptorDataIdx++;
           gradientStrengths[celly][cellx][bin] += gradientStrength;
         } 

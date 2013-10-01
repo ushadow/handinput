@@ -5,6 +5,12 @@
 
 #define _HAS_ITERATOR_DEBUGGING 0
 
+#ifdef PROCESSOR_EXPORTS 
+# define PROCESSOR_API __declspec(dllexport)
+#else
+# define PROCESSOR_API __declspec(dllimport)
+#endif
+
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>

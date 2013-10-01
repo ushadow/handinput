@@ -30,7 +30,7 @@
     <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
-    <CLRSupport>true</CLRSupport>
+    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -136,13 +136,15 @@
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalIncludeDirectories>C:\Emgu-2.4.2\include;C:\Emgu-2.4.2\include\opencv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PROCESSOR_EXPORTS;WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pcheader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>None</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <MinimalRebuild>true</MinimalRebuild>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opencv_core242.lib;opencv_imgproc242.lib;opencv_highgui242.lib;opencv_video242.lib;opencv_objdetect242.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -185,8 +187,6 @@
     <ClCompile Include="feature_processor.cpp" />
     <ClCompile Include="harrisbuffer.cpp" />
     <ClCompile Include="hog_descriptor.cpp" />
-    <ClCompile Include="MFeatureProcessor.cpp" />
-    <ClCompile Include="MHarrisBuffer.cpp" />
     <ClCompile Include="msharrisbuffer.cpp" />
     <ClCompile Include="pcheader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -200,8 +200,6 @@
     <ClInclude Include="feature_processor.h" />
     <ClInclude Include="harrisbuffer.h" />
     <ClInclude Include="hog_descriptor.h" />
-    <ClInclude Include="MFeatureProcessor.h" />
-    <ClInclude Include="MHarrisBuffer.h" />
     <ClInclude Include="msharrisbuffer.h" />
     <ClInclude Include="pcheader.h" />
     <ClInclude Include="stbuffer.h" />
