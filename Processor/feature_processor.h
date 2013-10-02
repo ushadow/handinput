@@ -9,7 +9,7 @@ namespace handinput {
     // h: feature image patch height.
     FeatureProcessor(int w, int h);
     float* Compute(cv::Mat& image);
-    cv::Mat Visualize(cv::Mat& orig_image);
+    cv::Mat Visualize(cv::Mat& orig_image, int zoom_factor);
     ~FeatureProcessor(void) {}
 
   private:

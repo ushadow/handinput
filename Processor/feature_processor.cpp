@@ -19,13 +19,13 @@ namespace handinput {
     return descriptor_.get();
   }
 
-  cv::Mat FeatureProcessor::Visualize(cv::Mat& orig_image) {
+  cv::Mat FeatureProcessor::Visualize(cv::Mat& orig_image, int zoom_factor) {
     using cv::Mat;
     using cv::Size;
 
-    int zoomFac = 6;
     Mat visu;
-    cv::resize(orig_image, visu, Size(orig_image.cols * zoomFac, orig_image.rows * zoomFac));
+    cv::resize(orig_image, visu, Size(orig_image.cols * zoom_factor, 
+                                      orig_image.rows * zoom_factor));
 
     float radRangeForOneBin = M_PI / (float) kNBins; 
 
@@ -48,13 +48,14 @@ namespace handinput {
     int descriptorDataIdx = 0;
     int wb = hog_->NxCells();
     int hb = hog_->NyCells();
+    int fold = hog_->NFolds();
 
     for (int bin = 0; bin < kNBins; bin++) {
-      for (int cellx = 0; cellx < wb; cellx++) {
-        for (int celly = 0; celly < hb; celly++) {
+      for (int celly = 0; celly < hb; celly++) {
+        for (int cellx = 0; cellx < wb; cellx++) {
           float gradientStrength = descriptor_[ descriptorDataIdx ];
           descriptorDataIdx++;
-          gradientStrengths[celly][cellx][bin] += gradientStrength;
+          gradientStrengths[celly + fold][cellx + fold][bin] += gradientStrength;
         } 
       } 
     }
@@ -68,8 +69,8 @@ namespace handinput {
         int mx = drawX + kCellSize / 2;
         int my = drawY + kCellSize / 2;
 
-        cv::rectangle(visu, cvPoint(drawX*zoomFac,drawY*zoomFac), 
-          cvPoint((drawX + kCellSize) * zoomFac, (drawY + kCellSize)*zoomFac), 
+        cv::rectangle(visu, cvPoint(drawX*zoom_factor,drawY*zoom_factor), 
+          cvPoint((drawX + kCellSize) * zoom_factor, (drawY + kCellSize)*zoom_factor), 
           CV_RGB(100,100,100), 1);
 
         // draw in each cell all 9 gradient strengths
@@ -94,8 +95,8 @@ namespace handinput {
           float y2 = my + dirVecY * currentGradStrength * maxVecLen * scale;
 
           // draw gradient visualization
-          cv::line(visu, cvPoint((int) (x1*zoomFac), (int) (y1*zoomFac)), 
-            cvPoint((int) (x2*zoomFac), (int) (y2*zoomFac)), 
+          cv::line(visu, cvPoint((int) (x1 * zoom_factor), (int) (y1 * zoom_factor)), 
+            cvPoint((int) (x2 * zoom_factor), (int) (y2 * zoom_factor)), 
             CV_RGB(0,255,0), 1);
         } // for (all bins)
       } // for (cellx)

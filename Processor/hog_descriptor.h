@@ -16,6 +16,8 @@ public:
 
   int NxCells() { return wb1_; }
   int NyCells() { return hb1_; }
+  // Number of folds for normalization.
+  int NFolds() { return fold_; }
 
 private:
   static const int kTableSize = 25000;

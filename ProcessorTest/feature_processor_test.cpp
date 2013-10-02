@@ -12,7 +12,7 @@ TEST(FeatureProcessorTest, ComputeHOGDescriptor) {
   Mat gray_image;
   cv::cvtColor(resized, gray_image, CV_BGR2GRAY); 
   processor.Compute(gray_image);
-  Mat vis = processor.Visualize(gray_image);
+  Mat vis = processor.Visualize(gray_image, 3);
   string window_name = "Test Window";
   cv::namedWindow(window_name);
   cv::imshow(window_name, vis);
