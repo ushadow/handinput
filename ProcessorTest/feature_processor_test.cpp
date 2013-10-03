@@ -9,7 +9,7 @@ void DisplayImage(cv::Mat& image) {
   cv::destroyWindow(window_name);
 }
 
-TEST(FeatureProcessorTest, ComputeHOGDescriptorZero) {
+TEST(FeatureProcessorTest, ComputeHOGDescriptorAllZero) {
   using cv::Mat;
 
   int imageSize = 64;
@@ -19,6 +19,21 @@ TEST(FeatureProcessorTest, ComputeHOGDescriptorZero) {
   for (int i = 0; i < processor.HOGLength(); i++) {
     ASSERT_EQ(0, descriptor[i]);
   }
+}
+
+TEST(FeatureProcessorTest, ComputeHOGDescriptorTwoImages) {
+  using cv::Mat;
+  int imageSize = 64;
+  handinput::FeatureProcessor processor(imageSize, imageSize);
+  Mat image(imageSize, imageSize, CV_8U, cv::Scalar(255));
+  float* descriptor = processor.Compute(image);
+  for (int i = 0; i < imageSize; i++) {
+    image.at<byte>(32, i) = 0;
+    image.at<byte>(i, 32) = 0;
+  }
+  descriptor = processor.Compute(image);
+  Mat vis = processor.Visualize(image, 6);
+  DisplayImage(vis);
 }
 
 TEST(FeatureProcessorTest, ComputeHOGDescriptor) {
