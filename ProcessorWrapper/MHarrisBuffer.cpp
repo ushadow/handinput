@@ -1,4 +1,4 @@
-#include "pcheader.h"
+#include "Stdafx.h"
 #include "MHarrisBuffer.h"
 
 bool MHarrisBuffer::Init(System::IntPtr image) {

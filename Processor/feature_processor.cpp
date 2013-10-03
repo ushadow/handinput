@@ -4,22 +4,33 @@
 namespace handinput {
 
 #define M_PI 3.1415926f
+  const std::string FeatureProcessor::kDebugWindowName = "Debug";
 
   FeatureProcessor::FeatureProcessor(int w, int h) : w_(w), h_(h) {
     hog_.reset(new HOGDescriptor(w, h, kCellSize, kNBins));
     scaled_image_.reset(new cv::Mat(h, w, CV_8U)); 
-    double_image_.reset(new cv::Mat(h, w, CV_32F));
+    float_image_.reset(new cv::Mat(h, w, CV_32F));
     descriptor_.reset(new float[hog_->Length()]);
   }
 
-  float* FeatureProcessor::Compute(cv::Mat& image) {
+  FeatureProcessor::~FeatureProcessor() {
+    cv::destroyAllWindows();
+  }
+
+  float* FeatureProcessor::Compute(cv::Mat& image, bool visualize) {
+    // Uses the default linear interpolation.
     cv::resize(image, *scaled_image_, cv::Size(w_, h_));
-    scaled_image_->convertTo(*double_image_, CV_32F);
-    hog_->Compute((float*) double_image_->data, descriptor_.get());
+    scaled_image_->convertTo(*float_image_, CV_32F);
+
+    hog_->Compute((float*) float_image_->data, descriptor_.get());
+    if (visualize) {
+      cv::Mat vis = VisualizeHOG(*float_image_);
+      DisplayImage(vis);
+    }
     return descriptor_.get();
   }
 
-  cv::Mat FeatureProcessor::Visualize(cv::Mat& orig_image, int zoom_factor) {
+  cv::Mat FeatureProcessor::VisualizeHOG(cv::Mat& orig_image, int zoom_factor) {
     using cv::Mat;
     using cv::Size;
 
@@ -78,13 +89,13 @@ namespace handinput {
           float currentGradStrength = gradientStrengths[celly][cellx][bin];
 
           // no line to draw?
-          if (currentGradStrength==0)
+          if (currentGradStrength == 0)
             continue;
 
-          float currRad = bin * radRangeForOneBin + radRangeForOneBin/2;
+          float currRad = bin * radRangeForOneBin + radRangeForOneBin / 2;
 
-          float dirVecX = cos( currRad );
-          float dirVecY = sin( currRad );
+          float dirVecX = cos(currRad);
+          float dirVecY = sin(currRad);
           float maxVecLen = kCellSize / 2;
           float scale = 2.5; // just a visualization scale, to see the lines better
 
@@ -112,5 +123,11 @@ namespace handinput {
     delete[] gradientStrengths;
 
     return visu;
+  }
+
+  void FeatureProcessor::DisplayImage(cv::Mat& image) {
+    // If the window with the same name already exists, the function does nothing.
+    cv::namedWindow(kDebugWindowName);
+    cv::imshow(kDebugWindowName, image);
   }
 }

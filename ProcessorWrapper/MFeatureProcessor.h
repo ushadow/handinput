@@ -1,8 +1,8 @@
 #pragma once
-#include "pcheader.h"
 #include "feature_processor.h"
 
 namespace handinput {
+
 public ref class MFeatureProcessor {
 public:
   // w: width of the image.

@@ -31,6 +31,7 @@ namespace HandInput.Engine {
     public Image<Gray, Single> SaliencyProb { get; private set; }
     public Image<Gray, Byte> TempMask { get; private set; }
     public Rectangle PrevBoundingBox { get; private set; }
+    // Smoothed player depth image.
     public Image<Gray, Byte> SmoothedDepth { get; private set; }
     public Image<Gray, Byte> Diff0 { get; private set; }
     public Image<Gray, Byte> DiffMask1 { get; private set; }

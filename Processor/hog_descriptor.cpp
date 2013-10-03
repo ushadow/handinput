@@ -62,7 +62,7 @@ namespace handinput {
         if (m < eps) { o = 0; } else {
           m = sqrt(m); /* o=acos(dx/m); */
           o = acost[(int)((dx / m + 1.1f) * acmult_ )];
-          if( o > PI - eps ) o = 0; else if( dy<0 ) o=(float)PI-o;
+          if (o > PI - eps) o = 0; else if (dy < 0) o = (float) PI - o;
         }
         *(M0++) = m; *(O0++) = o;
         Ix0++; Ix1++; Iy0++; Iy1++; Iy++;
@@ -136,7 +136,6 @@ namespace handinput {
           n = 1 / sqrt(*N1 + *(N1 + 1) + *(N1 + wb) + *(N1 + wb + 1) + eps);
           for (o = 0; o < obin; o++) { 
             *HG1 = Mind((float) (*H1 * n), 0.2f); 
-            //std::cout << *N1 << " ";
             HG1 += nb1; H1 += nb; }
         }
     } 

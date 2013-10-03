@@ -32,7 +32,7 @@ TEST(FeatureProcessorTest, ComputeHOGDescriptorTwoImages) {
     image.at<byte>(i, 32) = 0;
   }
   descriptor = processor.Compute(image);
-  Mat vis = processor.Visualize(image, 6);
+  Mat vis = processor.VisualizeHOG(image, 6);
   DisplayImage(vis);
 }
 
@@ -47,6 +47,6 @@ TEST(FeatureProcessorTest, ComputeHOGDescriptor) {
   Mat gray_image;
   cv::cvtColor(resized, gray_image, CV_BGR2GRAY); 
   processor.Compute(gray_image);
-  Mat vis = processor.Visualize(gray_image, 6);
+  Mat vis = processor.VisualizeHOG(gray_image, 6);
   DisplayImage(vis);
 }

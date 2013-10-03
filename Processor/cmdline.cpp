@@ -85,7 +85,7 @@ int CCmdLine::SplitLine(int argc, char **argv)
          }
 
          // add the CCmdParam to 'this'
-		 std::pair<CCmdLine::iterator, bool> res = insert(CCmdLine::value_type(curParam, cmd));
+     std::pair<CCmdLine::iterator, bool> res = insert(CCmdLine::value_type(curParam, cmd));
 
       }
       else
@@ -93,11 +93,11 @@ int CCmdLine::SplitLine(int argc, char **argv)
          // it's not a new switch, so it must be more stuff for the last switch
 
          // ...let's add it
- 	      CCmdLine::iterator theIterator;
+        CCmdLine::iterator theIterator;
 
          // get an iterator for the current param
          theIterator = find(curParam);
-	      if (theIterator!=end())
+        if (theIterator!=end())
          {
             (*theIterator).second.m_strings.push_back(argv[i]);
          }
@@ -163,9 +163,9 @@ bool CCmdLine::IsSwitch(const char *pParam)
 
 bool CCmdLine::HasSwitch(const char *pSwitch)
 {
-	CCmdLine::iterator theIterator;
-	theIterator = find(pSwitch);
-	return (theIterator!=end());
+  CCmdLine::iterator theIterator;
+  theIterator = find(pSwitch);
+  return (theIterator!=end());
 }
 
 /*------------------------------------------------------
@@ -229,10 +229,10 @@ StringType CCmdLine::GetArgument(const char *pSwitch, unsigned int iIdx)
 {
    if (HasSwitch(pSwitch))
    {
-	   CCmdLine::iterator theIterator;
+     CCmdLine::iterator theIterator;
 
       theIterator = find(pSwitch);
-	   if (theIterator!=end())
+     if (theIterator!=end())
       {
          if ((*theIterator).second.m_strings.size() > iIdx)
          {
@@ -261,10 +261,10 @@ StringType CCmdLine::GetArgument(const char *pSwitch, unsigned int iIdx)
 
    if (HasSwitch(pSwitch))
    {
-	   CCmdLine::iterator theIterator;
+     CCmdLine::iterator theIterator;
 
       theIterator = find(pSwitch);
-	   if (theIterator!=end())
+     if (theIterator!=end())
       {
          iArgumentCount =(unsigned int ) (*theIterator).second.m_strings.size();
       }

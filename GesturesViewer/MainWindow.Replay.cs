@@ -48,8 +48,10 @@ namespace HandInput.GesturesViewer {
       var frame = replay.FrameAt(index);
       if (frame != null)
         ReplayFrame(frame.DepthImageFrame, frame.ColorImageFrame, frame.SkeletonFrame);
-      else
+      else {
         timer.Stop();
+        featureProcessor = null;
+      }
     }
 
     private void ReplayFrame(ReplayDepthImageFrame df, ReplayColorImageFrame cf,

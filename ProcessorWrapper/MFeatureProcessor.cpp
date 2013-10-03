@@ -1,4 +1,4 @@
-#include "pcheader.h"
+#include "Stdafx.h"
 #include "MFeatureProcessor.h"
 
 namespace handinput {
@@ -10,18 +10,18 @@ namespace handinput {
   void MFeatureProcessor::Compute(System::IntPtr image_ptr) {
     IplImage* image = reinterpret_cast<IplImage*>(image_ptr.ToPointer()); 
     cv::Mat mat(image);
-    processor_->Compute(mat);
+    processor_->Compute(mat, true);
  }
 
   void MFeatureProcessor::Visualize(System::IntPtr image_ptr) {   
     using cv::Mat;
     IplImage* image = reinterpret_cast<IplImage*>(image_ptr.ToPointer()); 
     Mat mat(image);
-    Mat visu = processor_->Visualize(mat);
+    Mat visu = processor_->VisualizeHOG(mat);
     std::string windowName = "Test Window";
-    cvNamedWindow(windowName.c_str());
+    cv::namedWindow(windowName);
     cv::imshow(windowName, visu);
-    cvWaitKey(0);
-    cvDestroyWindow(windowName.c_str());
+    cv::waitKey(0);
+    cv::destroyWindow(windowName.c_str());
   } 
 }

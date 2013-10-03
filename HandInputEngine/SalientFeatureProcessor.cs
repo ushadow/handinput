@@ -48,8 +48,7 @@ namespace HandInput.Engine {
 
     public void ComputeImageFeature(Image<Gray, Byte> image, Rectangle bb) {
       image.ROI = bb;
-      CvInvoke.cvResize(image.Ptr, scaled.Ptr, INTER.CV_INTER_LINEAR); 
-      featureProcessor.Compute(scaled.Ptr);
+      featureProcessor.Compute(image.Ptr);
       image.ROI = Rectangle.Empty;
     }
   }
