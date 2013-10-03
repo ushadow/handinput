@@ -22,9 +22,10 @@ public:
 private:
   static const int kTableSize = 25000;
   float a_[kTableSize];
-  std::unique_ptr<float[]> M_, H_;
-  std::unique_ptr<float[]> O_, N_;
-  int h_, w_, d_, hb1_, wb1_, sbin_, obin_, fold_per_dim_, fold_;
+  std::unique_ptr<float[]> M_, O_, N_, H_;
+  int h_, w_, d_, hb1_, wb1_, sbin_, obin_, fold_per_dim_, fold_, hist_length_;
+  // Number of blocks.
+  int nb_;
   float acmult_;
   
   void Hog(float *H, float *HG, int h, int w, int d, int sbin, int obin);

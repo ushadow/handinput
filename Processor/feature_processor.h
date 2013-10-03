@@ -8,9 +8,13 @@ namespace handinput {
     // w: feature image patch width.
     // h: feature image patch height.
     FeatureProcessor(int w, int h);
+    ~FeatureProcessor(void) {}
+
+    // Returns the float array of HOG descriptors. This object still has the ownership of the 
+    // float array.
     float* Compute(cv::Mat& image);
     cv::Mat Visualize(cv::Mat& orig_image, int zoom_factor);
-    ~FeatureProcessor(void) {}
+    int HOGLength() { return hog_->Length(); }
 
   private:
     static const int kCellSize = 4;

@@ -1,6 +1,26 @@
 #include "gtest\gtest.h"
 #include "feature_processor.h"
 
+void DisplayImage(cv::Mat& image) {
+  std::string window_name = "Test Window";
+  cv::namedWindow(window_name);
+  cv::imshow(window_name, image);
+  cv::waitKey(0);
+  cv::destroyWindow(window_name);
+}
+
+TEST(FeatureProcessorTest, ComputeHOGDescriptorZero) {
+  using cv::Mat;
+
+  int imageSize = 64;
+  handinput::FeatureProcessor processor(imageSize, imageSize);
+  Mat image(imageSize, imageSize, CV_8U, cv::Scalar(255));
+  float* descriptor = processor.Compute(image);
+  for (int i = 0; i < processor.HOGLength(); i++) {
+    ASSERT_EQ(0, descriptor[i]);
+  }
+}
+
 TEST(FeatureProcessorTest, ComputeHOGDescriptor) {
   using cv::Mat;
   using std::string;
@@ -12,10 +32,6 @@ TEST(FeatureProcessorTest, ComputeHOGDescriptor) {
   Mat gray_image;
   cv::cvtColor(resized, gray_image, CV_BGR2GRAY); 
   processor.Compute(gray_image);
-  Mat vis = processor.Visualize(gray_image, 3);
-  string window_name = "Test Window";
-  cv::namedWindow(window_name);
-  cv::imshow(window_name, vis);
-  cv::waitKey(0);
-  cv::destroyWindow(window_name);
+  Mat vis = processor.Visualize(gray_image, 6);
+  DisplayImage(vis);
 }
