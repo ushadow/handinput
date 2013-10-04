@@ -171,7 +171,7 @@
       <Project>{09dae56b-715f-4069-bb66-a110d876a772}</Project>
       <Name>Kinect.Toolbox.Voice</Name>
     </ProjectReference>
-    <ProjectReference Include="..\HandInputEngine\Engine.csproj">
+    <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{a508b43b-222e-4a0e-9280-a7f924ccfab4}</Project>
       <Name>Engine</Name>
     </ProjectReference>
