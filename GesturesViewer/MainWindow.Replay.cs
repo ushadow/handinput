@@ -15,79 +15,13 @@ using HandInput.Engine;
 using HandInput.Util;
 using Microsoft.Win32;
 
+// Replay related interactions.
 namespace HandInput.GesturesViewer {
   partial class MainWindow {
     static readonly int FPS = 30;
     DispatcherTimer timer;
 
-    /// <summary>
-    /// Starts new replay.
-    /// </summary>
-    /// <param name="recordStream"></param>
-    private void Replay(Stream recordStream) {
-      CancelTracking();
-      replay = new KinectAllFramesReplay(recordStream);
-      frameSlider.Maximum = replay.FrameCount;
-      frameSlider.Value = 0;
-
-      handTracker = new HandInput.Engine.SaliencyDetector(DepthWidth, DepthHeight,
-          kinectSensor.CoordinateMapper);
-      featureProcessor = new SalientFeatureProcessor();
-      timer = new DispatcherTimer();
-      timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
-      timer.Tick += new EventHandler(OnTimerTick);
-      timer.Start();
-    }
-
-    private void OnTimerTick(object sender, EventArgs e) {
-      frameSlider.Value += 1;
-    }
-
-    private void frameSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
-      int index = (int)e.NewValue;
-      var frame = replay.FrameAt(index);
-      if (frame != null)
-        ReplayFrame(frame.DepthImageFrame, frame.ColorImageFrame, frame.SkeletonFrame);
-      else {
-        timer.Stop();
-        featureProcessor = null;
-      }
-    }
-
-    private void ReplayFrame(ReplayDepthImageFrame df, ReplayColorImageFrame cf,
-        ReplaySkeletonFrame sf) {
-      if (df != null)
-        statusTextBox.Text = df.FrameNumber.ToString();
-      depthManager.Update(df);
-      colorManager.Update(cf, !displayDepth);
-      UpdateSkeletonDisplay(sf);
-      var relPos = handTracker.detect(depthManager.PixelData, colorManager.PixelData,
-          SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
-      featureProcessor.Compute(relPos, handTracker.SmoothedDepth, handTracker.PrevBoundingBox);
-      fpsCounter.LogFPS();
-      UpdateDisplay();
-    }
-
-    private void TogglePlay() {
-      if (timer != null) {
-        if (timer.IsEnabled)
-          timer.Stop();
-        else
-          timer.Start();
-      }
-    }
-
-    private void StopReply() {
-      if (timer != null && timer.IsEnabled)
-        timer.Stop();
-
-      if (replay != null) {
-        replay.Dispose();
-        replay = null;
-      }
-    }
-
-    private void replayButton_Click(object sender, RoutedEventArgs e) {
+    void replayButton_Click(object sender, RoutedEventArgs e) {
       OpenFileDialog openFileDialog = new OpenFileDialog {
         Title = "Select filename",
         Filter = "Replay files|*.replay"
@@ -101,6 +35,73 @@ namespace HandInput.GesturesViewer {
         Stream recordStream = File.OpenRead(openFileDialog.FileName);
 
         Replay(recordStream);
+      }
+    }
+
+    /// <summary>
+    /// Starts new replay.
+    /// </summary>
+    /// <param name="recordStream"></param>
+    void Replay(Stream recordStream) {
+      CancelTracking();
+      replay = new KinectAllFramesReplay(recordStream);
+      frameSlider.Maximum = replay.FrameCount;
+      frameSlider.Value = 0;
+
+      handTracker = new HandInput.Engine.SaliencyDetector(DepthWidth, DepthHeight,
+                                                          replay.CoordinateMapper);
+      featureProcessor = new SalientFeatureProcessor();
+      timer = new DispatcherTimer();
+      timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
+      timer.Tick += new EventHandler(OnTimerTick);
+      timer.Start();
+    }
+
+    void OnTimerTick(object sender, EventArgs e) {
+      frameSlider.Value += 1;
+    }
+
+    void frameSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+      int index = (int)e.NewValue;
+      var frame = replay.FrameAt(index);
+      if (frame != null)
+        ReplayFrame(frame.DepthImageFrame, frame.ColorImageFrame, frame.SkeletonFrame);
+      else {
+        timer.Stop();
+        featureProcessor = null;
+      }
+    }
+
+    void ReplayFrame(ReplayDepthImageFrame df, ReplayColorImageFrame cf,
+        ReplaySkeletonFrame sf) {
+      if (df != null)
+        statusTextBox.Text = df.FrameNumber.ToString();
+      depthDisplayManager.Update(df);
+      colorManager.Update(cf, !displayDepth);
+      UpdateSkeletonDisplay(sf);
+      var relPos = handTracker.detect(depthDisplayManager.PixelData, colorManager.PixelData,
+          SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
+      featureProcessor.Compute(relPos, handTracker.SmoothedDepth, handTracker.PrevBoundingBox);
+      fpsCounter.LogFPS();
+      UpdateDisplay();
+    }
+
+    void TogglePlay() {
+      if (timer != null) {
+        if (timer.IsEnabled)
+          timer.Stop();
+        else
+          timer.Start();
+      }
+    }
+
+    void StopReply() {
+      if (timer != null && timer.IsEnabled)
+        timer.Stop();
+
+      if (replay != null) {
+        replay.Dispose();
+        replay = null;
       }
     }
 

@@ -3,34 +3,81 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using Kinect.Toolbox;
-using Kinect.Toolbox.Record;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Windows;
+
+using Kinect.Toolbox;
+using Kinect.Toolbox.Record;
+
+using Common.Logging;
 
 namespace HandInput.GesturesViewer {
   /// <summary>
   /// Manages the visualization of depth data.
   /// </summary>
   class DepthDisplayManager : Notifier, IStreamManager {
+    static readonly ILog Log = LogManager.GetCurrentClassLogger();
+
     public short[] PixelData { get; private set; }
     public WriteableBitmap Bitmap { get; private set; }
 
+    int width, height, stride;
+    Int32Rect rect;
+    byte[] depthFrame;
+
+    public DepthDisplayManager(int width, int height) {
+      this.width = width;
+      this.height = height;
+    }
+
     public void Update(ReplayDepthImageFrame frame) {
-      PixelData = new short[frame.PixelDataLength];
+      if (PixelData == null) 
+        PixelData = new short[frame.PixelDataLength];
       frame.CopyPixelDataTo(PixelData);
     }
 
-    public void Update(byte[] data, int width, int height) {
+    public void UpdateBitmap() {
+      ConvertDepthFrame(PixelData);
+      UpdateBitmap(depthFrame);
+    }
+
+    /// <summary>
+    /// Update the bitmap with the given byte array.
+    /// </summary>
+    /// <param name="data">the length of the data must be equal to this.width * this.height</param>
+    public void UpdateBitmap(byte[] data) {
+      if (data.Length != width * height) {
+        Log.FatalFormat("The length of the data is incorrent. Should be {0}; got {1}.",
+                        width * height, data.Length);
+      }
+
+      if (Bitmap == null)
+        InitializeBitmap();
+      Bitmap.WritePixels(rect, data, stride, 0);
+      RaisePropertyChanged(() => Bitmap);
+    }
+
+    void InitializeBitmap() {
       if (Bitmap == null) {
         Bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
       }
-      int stride = Bitmap.PixelWidth * Bitmap.Format.BitsPerPixel / 8;
-      Int32Rect dirtyRect = new Int32Rect(0, 0, Bitmap.PixelWidth, Bitmap.PixelHeight);
-      Bitmap.WritePixels(dirtyRect, data, stride, 0);
-      RaisePropertyChanged(() => Bitmap);
+      stride = Bitmap.PixelWidth * Bitmap.Format.BitsPerPixel / 8;
+      rect = new Int32Rect(0, 0, Bitmap.PixelWidth, Bitmap.PixelHeight);
+    }
+
+    void ConvertDepthFrame(short[] depthFrame16) {
+      if (depthFrame == null)
+        depthFrame = new byte[width * height];
+
+      for (int i = 0; i < depthFrame16.Length; i++) {
+        int user = depthFrame16[i] & 0x07;
+        int realDepth = (depthFrame16[i] >> 3);
+
+        byte intensity = (byte)(255 - (255 * realDepth / 0x1fff));
+
+        depthFrame[i] = intensity;
+      }
     }
   }
 }

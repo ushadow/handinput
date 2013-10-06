@@ -20,6 +20,7 @@ using Common.Logging;
 
 using HandInput.Engine;
 using HandInput.Util;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace HandInput.GesturesViewer {
   /// <summary>
@@ -32,7 +33,7 @@ namespace HandInput.GesturesViewer {
     static readonly int DepthWidth = 640, DepthHeight = 480;
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
-    readonly DepthDisplayManager depthManager = new DepthDisplayManager();
+    readonly DepthDisplayManager depthDisplayManager = new DepthDisplayManager(DepthWidth, DepthHeight);
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
 
@@ -87,7 +88,7 @@ namespace HandInput.GesturesViewer {
       }
     }
 
-    private void Window_Loaded(object sender, RoutedEventArgs e) {
+    void Window_Loaded(object sender, RoutedEventArgs e) {
       this.Activate();
       try {
         //listen to any status change for Kinects
@@ -111,7 +112,7 @@ namespace HandInput.GesturesViewer {
       }
     }
 
-    private void Initialize() {
+    void Initialize() {
       if (kinectSensor == null)
         return;
 
@@ -168,7 +169,9 @@ namespace HandInput.GesturesViewer {
         if (handTracker.PrevBoundingBox.Width > 0) {
           VisualUtil.DrawRectangle(gesturesCanvas, handTracker.PrevBoundingBox, Brushes.Red);
         }
-        depthManager.Update(handTracker.SmoothedDepth.Bytes, DepthWidth, DepthHeight);
+        depthDisplayManager.UpdateBitmap(handTracker.SmoothedDepth.Bytes);
+      } else if (displayDepth) {
+        depthDisplayManager.UpdateBitmap();
       }
     }
 
@@ -186,11 +189,11 @@ namespace HandInput.GesturesViewer {
         } catch (ObjectDisposedException) { }
 
         if (cf != null)
-          colorManager.Update(cf);
+          colorManager.Update(cf, !displayDepth);
 
         if (df != null) {
           depthFrameNumber = df.FrameNumber;
-          depthManager.Update(df);
+          depthDisplayManager.Update(df);
         }
 
         if (sf != null) {
@@ -198,7 +201,7 @@ namespace HandInput.GesturesViewer {
           if (buffer.Count <= 1)
             buffer.Add(new KinectDataPacket {
               ColorData = colorManager.PixelData,
-              DepthData = depthManager.PixelData,
+              DepthData = depthDisplayManager.PixelData,
               Skeleton = SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons())
             });
         }
@@ -226,11 +229,11 @@ namespace HandInput.GesturesViewer {
       stabilitiesList.ItemsSource = stabilities;
     }
 
-    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+    void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
       Clean();
     }
 
-    private void Clean() {
+    void Clean() {
       CancelTracking();
 
       if (audioManager != null) {
@@ -239,7 +242,7 @@ namespace HandInput.GesturesViewer {
       }
 
       if (recorder != null) {
-        recorder.Stop();
+        recorder.Close();
         recorder = null;
       }
 
@@ -255,19 +258,19 @@ namespace HandInput.GesturesViewer {
       }
     }
 
-    private void Button_Click(object sender, RoutedEventArgs e) {
+    void Button_Click(object sender, RoutedEventArgs e) {
       displayDepth = !displayDepth;
 
       if (displayDepth) {
         viewButton.Content = "View Color";
-        kinectDisplay.DataContext = depthManager;
+        kinectDisplay.DataContext = depthDisplayManager;
       } else {
         viewButton.Content = "View Depth";
         kinectDisplay.DataContext = colorManager;
       }
     }
 
-    private void nearMode_Checked_1(object sender, RoutedEventArgs e) {
+    void nearMode_Checked_1(object sender, RoutedEventArgs e) {
       if (kinectSensor == null)
         return;
 
@@ -275,7 +278,7 @@ namespace HandInput.GesturesViewer {
       kinectSensor.SkeletonStream.EnableTrackingInNearRange = true;
     }
 
-    private void nearMode_Unchecked_1(object sender, RoutedEventArgs e) {
+    void nearMode_Unchecked_1(object sender, RoutedEventArgs e) {
       if (kinectSensor == null)
         return;
 
@@ -283,21 +286,21 @@ namespace HandInput.GesturesViewer {
       kinectSensor.SkeletonStream.EnableTrackingInNearRange = false;
     }
 
-    private void seatedMode_Checked_1(object sender, RoutedEventArgs e) {
+    void seatedMode_Checked_1(object sender, RoutedEventArgs e) {
       if (kinectSensor == null)
         return;
 
       kinectSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
     }
 
-    private void seatedMode_Unchecked_1(object sender, RoutedEventArgs e) {
+    void seatedMode_Unchecked_1(object sender, RoutedEventArgs e) {
       if (kinectSensor == null)
         return;
 
       kinectSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Default;
     }
 
-    private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
+    void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
       switch (e.Key) {
         case Key.Space:
           RecordGesture();

@@ -26,12 +26,12 @@ namespace HandInput.GesturesViewer {
     void DirectRecord(string targetFileName) {
       Stream recordStream = File.Create(targetFileName);
       recorder = new KinectRecorder(KinectRecordOptions.Skeletons | KinectRecordOptions.Color |
-          KinectRecordOptions.Depth, recordStream);
+          KinectRecordOptions.Depth, kinectSensor.CoordinateMapper, recordStream);
     }
 
     void StopRecord() {
       if (recorder != null) {
-        recorder.Stop();
+        recorder.Close();
         recorder = null;
         return;
       }
