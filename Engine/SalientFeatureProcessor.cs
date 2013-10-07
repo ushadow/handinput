@@ -18,38 +18,60 @@ using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
 
 using handinput;
+using System.Runtime.InteropServices;
 
 namespace HandInput.Engine {
-  public class SalientFeatureProcessor {
-    private static readonly ILog Log = LogManager.GetCurrentClassLogger();
-    private static readonly int FeatureImageWidth = 64;
+  public class SalienceFeatureProcessor {
+    static readonly ILog Log = LogManager.GetCurrentClassLogger();
+    static readonly int FeatureImageWidth = 64;
 
-    private Vector3D prevRelPos;
-    private Vector3D prevVel;
-    private MFeatureProcessor featureProcessor = new MFeatureProcessor(FeatureImageWidth, 
+    Vector3D prevRelPos;
+    Vector3D prevVel;
+    MFeatureProcessor featureProcessor = new MFeatureProcessor(FeatureImageWidth,
         FeatureImageWidth);
-    private Image<Gray, Byte> scaled = new Image<Gray,byte>(FeatureImageWidth, FeatureImageWidth);
+    int featureLength, hogLength;
+    bool visualize;
 
-    public void Compute(Option<Vector3D> relPos, Image<Gray, Byte> depthImage, 
-        Rectangle bb) {
+    public SalienceFeatureProcessor(bool visualize = false) {
+      hogLength = featureProcessor.HOGLength();
+      featureLength = 3 * 3 + hogLength;
+      this.visualize = visualize;
+    }
 
-      if (relPos.IsSome) {
+    public Option<Single[]> Compute(TrackingResult result) {
+      Single[] feature = null;
+      if (result.RelPos.IsSome) {
         if (prevRelPos != null) {
-          var v = Vector3D.Subtract(relPos.Value, prevRelPos);
+          var v = Vector3D.Subtract(result.RelPos.Value, prevRelPos);
           if (prevVel != null) {
             var acc = Vector3D.Subtract(v, prevVel);
-            ComputeImageFeature(depthImage, bb);
+            feature = new Single[featureLength];
+            UpdateFeature(feature, result.RelPos.Value, 0);
+            UpdateFeature(feature, v, 3);
+            UpdateFeature(feature, acc, 6);
+            var ptr = ComputeImageFeature(result.SmoothedDepth, result.BoundingBox);
+            Marshal.Copy(ptr, feature, 9, hogLength);
           }
           prevVel = v;
         }
-        prevRelPos = relPos.Value;
+        prevRelPos = result.RelPos.Value;
       }
+      if (feature == null)
+        return new None<Single[]>();
+      else return new Some<Single[]>(feature);
     }
 
-    public void ComputeImageFeature(Image<Gray, Byte> image, Rectangle bb) {
+    IntPtr ComputeImageFeature(Image<Gray, Byte> image, Rectangle bb) {
       image.ROI = bb;
-      featureProcessor.Compute(image.Ptr);
+      var ptr = featureProcessor.Compute(image.Ptr, visualize);
       image.ROI = Rectangle.Empty;
+      return ptr;
+    }
+
+    void UpdateFeature(Single[] feature, Vector3D v, int startIndex) {
+      feature[startIndex] = (Single)v.X;
+      feature[startIndex + 1] = (Single)v.Y;
+      feature[startIndex + 2] = (Single)v.Z;
     }
   }
 }

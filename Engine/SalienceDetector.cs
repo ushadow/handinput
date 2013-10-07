@@ -19,7 +19,7 @@ using Microsoft.Kinect;
 using Common.Logging;
 
 namespace HandInput.Engine {
-  public class SaliencyDetector {
+  public class SalienceDetector {
     public static readonly float HandWidth = 0.095f; // m
     private static readonly int NumBin = 256;
     private static readonly int DefaultZDist = 1; // m
@@ -53,17 +53,12 @@ namespace HandInput.Engine {
     /// <param name="width"></param>
     /// <param name="height"></param>
     /// <param name="kinectParamsBinary">Kinect parameters in binary.</param>
-    public SaliencyDetector(int width, int height, Byte[] kinectParamsBinary) {
+    public SalienceDetector(int width, int height, Byte[] kinectParams) {
       Init(width, height);
-
-      var bf = new BinaryFormatter();
-      var stream = new MemoryStream(kinectParamsBinary);
-      var kinectParams = bf.Deserialize(stream) as IEnumerable<byte>;
-      stream.Close();
       mapper = new ColorDepthMapper(kinectParams);
     }
 
-    public SaliencyDetector(int width, int height, CoordinateMapper mapper) {
+    public SalienceDetector(int width, int height, CoordinateMapper mapper) {
       Init(width, height);
       this.mapper = new ColorDepthMapper(mapper);
     }
@@ -77,13 +72,13 @@ namespace HandInput.Engine {
     /// relative to the image.</param>
     /// <returns>The position of the best bounding box relative to the shoulder joint in skeleton 
     /// coordinates if the bounding box is valid. Otherwise returns None.</returns>
-    public Option<Vector3D> detect(short[] depthFrame, byte[] colorPixelData, Skeleton skeleton) {
+    public TrackingResult Detect(short[] depthFrame, byte[] colorPixelData, Skeleton skeleton) {
       t++;
 
-      Option<Vector3D> res = new None<Vector3D>();
+      Option<Vector3D> relPos = new None<Vector3D>();
 
       if (skeleton == null || depthFrame == null)
-        return res;
+        return new TrackingResult() { RelPos = relPos};
 
       playerDetector.detectFilterSkin(depthFrame, colorPixelData, mapper);
       var playerDepthImage = playerDetector.PlayerDepthImage;
@@ -121,11 +116,12 @@ namespace HandInput.Engine {
           var skeHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
           PrevBoundingBox = FindBestBoundingBox(skeHandJoint);
           if (PrevBoundingBox.Width > 0)
-            res = new Some<Vector3D>(RelativePosToShoulder(PrevBoundingBox, skeleton));
+            relPos = new Some<Vector3D>(RelativePosToShoulder(PrevBoundingBox, skeleton));
         }
       }
       SmoothedDepth.CopyTo(Diff0);
-      return res;
+      return new TrackingResult() { RelPos = relPos, SmoothedDepth = SmoothedDepth, 
+                                    BoundingBox = PrevBoundingBox };
     }
 
     private void Init(int width, int height) {

@@ -24,7 +24,7 @@ namespace HandInput.GesturesViewer {
     void replayButton_Click(object sender, RoutedEventArgs e) {
       OpenFileDialog openFileDialog = new OpenFileDialog {
         Title = "Select filename",
-        Filter = "Replay files|*.replay"
+        Filter = "Replay files|*.bin"
       };
 
       if (openFileDialog.ShowDialog() == true) {
@@ -48,9 +48,9 @@ namespace HandInput.GesturesViewer {
       frameSlider.Maximum = replay.FrameCount;
       frameSlider.Value = 0;
 
-      handTracker = new HandInput.Engine.SaliencyDetector(DepthWidth, DepthHeight,
-                                                          replay.CoordinateMapper);
-      featureProcessor = new SalientFeatureProcessor();
+      handTracker = new HandInput.Engine.SalienceDetector(DepthWidth, DepthHeight,
+                                                          replay.KinectParams);
+      featureProcessor = new SalienceFeatureProcessor();
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
       timer.Tick += new EventHandler(OnTimerTick);
@@ -79,9 +79,9 @@ namespace HandInput.GesturesViewer {
       depthDisplayManager.Update(df);
       colorManager.Update(cf, !displayDepth);
       UpdateSkeletonDisplay(sf);
-      var relPos = handTracker.detect(depthDisplayManager.PixelData, colorManager.PixelData,
+      var result = handTracker.Detect(depthDisplayManager.PixelData, colorManager.PixelData,
           SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
-      featureProcessor.Compute(relPos, handTracker.SmoothedDepth, handTracker.PrevBoundingBox);
+      featureProcessor.Compute(result);
       fpsCounter.LogFPS();
       UpdateDisplay();
     }

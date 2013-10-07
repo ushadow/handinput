@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
+using System.IO;
 
 using Common.Logging;
 using NDesk.Options;
 
 using HandInput.Util;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using System.IO;
+using HandInput.Engine;
 
 namespace HandInput.OfflineProcessor {
   class Program {
@@ -174,7 +175,8 @@ namespace HandInput.OfflineProcessor {
               File.Copy(inFile, outputFile, true);
             } else {
               var outFile = Path.Combine(outputSessionFolder, Path.ChangeExtension(name, Ext));
-              OfflineProcessor proc = new OfflineProcessor(inFile, outFile, readLock, writeLock);
+              OfflineProcessor proc = new OfflineProcessor(inFile, outFile, readLock, writeLock,
+                typeof(SalienceDetector), typeof(SalienceFeatureProcessor));
               try {
                 pp.Spawn(proc.Process);
               } catch (Exception ex) {

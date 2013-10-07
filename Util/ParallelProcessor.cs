@@ -37,7 +37,7 @@ namespace HandInput.Util {
       try {
         ((Action)action)();
       } catch (Exception ex) {
-        Log.Error(ex.Message);
+        Log.Error(ex.InnerException.Message);
       } finally {
         if (Interlocked.Decrement(ref numberOfThreadsNotCompleted) == 0)
           doneEvent.Set();

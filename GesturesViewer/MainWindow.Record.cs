@@ -15,7 +15,7 @@ namespace HandInput.GesturesViewer {
       }
 
       SaveFileDialog saveFileDialog = new SaveFileDialog { Title = "Select filename", 
-          Filter = "Replay files|*.replay" };
+          Filter = "Replay files|*.bin" };
 
       if (saveFileDialog.ShowDialog() == true) {
         DirectRecord(saveFileDialog.FileName);

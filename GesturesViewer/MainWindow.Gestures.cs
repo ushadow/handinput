@@ -29,7 +29,7 @@ namespace HandInput.GesturesViewer {
       switch (e.Type) {
         case TrainingEventType.Start:
           var timeSuffix = String.Format("-{0:yyyy-MM-dd_HH-mm}", DateTime.Now);
-          var fileName = Path.Combine(DataDir, String.Format("KinectData{0}.replay", timeSuffix));
+          var fileName = Path.Combine(DataDir, String.Format("KinectData{0}.bin", timeSuffix));
           var gtFile = Path.Combine(DataDir, String.Format("KinectDataGTD{0}.txt", timeSuffix));
           sw = new StreamWriter(File.Create(gtFile));
           DirectRecord(fileName);

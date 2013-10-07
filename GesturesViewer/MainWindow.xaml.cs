@@ -52,8 +52,8 @@ namespace HandInput.GesturesViewer {
     int depthFrameNumber;
     BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
     CancellationTokenSource cancellationTokenSource;
-    SaliencyDetector handTracker;
-    SalientFeatureProcessor featureProcessor;
+    SalienceDetector handTracker;
+    SalienceFeatureProcessor featureProcessor;
     FPSCounter fpsCounter = new FPSCounter();
 
     public MainWindow() {
@@ -150,10 +150,10 @@ namespace HandInput.GesturesViewer {
     }
 
     void HandTrackingTask(CancellationToken token) {
-      handTracker = new SaliencyDetector(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
+      handTracker = new SalienceDetector(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
         var data = buffer.Take();
-        handTracker.detect(data.DepthData, data.ColorData, data.Skeleton);
+        handTracker.Detect(data.DepthData, data.ColorData, data.Skeleton);
         fpsCounter.LogFPS();
       }
     }
