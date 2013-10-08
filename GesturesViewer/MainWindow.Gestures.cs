@@ -38,8 +38,8 @@ namespace HandInput.GesturesViewer {
           sw.Close();
           StopRecord();
           break;
-        case TrainingEventType.StartPreStroke:
-          sw.WriteLine("{0} {1} {2}", TrainingEventType.StartPreStroke.ToString(), e.Gesture,
+        case TrainingEventType.StartGesture:
+          sw.WriteLine("{0} {1} {2}", TrainingEventType.StartGesture.ToString(), e.Gesture,
               depthFrameNumber);
           break;
       }

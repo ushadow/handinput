@@ -23,15 +23,18 @@ namespace HandInput.OfflineProcessor {
     Type featureProcessorType, handTrackerType;
     IList<Single[]> featureList = new List<Single[]>();
     IList<Int32> frameList = new List<Int32>();
+    int sampleRate;
+    SalienceFeatureProcessor featureProcessor;
 
     public OfflineProcessor(String inputFile, String outputFile, Object readLock,
-      Object writeLock, Type handTrackerType, Type featureProcessorType) {
+      Object writeLock, Type handTrackerType, Type featureProcessorType, int sampleRate) {
       this.inputFile = inputFile;
       this.outputFile = outputFile;
       this.readLock = readLock;
       this.writeLock = writeLock;
       this.handTrackerType = handTrackerType;
       this.featureProcessorType = featureProcessorType;
+      this.sampleRate = sampleRate;
     }
 
     public void Process() {
@@ -48,12 +51,11 @@ namespace HandInput.OfflineProcessor {
 
     private void ProcessFeature() {
       SalienceDetector handTracker = null;
-      SalienceFeatureProcessor featureProcessor = null;
       Int16[] depthPixelData = null;
       Byte[] colorPixelData = null;
 
       Log.DebugFormat("Start processing {0}...", inputFile);
-      for (int i = 0; i < replayer.FrameCount; i++) {
+      for (int i = 0; i < replayer.FrameCount; i += sampleRate) {
         var allFrames = replayer.FrameAt(i);
         var depthFrame = allFrames.DepthImageFrame;
         var colorFrame = allFrames.ColorImageFrame;
@@ -90,6 +92,8 @@ namespace HandInput.OfflineProcessor {
 
     private void WriteToFile() {
       using (var file = new StreamWriter(File.Create(outputFile))) {
+        file.WriteLine("# frame_id, feature_length, {0}, descriptor_length, {1}, sample_rate, {2}", 
+            featureProcessor.FeatureLength, featureProcessor.DescriptorLength, sampleRate);
         for (int i = 0; i < frameList.Count; i++) {
           file.Write("{0},", frameList.ElementAt(i));
           Write(file, featureList.ElementAt(i));

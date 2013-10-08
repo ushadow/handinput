@@ -25,32 +25,34 @@ namespace HandInput.Engine {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
     static readonly int FeatureImageWidth = 64;
 
+    public int FeatureLength { get; private set; }
+    public int DescriptorLength { get; private set; }
+
     Vector3D prevRelPos;
     Vector3D prevVel;
     MFeatureProcessor featureProcessor = new MFeatureProcessor(FeatureImageWidth,
         FeatureImageWidth);
-    int featureLength, hogLength;
     bool visualize;
 
     public SalienceFeatureProcessor(bool visualize = false) {
-      hogLength = featureProcessor.HOGLength();
-      featureLength = 3 * 3 + hogLength;
+      DescriptorLength = featureProcessor.HOGLength();
+      FeatureLength = 3 * 3 + DescriptorLength;
       this.visualize = visualize;
     }
 
     public Option<Single[]> Compute(TrackingResult result) {
       Single[] feature = null;
-      if (result.RelPos.IsSome) {
+      if (result.RelPos.IsSome && result.BoundingBox.IsSome) {
         if (prevRelPos != null) {
           var v = Vector3D.Subtract(result.RelPos.Value, prevRelPos);
           if (prevVel != null) {
             var acc = Vector3D.Subtract(v, prevVel);
-            feature = new Single[featureLength];
+            feature = new Single[FeatureLength];
             UpdateFeature(feature, result.RelPos.Value, 0);
             UpdateFeature(feature, v, 3);
             UpdateFeature(feature, acc, 6);
-            var ptr = ComputeImageFeature(result.SmoothedDepth, result.BoundingBox);
-            Marshal.Copy(ptr, feature, 9, hogLength);
+            var ptr = ComputeImageFeature(result.SmoothedDepth, result.BoundingBox.Value);
+            Marshal.Copy(ptr, feature, 9, DescriptorLength);
           }
           prevVel = v;
         }

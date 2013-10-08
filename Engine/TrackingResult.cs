@@ -15,6 +15,6 @@ namespace HandInput.Engine {
   public struct TrackingResult {
     public Option<Vector3D> RelPos;
     public Image<Gray, Byte> SmoothedDepth;
-    public Rectangle BoundingBox;
+    public Option<Rectangle> BoundingBox;
   }
 }

@@ -30,7 +30,7 @@ namespace HandInput.Engine {
 
     public Image<Gray, Single> SaliencyProb { get; private set; }
     public Image<Gray, Byte> TempMask { get; private set; }
-    public Rectangle PrevBoundingBox { get; private set; }
+    public Option<Rectangle> PrevBoundingBox { get; private set; }
     // Smoothed player depth image.
     public Image<Gray, Byte> SmoothedDepth { get; private set; }
     public Image<Gray, Byte> Diff0 { get; private set; }
@@ -115,8 +115,8 @@ namespace HandInput.Engine {
             }
           var skeHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
           PrevBoundingBox = FindBestBoundingBox(skeHandJoint);
-          if (PrevBoundingBox.Width > 0)
-            relPos = new Some<Vector3D>(RelativePosToShoulder(PrevBoundingBox, skeleton));
+          if (PrevBoundingBox.IsSome && PrevBoundingBox.Value.Width > 0)
+            relPos = new Some<Vector3D>(RelativePosToShoulder(PrevBoundingBox.Value, skeleton));
         }
       }
       SmoothedDepth.CopyTo(Diff0);
@@ -124,7 +124,7 @@ namespace HandInput.Engine {
                                     BoundingBox = PrevBoundingBox };
     }
 
-    private void Init(int width, int height) {
+    void Init(int width, int height) {
       this.width = width;
       this.height = height;
 
@@ -139,6 +139,7 @@ namespace HandInput.Engine {
       diffCumulativeDist = new float[NumBin];
       depthCumulativeDist = new float[NumBin];
       playerDetector = new PlayerDetector(width, height);
+      PrevBoundingBox = new None<Rectangle>();
     }
 
     private Vector3D RelativePosToShoulder(Rectangle rect, Skeleton skeleton) {
@@ -195,10 +196,10 @@ namespace HandInput.Engine {
     }
 
     /// <summary>
-    /// If no bounding box is found, the previous bounding box is returned.
+    /// If no bounding box is found, returns None.
     /// </summary>
     /// <returns></returns>
-    private Rectangle FindBestBoundingBox(Joint hand) {
+    private Option<Rectangle> FindBestBoundingBox(Joint hand) {
       CvInvoke.cvConvert(SaliencyProb.Ptr, TempMask.Ptr);
       // Non-zero pixels are treated as 1s. Source image content is modifield.
       CvInvoke.cvFindContours(TempMask.Ptr, storage, ref contourPtr, StructSize.MCvContour,
@@ -207,7 +208,7 @@ namespace HandInput.Engine {
 
       float bestScore = 0;
       Seq<Point> bestContour = null;
-      Rectangle bestBoundingBox = PrevBoundingBox;
+      Option<Rectangle> bestBoundingBox = new None<Rectangle>();
 
       float z = DefaultZDist;
       if (hand != null)
@@ -227,15 +228,15 @@ namespace HandInput.Engine {
       }
 
       if (bestContour != null) {
-        bestBoundingBox = bestContour.BoundingRectangle;
-        CvInvoke.cvCamShift(SmoothedDepth.Ptr, bestBoundingBox, new MCvTermCriteria(CamShiftIter),
+        var rect = bestContour.BoundingRectangle;
+        CvInvoke.cvCamShift(SmoothedDepth.Ptr, rect, new MCvTermCriteria(CamShiftIter),
             out connectedComp, out shiftedBox);
-        bestBoundingBox = shiftedBox.MinAreaRect();
+        bestBoundingBox = new Some<Rectangle>(shiftedBox.MinAreaRect());
       }
 
-      if (bestBoundingBox.Width > 0) {
+      if (bestBoundingBox.IsSome && bestBoundingBox.Value.Width > 0) {
         SmoothedDepth.CopyTo(TempMask);
-        TempMask.ROI = bestBoundingBox;
+        TempMask.ROI = bestBoundingBox.Value;
         CvInvoke.cvFindContours(TempMask.Ptr, storage, ref contourPtr, StructSize.MCvContour,
             RETR_TYPE.CV_RETR_EXTERNAL, CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE,
             new Point(0, 0));

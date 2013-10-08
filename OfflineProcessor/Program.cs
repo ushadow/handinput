@@ -36,7 +36,7 @@ namespace HandInput.OfflineProcessor {
     private static String type = "fe";
     private static String sessionToProcess = null;
     private static String featureType = "kinectxsens";
-    private static String gtSensor = "Xsens";
+    private static String gtSensor = "Kinect";
 
     private static ParallelProcessor pp = new ParallelProcessor();
     private static Object readLock = new Object();
@@ -176,7 +176,7 @@ namespace HandInput.OfflineProcessor {
             } else {
               var outFile = Path.Combine(outputSessionFolder, Path.ChangeExtension(name, Ext));
               OfflineProcessor proc = new OfflineProcessor(inFile, outFile, readLock, writeLock,
-                typeof(SalienceDetector), typeof(SalienceFeatureProcessor));
+                typeof(SalienceDetector), typeof(SalienceFeatureProcessor), sampleRate);
               try {
                 pp.Spawn(proc.Process);
               } catch (Exception ex) {

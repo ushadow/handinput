@@ -7,7 +7,7 @@ using Common.Logging;
 
 namespace HandInput.GesturesViewer {
 
-  public enum TrainingEventType { Start, End, StartPreStroke, StopPostStroke };
+  public enum TrainingEventType { Start, End, StartGesture, StopPostStroke };
 
   public class TrainingEventArgs {
     public TrainingEventType Type { get; private set; }
@@ -73,7 +73,7 @@ namespace HandInput.GesturesViewer {
         } else {
           repCounter++;
         }
-        TrainingEvent(this, new TrainingEventArgs(TrainingEventType.StartPreStroke, gesture));
+        TrainingEvent(this, new TrainingEventArgs(TrainingEventType.StartGesture, gesture));
       } else {
         timer.Enabled = false;
         Status = "Done";

@@ -166,8 +166,9 @@ namespace HandInput.GesturesViewer {
     void UpdateDisplay() {
       gesturesCanvas.Children.Clear();
       if (handTracker != null) {
-        if (handTracker.PrevBoundingBox.Width > 0) {
-          VisualUtil.DrawRectangle(gesturesCanvas, handTracker.PrevBoundingBox, Brushes.Red);
+        var bb = handTracker.PrevBoundingBox;
+        if (bb.IsSome && bb.Value.Width > 0) {
+          VisualUtil.DrawRectangle(gesturesCanvas, bb.Value, Brushes.Red);
         }
         depthDisplayManager.UpdateBitmap(handTracker.SmoothedDepth.Bytes);
       } else if (displayDepth) {

@@ -19,6 +19,7 @@ using Microsoft.Win32;
 namespace HandInput.GesturesViewer {
   partial class MainWindow {
     static readonly int FPS = 30;
+    static readonly int SampleRate = 3;
     DispatcherTimer timer;
 
     void replayButton_Click(object sender, RoutedEventArgs e) {
@@ -58,7 +59,7 @@ namespace HandInput.GesturesViewer {
     }
 
     void OnTimerTick(object sender, EventArgs e) {
-      frameSlider.Value += 1;
+      frameSlider.Value += SampleRate;
     }
 
     void frameSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
