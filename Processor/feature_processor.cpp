@@ -3,7 +3,6 @@
 
 namespace handinput {
 
-#define M_PI 3.1415926f
   const std::string FeatureProcessor::kDebugWindowName = "Debug";
 
   FeatureProcessor::FeatureProcessor(int w, int h) : w_(w), h_(h) {

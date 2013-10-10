@@ -22,6 +22,7 @@
     <ClCompile Include="..\..\gtest-1.7.0\src\gtest-all.cc" />
     <ClCompile Include="..\..\gtest-1.7.0\src\gtest_main.cc" />
     <ClCompile Include="feature_processor_test.cpp" />
+    <ClCompile Include="infengine_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Processor\Processor.vcxproj">
@@ -86,8 +87,8 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(PorjectDir)bin\$(Configuration)\</OutDir>
-    <IntDir>obj\$(Configuration)\</IntDir>
+    <OutDir>$(PorjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -162,7 +163,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>C:\Emgu-2.4.2\include;C:\Emgu-2.4.2\include\opencv;G:\workspace\HandInput\Processor;G:\workspace\gtest-1.7.0;G:\workspace\gtest-1.7.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\program-files\MATLAB\R2013b\extern\include;G:\program-files\eigen-eigen-ffa86ffb5570;C:\Emgu-2.4.2\include;C:\Emgu-2.4.2\include\opencv;G:\workspace\HandInput\Processor;G:\workspace\gtest-1.7.0;G:\workspace\gtest-1.7.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>

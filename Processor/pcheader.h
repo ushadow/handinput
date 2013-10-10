@@ -28,4 +28,8 @@
 #include "highgui.h"
 #include "opencv2\objdetect\objdetect.hpp"
 
+#include "mat.h"
+
+#include <Eigen/Dense>
+
 

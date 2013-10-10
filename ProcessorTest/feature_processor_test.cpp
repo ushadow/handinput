@@ -41,7 +41,7 @@ TEST(FeatureProcessorTest, ComputeHOGDescriptor) {
   using std::string;
 
   handinput::FeatureProcessor processor(64, 64);
-  Mat mat = cv::imread("../../data/test.png", CV_LOAD_IMAGE_COLOR);
+  Mat mat = cv::imread("../../../data/test.png", CV_LOAD_IMAGE_COLOR);
   Mat resized;
   resize(mat, resized, cv::Size(64, 64));
   Mat gray_image;
