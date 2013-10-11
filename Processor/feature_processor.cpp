@@ -37,7 +37,7 @@ namespace handinput {
     cv::resize(orig_image, visu, Size(orig_image.cols * zoom_factor, 
                                       orig_image.rows * zoom_factor));
 
-    float radRangeForOneBin = M_PI / (float) kNBins; 
+    float radRangeForOneBin = (float) M_PI / kNBins; 
 
     // prepare data structure: 9 orientation / gradient strenghts for each cell
     int cells_in_x_dir = w_ / kCellSize;

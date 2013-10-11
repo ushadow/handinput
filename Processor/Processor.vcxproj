@@ -194,6 +194,7 @@
     <ClCompile Include="feature_processor.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="gaussian.cpp" />
     <ClCompile Include="harrisbuffer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
@@ -201,6 +202,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="infengine.cpp" />
+    <ClCompile Include="mixgaussian.cpp" />
     <ClCompile Include="msharrisbuffer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
@@ -216,9 +218,11 @@
     <ClInclude Include="cmdline.h" />
     <ClInclude Include="cvutil.h" />
     <ClInclude Include="feature_processor.h" />
+    <ClInclude Include="gaussian.h" />
     <ClInclude Include="harrisbuffer.h" />
     <ClInclude Include="hog_descriptor.h" />
     <ClInclude Include="infengine.h" />
+    <ClInclude Include="mixgaussian.h" />
     <ClInclude Include="msharrisbuffer.h" />
     <ClInclude Include="pcheader.h" />
     <ClInclude Include="stbuffer.h" />

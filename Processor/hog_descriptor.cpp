@@ -5,8 +5,6 @@
 
 namespace handinput {
 
-#define PI 3.1415926535897931f
-
   HOGDescriptor::HOGDescriptor(int w, int h, int sbin, int obin, int fold) : w_(w), h_(h), d_(1), 
     sbin_(sbin), obin_(obin), fold_(fold) {
       int hb = h_ / sbin_; 
@@ -62,7 +60,7 @@ namespace handinput {
         if (m < eps) { o = 0; } else {
           m = sqrt(m); /* o=acos(dx/m); */
           o = acost[(int)((dx / m + 1.1f) * acmult_ )];
-          if (o > PI - eps) o = 0; else if (dy < 0) o = (float) PI - o;
+          if (o > M_PI - eps) o = 0; else if (dy < 0) o = (float) M_PI - o;
         }
         *(M0++) = m; *(O0++) = o;
         Ix0++; Ix1++; Iy0++; Iy1++; Iy++;
@@ -76,7 +74,7 @@ namespace handinput {
     int sBin, int obin, bool sSoft, bool oSoft ) {
       const int hb = h / sBin, wb = w / sBin, h0 = hb * sBin, w0 = wb * sBin, nb = nb_;
       const float s = (float) sBin, sInv = 1 / s, sInv2 = 1 / s / s;
-      const float oMult = obin / PI;
+      const float oMult = obin / (float) M_PI;
       float *H0; int x, y, xy, o0, o1, xb0, yb0, obin1 = obin * nb;
       float od0, od1, o, m, m0, m1, xb, yb, xd0, xd1, yd0, yd1;
       std::fill_n(H, hist_length_, 0.0f);
