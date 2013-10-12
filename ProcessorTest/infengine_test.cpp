@@ -1,8 +1,42 @@
 #include "gtest\gtest.h"
 #include "infengine.h"
 
+#define ABS_ERROR 0.0001
+
 TEST(InfEngineTest, Initialization) {
+  using Eigen::VectorXf;
+  using Eigen::MatrixXf;
+
+  static const int DESCRIPTOR_LEN = 2025;
+  static const int N_PRINCIPAL_COMPS = 23;
+  static const int FEATURE_LEN = N_PRINCIPAL_COMPS + 9;
+  
   handinput::InfEngine engine;
-  ASSERT_EQ(engine.descriptor_len(), 2025);
-  ASSERT_EQ(engine.n_principal_comp(), 23);
+  ASSERT_EQ(DESCRIPTOR_LEN, engine.descriptor_len());
+  ASSERT_EQ(N_PRINCIPAL_COMPS, engine.n_principal_comps());
+  ASSERT_EQ(FEATURE_LEN, engine.feature_len());
+  const VectorXf* pca_mean = engine.pca_mean();
+  ASSERT_EQ(2025, pca_mean->size());
+  ASSERT_NEAR(0.0218, pca_mean->coeff(0), ABS_ERROR);
+  ASSERT_NEAR(0.0045, pca_mean->coeff(DESCRIPTOR_LEN - 1), ABS_ERROR);
+
+  const MatrixXf* pc = engine.principal_comp();
+  ASSERT_EQ(N_PRINCIPAL_COMPS, pc->rows());
+  ASSERT_EQ(DESCRIPTOR_LEN, pc->cols());
+  ASSERT_NEAR(-0.0175, pc->coeff(0, 0), ABS_ERROR);
+  ASSERT_NEAR(0.0014, pc->coeff(0, DESCRIPTOR_LEN - 1), ABS_ERROR);
+  ASSERT_NEAR(0.0062, pc->coeff(N_PRINCIPAL_COMPS - 1, DESCRIPTOR_LEN - 1), ABS_ERROR);
+
+  const VectorXf* std_mu = engine.std_mu();
+  ASSERT_EQ(FEATURE_LEN, std_mu->size());
+  ASSERT_NEAR(0.0549, std_mu->coeff(0), ABS_ERROR);
+  ASSERT_NEAR(0, std_mu->coeff(FEATURE_LEN - 1), ABS_ERROR);
+
+  const VectorXf* std_sigma = engine.std_sigma();
+  ASSERT_EQ(FEATURE_LEN, std_sigma->size());
+  ASSERT_NEAR(0.3170, std_sigma->coeff(0), ABS_ERROR);
+  ASSERT_NEAR(0.3882, std_sigma->coeff(FEATURE_LEN - 1), ABS_ERROR);
+
+  const handinput::HMM* hmm = engine.hmm();
+
 }

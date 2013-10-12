@@ -34,7 +34,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120_CTP_Nov2012</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
@@ -198,6 +198,7 @@
     <ClCompile Include="harrisbuffer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="hmm.cpp" />
     <ClCompile Include="hog_descriptor.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
@@ -220,6 +221,7 @@
     <ClInclude Include="feature_processor.h" />
     <ClInclude Include="gaussian.h" />
     <ClInclude Include="harrisbuffer.h" />
+    <ClInclude Include="hmm.h" />
     <ClInclude Include="hog_descriptor.h" />
     <ClInclude Include="infengine.h" />
     <ClInclude Include="mixgaussian.h" />

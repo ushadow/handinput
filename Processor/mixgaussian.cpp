@@ -1,9 +1,10 @@
 #include "mixgaussian.h"
 
 namespace handinput {
+  // gaussians: the referenced object is moved to the member variable of MixGaussian and it becomes 
+  //            in a unspecified state.
   MixGaussian::MixGaussian(const Eigen::Ref<const Eigen::VectorXf> mix, 
-        const std::vector<const Gaussian*> gaussians) {
-    gaussians_ = gaussians;
+    std::vector<std::unique_ptr<const Gaussian>>& gaussians) : gaussians_(std::move(gaussians)) {
     mix_ = mix;
   }
 

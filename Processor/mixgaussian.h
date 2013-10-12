@@ -5,11 +5,17 @@
 namespace handinput {
   class MixGaussian {
   public:
+    // mix: makes a copy of mix vector.
     MixGaussian(const Eigen::Ref<const Eigen::VectorXf> mix, 
-                const std::vector<const Gaussian*> gaussians);
+                std::vector<std::unique_ptr<const Gaussian>>& gaussians);
     float Prob(const Eigen::Ref<const Eigen::VectorXf> x) const;
   private:
     Eigen::VectorXf mix_;
-    std::vector<const Gaussian*> gaussians_;
+    std::vector<std::unique_ptr<const Gaussian>> gaussians_;
+
+    MixGaussian(const MixGaussian&) {}
+    MixGaussian(MixGaussian&&) {}
+    MixGaussian& operator=(const MixGaussian&) { return *this; }
+    MixGaussian& operator=(MixGaussian&&) { return *this; }
   };
 }

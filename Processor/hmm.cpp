@@ -3,14 +3,23 @@
 
 namespace handinput {
   HMM::HMM(const Eigen::Ref<const Eigen::VectorXf> prior, 
-    const Eigen::Ref<const Eigen::MatrixXf> transmat, std::vector<const MixGaussian*> mixgaussians) {
+    const Eigen::Ref<const Eigen::MatrixXf> transmat, 
+    std::vector<std::unique_ptr<const MixGaussian>>& mixgaussians) 
+    : mixgaussians_(std::move(mixgaussians)) {
+
       using Eigen::VectorXf;
-      mixgaussians_ = mixgaussians;
-      n_states_ = mixgaussians.size();
+
+      n_states_ = (int) mixgaussians.size();
       obslik_ = VectorXf::Zero(n_states_);
       prior_ = prior;
       transmat_t_ = transmat.transpose();
       loglik_ = 0;
+  }
+
+  const MixGaussian* HMM::GetMixGaussian(int index) const {
+    if (index >= mixgaussians_.size())
+      throw std::invalid_argument("The index exceeds the number of mixtures.");
+    return mixgaussians_[index].get();
   }
 
   void HMM::Fwdback(const Eigen::Ref<const Eigen::VectorXf> x) {
