@@ -3,7 +3,7 @@
 #include "mixgaussian.h"
 
 namespace handinput {
-  class HMM {
+  class PROCESSOR_API HMM {
   public:
     // prior: makes a copy of prioir.
     // transmat: creates a transpose of transmat.
@@ -17,7 +17,7 @@ namespace handinput {
     // Transition matrix transposed.
     const Eigen::MatrixXf* transmat_t() const { return &transmat_t_; }
 
-    const MixGaussian* GetMixGaussian(int index) const;
+    const MixGaussian* MixGaussianAt(int index) const;
 
     void Fwdback(const Eigen::Ref<const Eigen::VectorXf> x);
 
@@ -29,7 +29,10 @@ namespace handinput {
     Eigen::MatrixXf transmat_t_;
     float loglik_;
 
+    HMM(const HMM&) {}
+    HMM& operator=(const HMM&) { return *this; }
     void ComputeObslik(const Eigen::Ref<const Eigen::VectorXf> x);
     float Normalize();
+    void CheckRI();
   };
 }

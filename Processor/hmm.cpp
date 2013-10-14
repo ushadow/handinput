@@ -9,14 +9,21 @@ namespace handinput {
 
       using Eigen::VectorXf;
 
-      n_states_ = (int) mixgaussians.size();
+      n_states_ = (int) prior.size();
       obslik_ = VectorXf::Zero(n_states_);
       prior_ = prior;
       transmat_t_ = transmat.transpose();
       loglik_ = 0;
+      CheckRI();
   }
 
-  const MixGaussian* HMM::GetMixGaussian(int index) const {
+  void HMM::CheckRI() {
+    if (mixgaussians_.size() != n_states_ || transmat_t_.rows() != n_states_ ||
+        transmat_t_.cols() != n_states_)
+        throw std::invalid_argument("The input is not valid.");
+  }
+
+  const MixGaussian* HMM::MixGaussianAt(int index) const {
     if (index >= mixgaussians_.size())
       throw std::invalid_argument("The index exceeds the number of mixtures.");
     return mixgaussians_[index].get();

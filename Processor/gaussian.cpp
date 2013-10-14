@@ -16,8 +16,15 @@ namespace handinput {
   // p(x) = 1/sqrt((2pi)^k * det(cov))*exp(-0.5(x - mean)'cov^-1(x - mean))
   float Gaussian::Prob(const Eigen::Ref<const Eigen::VectorXf> x) const {
     using Eigen::VectorXf;
+    if (x.size() != mean_.size())
+      throw std::invalid_argument("The size of the input is incorrect.");
     VectorXf v = x - mean_;
     float mahal = (inv_cov_ * v).dot(v);
     return (float) (b_ * exp(-0.5 * mahal));
+  }
+
+  void Gaussian::CheckRI() {
+    if (mean_.size() != inv_cov_.rows() || mean_.size() != inv_cov_.cols())
+      throw std::invalid_argument("The input arguments are not valid.");
   }
 }

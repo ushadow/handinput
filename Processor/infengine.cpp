@@ -62,11 +62,11 @@ namespace handinput {
     using Eigen::MatrixXf;
 
     mxArray* mx_hmm_model = mxGetField(mx_model, 0, "model");
-    mxArray* mx_prior = mxGetCell(mxGetField(mx_hmm_model, 0, "prior"), 0);
-    mxArray* mx_transmat = mxGetCell(mxGetField(mx_hmm_model, 0, "transmat"), 0);
-    mxArray* mx_mu = mxGetCell(mxGetField(mx_hmm_model, 0, "mu"), 0);
-    mxArray* mx_sigma = mxGetCell(mxGetField(mx_hmm_model, 0, "Sigma"), 0);
-    mxArray* mx_mixmat = mxGetCell(mxGetField(mx_hmm_model, 0, "mixmat"), 0);
+    mxArray* mx_prior = mxGetField(mx_hmm_model, 0, "prior");
+    mxArray* mx_transmat = mxGetField(mx_hmm_model, 0, "transmat");
+    mxArray* mx_mu = mxGetField(mx_hmm_model, 0, "mu");
+    mxArray* mx_sigma = mxGetField(mx_hmm_model, 0, "Sigma");
+    mxArray* mx_mixmat = mxGetField(mx_hmm_model, 0, "mixmat");
 
     const float* prior_data = (const float*) mxGetData(mx_prior);
     const float* transmat_data = (const float*) mxGetData(mx_transmat);
@@ -93,7 +93,7 @@ namespace handinput {
       unique_ptr<const MixGaussian> mixgauss(new MixGaussian(mix, gaussians));
       mixgaussians.push_back(std::move(mixgauss));
     }
-    hmm_.reset(new HMM(VectorXf::Map(prior_data, feature_len_),
-      MatrixXf::Map(transmat_data, feature_len_, feature_len_), mixgaussians));
+    hmm_.reset(new HMM(VectorXf::Map(prior_data, n_states),
+      MatrixXf::Map(transmat_data, n_states, n_states), mixgaussians));
   }
 }
