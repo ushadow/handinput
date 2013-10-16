@@ -5,7 +5,7 @@
 namespace handinput {
   class PROCESSOR_API InfEngine {
   public:
-    InfEngine();
+    InfEngine(const std::string& model_file);
     ~InfEngine() {}
 
     // Accessors
@@ -19,7 +19,7 @@ namespace handinput {
     const HMM* hmm() const { return hmm_.get(); }
 
     // feature: continous features besides the image descriptor.
-    void Infer(float* feature, float* descriptor);
+    void Update(float* feature, float* descriptor);
   private:
     int descriptor_len_, n_principal_comps_, feature_len_;
     // Each row is a principal component.

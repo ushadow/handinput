@@ -11,10 +11,14 @@ using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
 using System.Drawing;
 
+using Common.Logging;
+
 namespace HandInput.Util {
   public class SkinDetectorGpu : ISkinDetector {
     [DllImport("GpuProcessor.dll", EntryPoint="FilterSkin")]
     public static extern void FilterSkin(IntPtr src, IntPtr dst);
+
+    static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
     static readonly Byte[,] StructElem = new Byte[,] {{1, 1, 1, 1, 1}, 
                                                       {1, 1, 1, 1, 1},

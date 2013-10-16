@@ -10,8 +10,9 @@ namespace handinput {
     FeatureProcessor(int w, int h);
     ~FeatureProcessor(void);
 
-    // Resizes the image and converts the image to float point values. Returns the float array of 
-    // HOG descriptors. This object still has the ownership of the float array.
+    // Resizes the image and converts the image to float point values. 
+    // Returns the float array of HOG descriptors. This object still has the ownership of the float 
+    // array.
     float* Compute(cv::Mat& image, bool visualize = false);
     cv::Mat VisualizeHOG(cv::Mat& orig_image, int zoom_factor = 3);
     int HOGLength() { return hog_->Length(); }

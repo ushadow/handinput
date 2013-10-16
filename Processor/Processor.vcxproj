@@ -164,7 +164,7 @@
       <Optimization>Full</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>G:\program-files\eigen-eigen-ffa86ffb5570;G:\program-files\MATLAB\R2013b\extern\include;C:\Emgu-2.4.2\include;C:\Emgu-2.4.2\include\opencv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\program-files\eigen-eigen-ffa86ffb5570;G:\program-files\MATLAB\R2013b\extern\include;G:\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\include\opencv;G:\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>PROCESSOR_EXPORTS;WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -211,6 +211,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="processor.cpp" />
     <ClCompile Include="stbuffer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
@@ -227,6 +228,7 @@
     <ClInclude Include="mixgaussian.h" />
     <ClInclude Include="msharrisbuffer.h" />
     <ClInclude Include="pcheader.h" />
+    <ClInclude Include="processor.h" />
     <ClInclude Include="stbuffer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

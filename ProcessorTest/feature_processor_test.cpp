@@ -28,8 +28,8 @@ TEST(FeatureProcessorTest, ComputeHOGDescriptorTwoImages) {
   Mat image(imageSize, imageSize, CV_8U, cv::Scalar(255));
   float* descriptor = processor.Compute(image);
   for (int i = 0; i < imageSize; i++) {
-    image.at<byte>(32, i) = 0;
-    image.at<byte>(i, 32) = 0;
+    image.at<uchar>(32, i) = 0;
+    image.at<uchar>(i, 32) = 0;
   }
   descriptor = processor.Compute(image);
   Mat vis = processor.VisualizeHOG(image, 6);

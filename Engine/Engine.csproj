@@ -25,7 +25,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -37,21 +37,42 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging">
       <HintPath>..\packages\Common.Logging.2.1.2\lib\net40\Common.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="Emgu.CV">
-      <HintPath>C:\Emgu-2.4.2\bin\Emgu.CV.dll</HintPath>
+    <Reference Include="Emgu.CV, Version=2.9.0.1922, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.CV.dll</HintPath>
     </Reference>
-    <Reference Include="Emgu.CV.GPU">
-      <HintPath>C:\Emgu-2.4.2\bin\Emgu.CV.GPU.dll</HintPath>
+    <Reference Include="Emgu.CV.GPU, Version=2.9.0.1922, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.CV.GPU.dll</HintPath>
     </Reference>
-    <Reference Include="Emgu.CV.UI">
-      <HintPath>C:\Emgu-2.4.2\bin\Emgu.CV.UI.dll</HintPath>
+    <Reference Include="Emgu.CV.UI, Version=2.9.0.1922, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\Emgu.CV.UI\bin\x64\Release\Emgu.CV.UI.dll</HintPath>
     </Reference>
-    <Reference Include="Emgu.Util">
-      <HintPath>C:\Emgu-2.4.2\bin\Emgu.Util.dll</HintPath>
+    <Reference Include="Emgu.Util, Version=2.9.0.1922, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.Util.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Kinect, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json">
@@ -129,98 +150,12 @@
       <Name>Util</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\cublas32_42_9.dll">
-      <Link>cublas32_42_9.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\cudart32_42_9.dll">
-      <Link>cudart32_42_9.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\cufft32_42_9.dll">
-      <Link>cufft32_42_9.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\cvextern.dll">
-      <Link>cvextern.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\npp32_42_9.dll">
-      <Link>npp32_42_9.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_calib3d242.dll">
-      <Link>opencv_calib3d242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_contrib242.dll">
-      <Link>opencv_contrib242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_core242.dll">
-      <Link>opencv_core242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_features2d242.dll">
-      <Link>opencv_features2d242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_ffmpeg242.dll">
-      <Link>opencv_ffmpeg242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_flann242.dll">
-      <Link>opencv_flann242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_gpu242.dll">
-      <Link>opencv_gpu242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_highgui242.dll">
-      <Link>opencv_highgui242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_imgproc242.dll">
-      <Link>opencv_imgproc242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_legacy242.dll">
-      <Link>opencv_legacy242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_ml242.dll">
-      <Link>opencv_ml242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_nonfree242.dll">
-      <Link>opencv_nonfree242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_objdetect242.dll">
-      <Link>opencv_objdetect242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_photo242.dll">
-      <Link>opencv_photo242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_stitching242.dll">
-      <Link>opencv_stitching242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_video242.dll">
-      <Link>opencv_video242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="C:\Emgu-2.4.2\bin\x86\opencv_videostab242.dll">
-      <Link>opencv_videostab242.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

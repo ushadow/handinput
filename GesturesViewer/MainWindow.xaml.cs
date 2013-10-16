@@ -41,7 +41,6 @@ namespace HandInput.GesturesViewer {
 
     AudioStreamManager audioManager;
     SkeletonDisplayManager skeletonDisplayManager;
-    EyeTracker eyeTracker;
     bool displayDepth = false;
 
     KinectRecorder recorder;
@@ -245,11 +244,6 @@ namespace HandInput.GesturesViewer {
       if (recorder != null) {
         recorder.Close();
         recorder = null;
-      }
-
-      if (eyeTracker != null) {
-        eyeTracker.Dispose();
-        eyeTracker = null;
       }
 
       if (kinectSensor != null) {

@@ -2,12 +2,12 @@
 #include "infengine.h"
 
 namespace handinput {
-  InfEngine::InfEngine() {
+  InfEngine::InfEngine(const std::string& model_file) {
     using Eigen::Map;
     using Eigen::MatrixXf;
     using Eigen::VectorXf;
 
-    MATFile* file = matOpen("G:/salience/model.mat", "r");
+    MATFile* file = matOpen(model_file.c_str(), "r");
     // Copies an mxArray out of a MAT-file. Use mxDestroyArray to destroy the mxArray created
     // by this routine.
     mxArray* model = matGetVariable(file, "model");
@@ -40,7 +40,7 @@ namespace handinput {
     matClose(file);
   }
 
-  void InfEngine::Infer(float* feature, float* descriptor) {
+  void InfEngine::Update(float* feature, float* descriptor) {
     using Eigen::Map;
     using Eigen::VectorXf;
 

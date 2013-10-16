@@ -9,7 +9,7 @@
 #include "stdafx.h"
 
 __global__ void SkinKernel(const uchar *src, uchar *dst, const int rows, const int cols,
-                           const int srcStep, const int srcChannels, const int dstStep) {
+                           const size_t srcStep, const int srcChannels, const size_t dstStep) {
   int r = blockIdx.y * blockDim.y + threadIdx.y;
   int c = blockIdx.x * blockDim.x + threadIdx.x;
   if (r >= rows || c >= cols) return;
@@ -46,8 +46,8 @@ __declspec(dllexport) void __stdcall FilterSkin(void* src_, void* dst_) {
   dim3 dimBlock(20, 15);
   int rows = src->rows;
   int cols = src->cols;
-  int srcStep = src->step1();
-  int dstStep = dst->step1();
+  size_t srcStep = src->step1();
+  size_t dstStep = dst->step1();
   int srcChannels = src->channels();
   
   // Find ceilings.

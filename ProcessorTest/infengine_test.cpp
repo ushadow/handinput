@@ -15,7 +15,7 @@ TEST(InfEngineTest, Initialization) {
   static const int N_STATES = 12;
   static const int N_MIXTURES = 1;
 
-  handinput::InfEngine engine;
+  handinput::InfEngine engine("G:\\salience\\model.mat");
   ASSERT_EQ(DESCRIPTOR_LEN, engine.descriptor_len());
   ASSERT_EQ(N_PRINCIPAL_COMPS, engine.n_principal_comps());
   ASSERT_EQ(FEATURE_LEN, engine.feature_len());

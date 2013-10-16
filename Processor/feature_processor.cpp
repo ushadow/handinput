@@ -79,9 +79,9 @@ namespace handinput {
         int mx = drawX + kCellSize / 2;
         int my = drawY + kCellSize / 2;
 
-        cv::rectangle(visu, cvPoint(drawX*zoom_factor,drawY*zoom_factor), 
-          cvPoint((drawX + kCellSize) * zoom_factor, (drawY + kCellSize)*zoom_factor), 
-          CV_RGB(100,100,100), 1);
+        cv::rectangle(visu, cv::Point(drawX * zoom_factor, drawY * zoom_factor), 
+          cv::Point((drawX + kCellSize) * zoom_factor, (drawY + kCellSize)*zoom_factor), 
+          cv::Scalar(100,100,100), 1);
 
         // draw in each cell all 9 gradient strengths
         for (int bin = 0; bin < kNBins; bin++) {
@@ -105,9 +105,9 @@ namespace handinput {
           float y2 = my + dirVecY * currentGradStrength * maxVecLen * scale;
 
           // draw gradient visualization
-          cv::line(visu, cvPoint((int) (x1 * zoom_factor), (int) (y1 * zoom_factor)), 
-            cvPoint((int) (x2 * zoom_factor), (int) (y2 * zoom_factor)), 
-            CV_RGB(0,255,0), 1);
+          cv::line(visu, cv::Point((int) (x1 * zoom_factor), (int) (y1 * zoom_factor)), 
+            cv::Point((int) (x2 * zoom_factor), (int) (y2 * zoom_factor)), 
+            cv::Scalar(0,255,0), 1);
         } // for (all bins)
       } // for (cellx)
     } // for (celly)
