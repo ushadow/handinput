@@ -10,7 +10,7 @@ public:
   MFeatureProcessor(int w, int h);
   ~MFeatureProcessor() { this->!MFeatureProcessor(); }
   !MFeatureProcessor() { delete processor_; } 
-  System::IntPtr Compute(System::IntPtr image, bool visualize);
+  System::IntPtr Compute(float x, float y, float z, System::IntPtr image, bool visualize);
   int HOGLength();
 private:
   FeatureProcessor* processor_; 

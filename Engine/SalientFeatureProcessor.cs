@@ -27,53 +27,42 @@ namespace HandInput.Engine {
 
     public int FeatureLength { get; private set; }
     public int DescriptorLength { get; private set; }
+    public bool Visualize { get; set; }
 
-    Vector3D prevRelPos;
-    Vector3D prevVel;
     MFeatureProcessor featureProcessor = new MFeatureProcessor(FeatureImageWidth,
         FeatureImageWidth);
-    bool visualize;
 
-    public SalienceFeatureProcessor(bool visualize = false) {
+    public SalienceFeatureProcessor() {
       DescriptorLength = featureProcessor.HOGLength();
       FeatureLength = 3 * 3 + DescriptorLength;
-      this.visualize = visualize;
+      Visualize = false;
     }
 
+    /// <summary>
+    /// Computes the feature vector from the tracking result.
+    /// </summary>
+    /// <param name="result"></param>
+    /// <returns>An option of newly created Single array.</returns>
     public Option<Single[]> Compute(TrackingResult result) {
       Single[] feature = null;
       if (result.RelPos.IsSome && result.BoundingBox.IsSome) {
-        if (prevRelPos != null) {
-          var v = Vector3D.Subtract(result.RelPos.Value, prevRelPos);
-          if (prevVel != null) {
-            var acc = Vector3D.Subtract(v, prevVel);
-            feature = new Single[FeatureLength];
-            UpdateFeature(feature, result.RelPos.Value, 0);
-            UpdateFeature(feature, v, 3);
-            UpdateFeature(feature, acc, 6);
-            var ptr = ComputeImageFeature(result.SmoothedDepth, result.BoundingBox.Value);
-            Marshal.Copy(ptr, feature, 9, DescriptorLength);
-          }
-          prevVel = v;
+        var pos = result.RelPos.Value;
+        var ptr = ComputeImageFeature(pos, result.SmoothedDepth, result.BoundingBox.Value);
+        if (!ptr.Equals(IntPtr.Zero)) {
+          feature = new Single[FeatureLength];
+          Marshal.Copy(ptr, feature, 0, FeatureLength);
+          return new Some<Single[]>(feature);
         }
-        prevRelPos = result.RelPos.Value;
       }
-      if (feature == null)
-        return new None<Single[]>();
-      else return new Some<Single[]>(feature);
+      return new None<Single[]>();
     }
 
-    IntPtr ComputeImageFeature(Image<Gray, Byte> image, Rectangle bb) {
+    IntPtr ComputeImageFeature(Vector3D pos, Image<Gray, Byte> image, Rectangle bb) {
       image.ROI = bb;
-      var ptr = featureProcessor.Compute(image.Ptr, visualize);
+      var ptr = featureProcessor.Compute((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr,
+                                          Visualize);
       image.ROI = Rectangle.Empty;
       return ptr;
-    }
-
-    void UpdateFeature(Single[] feature, Vector3D v, int startIndex) {
-      feature[startIndex] = (Single)v.X;
-      feature[startIndex + 1] = (Single)v.Y;
-      feature[startIndex + 2] = (Single)v.Z;
     }
   }
 }

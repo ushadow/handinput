@@ -9,24 +9,53 @@ namespace handinput {
     hog_.reset(new HOGDescriptor(w, h, kCellSize, kNBins));
     scaled_image_.reset(new cv::Mat(h, w, CV_8U)); 
     float_image_.reset(new cv::Mat(h, w, CV_32F));
-    descriptor_.reset(new float[hog_->Length()]);
+    feature_.reset(new float[hog_->Length() + kMotionFeatureLen]);
+    descriptor_ = feature_.get() + kMotionFeatureLen;
   }
 
   FeatureProcessor::~FeatureProcessor() {
     cv::destroyAllWindows();
   }
 
+  float* FeatureProcessor::Compute(float x, float y, float z, cv::Mat& image, bool visualize) {
+    using Eigen::Vector3f;
+    Vector3f pos(x, y, z);
+    bool updated = false;
+    if (prev_pos_.size() != 0) {
+      Vector3f v = pos - prev_pos_;
+      if (prev_v_.size() != 0) {
+        Vector3f a = v - prev_v_;
+        CopyVectorToArray(pos, feature_.get(), 0);
+        CopyVectorToArray(v, feature_.get(), 3);
+        CopyVectorToArray(a, feature_.get(), 6);
+        Compute(image, visualize);
+        updated = true;
+      }
+      prev_v_ = v;
+    }
+    prev_pos_ = pos;
+    if (updated)
+      return feature_.get();
+    else return NULL;
+  }
+
+  void FeatureProcessor::CopyVectorToArray(const Eigen::Ref<const Eigen::VectorXf> v, float* a,
+    int start) {
+    std::copy(v.data(), v.data() + v.size(), a + start);
+  }
+
+  // Resizes the image and converts the image to float point values. 
   float* FeatureProcessor::Compute(cv::Mat& image, bool visualize) {
     // Uses the default linear interpolation.
     cv::resize(image, *scaled_image_, cv::Size(w_, h_));
     scaled_image_->convertTo(*float_image_, CV_32F);
 
-    hog_->Compute((float*) float_image_->data, descriptor_.get());
+    hog_->Compute((float*) float_image_->data, descriptor_);
     if (visualize) {
       cv::Mat vis = VisualizeHOG(*float_image_);
       DisplayImage(vis);
     }
-    return descriptor_.get();
+    return descriptor_;
   }
 
   cv::Mat FeatureProcessor::VisualizeHOG(cv::Mat& orig_image, int zoom_factor) {

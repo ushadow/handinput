@@ -165,7 +165,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>G:\program-files\MATLAB\R2013b\extern\include;G:\program-files\eigen-eigen-ffa86ffb5570;G:\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\include\opencv;G:\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\include;G:\workspace\HandInput\Processor;G:\workspace\gtest-1.7.0;G:\workspace\gtest-1.7.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\program-files\MATLAB\R2013b\extern\include;G:\program-files\eigen-eigen-ffa86ffb5570;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include;G:\workspace\HandInput\Processor;G:\workspace\gtest-1.7.0;G:\workspace\gtest-1.7.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -175,7 +175,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <AdditionalDependencies>opencv_core249.lib;opencv_imgproc249.lib;opencv_highgui249.lib;opencv_video249.lib;opencv_objdetect249.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>G:\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)Processor\bin\$(Platform)\$(Configuration)\Processor.dll" "$(TargetDir)"</Command>

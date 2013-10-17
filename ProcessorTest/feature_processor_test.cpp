@@ -9,12 +9,12 @@ void DisplayImage(cv::Mat& image) {
   cv::destroyWindow(window_name);
 }
 
-TEST(FeatureProcessorTest, ComputeHOGDescriptorAllZero) {
+TEST(FeatureProcessorTest, ComputeHOGDescriptorAllWhite) {
   using cv::Mat;
 
-  int imageSize = 64;
-  handinput::FeatureProcessor processor(imageSize, imageSize);
-  Mat image(imageSize, imageSize, CV_8U, cv::Scalar(255));
+  int image_size = 64;
+  handinput::FeatureProcessor processor(image_size, image_size);
+  Mat image(image_size, image_size, CV_8U, cv::Scalar(255));
   float* descriptor = processor.Compute(image);
   for (int i = 0; i < processor.HOGLength(); i++) {
     ASSERT_EQ(0, descriptor[i]);
@@ -23,11 +23,11 @@ TEST(FeatureProcessorTest, ComputeHOGDescriptorAllZero) {
 
 TEST(FeatureProcessorTest, ComputeHOGDescriptorTwoImages) {
   using cv::Mat;
-  int imageSize = 64;
-  handinput::FeatureProcessor processor(imageSize, imageSize);
-  Mat image(imageSize, imageSize, CV_8U, cv::Scalar(255));
+  int image_size = 64;
+  handinput::FeatureProcessor processor(image_size, image_size);
+  Mat image(image_size, image_size, CV_8U, cv::Scalar(255));
   float* descriptor = processor.Compute(image);
-  for (int i = 0; i < imageSize; i++) {
+  for (int i = 0; i < image_size; i++) {
     image.at<uchar>(32, i) = 0;
     image.at<uchar>(i, 32) = 0;
   }
@@ -50,3 +50,37 @@ TEST(FeatureProcessorTest, ComputeHOGDescriptor) {
   Mat vis = processor.VisualizeHOG(gray_image, 6);
   DisplayImage(vis);
 }
+
+TEST(FeatureProcessorTest, ComputeMotionFeature) {
+  using cv::Mat;
+
+  int image_size = 64;
+  handinput::FeatureProcessor processor(image_size, image_size);
+  Mat image(image_size, image_size, CV_8U, cv::Scalar(255));
+  float* feature = processor.Compute(0, 0, 0, image);
+  ASSERT_EQ(NULL, feature);
+  feature = processor.Compute(0, 0, 0, image);
+  ASSERT_EQ(NULL, feature);
+  feature = processor.Compute(0, 0, 0, image);
+  for (int i = 0; i < processor.FeatureLength(); i++)
+    ASSERT_EQ(0, feature[i]);
+  feature = processor.Compute(1, 2, 3, image);
+  ASSERT_EQ(1, feature[0]);
+  ASSERT_EQ(2, feature[1]);
+  ASSERT_EQ(3, feature[2]);
+  ASSERT_EQ(1, feature[3]);
+  ASSERT_EQ(2, feature[4]);
+  ASSERT_EQ(3, feature[5]);
+  ASSERT_EQ(1, feature[6]);
+  ASSERT_EQ(2, feature[7]);
+  ASSERT_EQ(3, feature[8]);
+  feature = processor.Compute(0, 0, 0, image);
+  ASSERT_EQ(0, feature[0]);
+  ASSERT_EQ(0, feature[1]);
+  ASSERT_EQ(0, feature[2]);
+  ASSERT_EQ(-1, feature[3]);
+  ASSERT_EQ(-2, feature[4]);
+  ASSERT_EQ(-3, feature[5]);
+  ASSERT_EQ(-2, feature[6]);
+  ASSERT_EQ(-4, feature[7]);
+  ASSERT_EQ(-6, feature[8]);}

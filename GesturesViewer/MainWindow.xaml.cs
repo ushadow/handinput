@@ -306,6 +306,10 @@ namespace HandInput.GesturesViewer {
         case Key.T:
           StartTracking();
           break;
+        case Key.V:
+          if (featureProcessor != null)
+            featureProcessor.Visualize = !featureProcessor.Visualize;
+          break;
         default:
           break;
       }
