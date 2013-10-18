@@ -38,7 +38,7 @@ TEST(MixGaussianTest, ProbThreeMixtures) {
   vector<unique_ptr<const Gaussian>> gaussians;
   for (int i = 0; i < 3; i++) {
     VectorXf mean(2);
-    mean << i, i;
+    mean << (float) i, (float) i;
     MatrixXf cov(2, 2);
     cov << 2, 1, 1, 2;
     unique_ptr<const Gaussian> gaussian(new Gaussian(mean, cov));

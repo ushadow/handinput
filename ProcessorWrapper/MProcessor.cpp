@@ -9,9 +9,8 @@ namespace handinput {
     processor_ = new Processor(w, h, str);
   }
 
-  void MProcessor::Update(System::IntPtr continuous_features, System::IntPtr image) {
-    processor_->Update(reinterpret_cast<float*>(continuous_features.ToPointer()),
-      reinterpret_cast<IplImage*>(image.ToPointer()));
+  void MProcessor::Update(float x, float y, float z, System::IntPtr image) {
+    processor_->Update(x, y, z, reinterpret_cast<IplImage*>(image.ToPointer()));
   }
 }
 

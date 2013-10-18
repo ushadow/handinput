@@ -8,7 +8,7 @@ namespace HandInput.Engine {
   static class Parameters {
     public static int FeatureImageWidth {
       get {
-        return FeatureImageWidth;
+        return featureImageWidth;
       }
 
       set {

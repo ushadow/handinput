@@ -5,6 +5,9 @@
 namespace handinput {
   class PROCESSOR_API HMM {
   public:
+    // Factory method for creating HMM. The caller must take the ownership of the HMM object.
+    static HMM* CreateFromMxArray(mxArray* mx_model);
+
     // prior: makes a copy of prioir.
     // transmat: creates a transpose of transmat.
     HMM(const Eigen::Ref<const Eigen::VectorXf> prior, 
@@ -12,6 +15,7 @@ namespace handinput {
       std::vector<std::unique_ptr<const MixGaussian>>& mixgaussians);
 
     int n_states() const { return n_states_; }
+    int feature_len() const { return feature_len_; }
     const Eigen::VectorXf* prior() const { return &prior_; }
 
     // Transition matrix transposed.
@@ -19,12 +23,12 @@ namespace handinput {
 
     const MixGaussian* MixGaussianAt(int index) const;
 
-    void Fwdback(const Eigen::Ref<const Eigen::VectorXf> x);
+    float Fwdback(const Eigen::Ref<const Eigen::VectorXf> x);
 
   private:
     Eigen::VectorXf alpha_, prior_;
     std::vector<std::unique_ptr<const MixGaussian>> mixgaussians_;
-    int n_states_;
+    int n_states_, feature_len_;
     Eigen::VectorXf obslik_;
     Eigen::MatrixXf transmat_t_;
     float loglik_;

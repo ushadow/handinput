@@ -47,7 +47,7 @@ namespace HandInput.Engine {
       Single[] feature = null;
       if (result.RelPos.IsSome && result.BoundingBox.IsSome) {
         var pos = result.RelPos.Value;
-        var ptr = ComputeImageFeature(pos, result.SmoothedDepth, result.BoundingBox.Value);
+        var ptr = ComputeFeature(pos, result.SmoothedDepth, result.BoundingBox.Value);
         if (!ptr.Equals(IntPtr.Zero)) {
           feature = new Single[FeatureLength];
           Marshal.Copy(ptr, feature, 0, FeatureLength);
@@ -57,7 +57,14 @@ namespace HandInput.Engine {
       return new None<Single[]>();
     }
 
-    IntPtr ComputeImageFeature(Vector3D pos, Image<Gray, Byte> image, Rectangle bb) {
+    /// <summary>
+    /// Computes raw feature including both the motion features and the descriptor.
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="image"></param>
+    /// <param name="bb"></param>
+    /// <returns>A pointer to a Single array.</returns>
+    IntPtr ComputeFeature(Vector3D pos, Image<Gray, Byte> image, Rectangle bb) {
       image.ROI = bb;
       var ptr = featureProcessor.Compute((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr,
                                           Visualize);

@@ -8,7 +8,7 @@ namespace handinput {
   class PROCESSOR_API Processor {
   public:
     Processor(int w, int h, const std::string& model_file);
-    void Update(float* continuous_features, IplImage* image);
+    void Update(float x, float y, float z, IplImage* image);
   private:
     std::unique_ptr<FeatureProcessor> feature_proc_;
     std::unique_ptr<InfEngine> inf_engine_;

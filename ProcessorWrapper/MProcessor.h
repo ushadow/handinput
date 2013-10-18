@@ -8,7 +8,7 @@ namespace handinput {
     MProcessor(int w, int h, System::String^ model_file);
     ~MProcessor() { this->!MProcessor(); }
     !MProcessor() { delete processor_; }
-    void Update(System::IntPtr continuous_features, System::IntPtr image);
+    void Update(float x, float y, float z, System::IntPtr image);
   private:
     Processor* processor_;
   };

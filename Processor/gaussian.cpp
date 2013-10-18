@@ -7,6 +7,7 @@ namespace handinput {
   Gaussian::Gaussian(const Eigen::Ref<const Eigen::VectorXf> mean, 
                      const Eigen::Ref<const Eigen::MatrixXf> cov) {
     mean_ = mean;
+    // The determinant of a covariance matrix is positive.
     float d = sqrt(cov.determinant());
     int dim = (int) mean.size();
     b_ = 1.0f / (pow(2 * (float) M_PI, dim / 2.0f) * d + EPS);

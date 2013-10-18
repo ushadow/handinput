@@ -52,7 +52,7 @@ namespace HandInput.GesturesViewer {
     BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
     CancellationTokenSource cancellationTokenSource;
     SalienceDetector handTracker;
-    SalienceFeatureProcessor featureProcessor;
+    RecognitionEngine recogEngine;
     FPSCounter fpsCounter = new FPSCounter();
 
     public MainWindow() {
@@ -305,10 +305,6 @@ namespace HandInput.GesturesViewer {
           break;
         case Key.T:
           StartTracking();
-          break;
-        case Key.V:
-          if (featureProcessor != null)
-            featureProcessor.Visualize = !featureProcessor.Visualize;
           break;
         default:
           break;

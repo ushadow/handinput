@@ -18,8 +18,8 @@ namespace handinput {
     const Eigen::VectorXf* std_sigma() const { return &std_sigma_; }
     const HMM* hmm() const { return hmm_.get(); }
 
-    // feature: continous features besides the image descriptor.
-    void Update(float* feature, float* descriptor);
+    // raw_feature: feature before dimensional reduction. Cannot be null.
+    float Update(float* raw_feature);
   private:
     int descriptor_len_, n_principal_comps_, feature_len_;
     // Each row is a principal component.

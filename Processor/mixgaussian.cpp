@@ -8,6 +8,7 @@ namespace handinput {
   MixGaussian::MixGaussian(const Eigen::Ref<const Eigen::VectorXf> mix, 
     std::vector<std::unique_ptr<const Gaussian>>& gaussians) : gaussians_(std::move(gaussians)) {
     mix_ = mix;
+    feature_len_ = (int) gaussians_[0]->mean()->size();
     CheckRI();
   }
 
