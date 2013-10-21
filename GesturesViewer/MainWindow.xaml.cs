@@ -306,6 +306,9 @@ namespace HandInput.GesturesViewer {
         case Key.T:
           StartTracking();
           break;
+        case Key.N:
+          StepForward();
+          break;
         default:
           break;
       }

@@ -55,6 +55,8 @@ namespace handinput {
     // Normalize feature.
     full_feature = (full_feature - std_mu_).cwiseProduct(std_sigma_);
 
-    return hmm_->Fwdback(full_feature);
+    float loglik = hmm_->Fwdback(full_feature);
+    std::cout << hmm_->MostLikelyState() << std::endl;
+    return loglik;
   }
 }

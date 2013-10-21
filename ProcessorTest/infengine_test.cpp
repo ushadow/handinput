@@ -1,7 +1,10 @@
+#include <stdlib.h>
 #include "gtest\gtest.h"
 #include "infengine.h"
 
 #define ABS_ERROR 0.0001
+
+static const std::string kModelFile = "../../../data/model.mat";
 
 TEST(InfEngineTest, Initialization) {
   using Eigen::VectorXf;
@@ -15,7 +18,10 @@ TEST(InfEngineTest, Initialization) {
   static const int N_STATES = 12;
   static const int N_MIXTURES = 1;
 
-  handinput::InfEngine engine("G:\\salience\\model.mat");
+  char full[_MAX_PATH];
+  _fullpath(full, kModelFile.c_str(), _MAX_PATH);
+
+  handinput::InfEngine engine(full);
   ASSERT_EQ(kDescriptorLen, engine.descriptor_len());
   ASSERT_EQ(N_PRINCIPAL_COMPS, engine.n_principal_comps());
   ASSERT_EQ(FEATURE_LEN, engine.feature_len());

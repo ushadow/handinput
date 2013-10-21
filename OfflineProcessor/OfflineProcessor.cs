@@ -65,7 +65,7 @@ namespace HandInput.OfflineProcessor {
             depthFrame.Width, depthFrame.Height, replayer.KinectParams});
         if (featureProcessor == null)
           featureProcessor = (SalienceFeatureProcessor)Activator.CreateInstance(
-              featureProcessorType, new Object[] { false });
+              featureProcessorType);
         if (depthPixelData == null)
           depthPixelData = new Int16[depthFrame.PixelDataLength];
         if (colorPixelData == null)

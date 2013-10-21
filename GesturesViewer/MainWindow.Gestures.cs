@@ -7,7 +7,7 @@ using System.Configuration;
 
 namespace HandInput.GesturesViewer {
   partial class MainWindow {
-    static readonly String DataDir = ConfigurationManager.AppSettings["data-dir"];
+    static readonly String DataDir = ConfigurationManager.AppSettings["data_dir"];
 
     StreamWriter sw;
 

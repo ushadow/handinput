@@ -23,7 +23,10 @@ namespace handinput {
 
     const MixGaussian* MixGaussianAt(int index) const;
 
+    int MostLikelyState();
+
     float Fwdback(const Eigen::Ref<const Eigen::VectorXf> x);
+    void Reset();
 
   private:
     Eigen::VectorXf alpha_, prior_;
@@ -32,6 +35,7 @@ namespace handinput {
     Eigen::VectorXf obslik_;
     Eigen::MatrixXf transmat_t_;
     float loglik_;
+    bool reset_;
 
     HMM(const HMM&) {}
     HMM& operator=(const HMM&) { return *this; }

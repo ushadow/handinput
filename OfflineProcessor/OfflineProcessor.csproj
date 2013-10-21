@@ -59,11 +59,11 @@
     </Reference>
     <Reference Include="Emgu.CV, Version=2.4.2.1777, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Emgu-2.4.2\bin\Emgu.CV.dll</HintPath>
+      <HintPath>..\..\..\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.CV.dll</HintPath>
     </Reference>
     <Reference Include="Emgu.Util, Version=2.4.2.1777, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Emgu-2.4.2\bin\Emgu.Util.dll</HintPath>
+      <HintPath>..\..\..\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.Util.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Kinect, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="NDesk.Options">
@@ -98,6 +98,10 @@
       <Project>{a508b43b-222e-4a0e-9280-a7f924ccfab4}</Project>
       <Name>Engine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ProcessorWrapper\ProcessorWrapper.vcxproj">
+      <Project>{141272a8-30f0-433f-ad0c-dda69a6077d0}</Project>
+      <Name>ProcessorWrapper</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Util\Util.csproj">
       <Project>{0e934dee-d1f2-49b9-b8e9-06164d72e4ac}</Project>
       <Name>Util</Name>
@@ -106,8 +110,8 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(SolutionDir)Processor\$(Configuration)\Processor.dll" "$(TargetDir)"
-copy /Y "$(SolutionDir)GpuProcessor\bin\$(Configuration)\GpuProcessor.dll" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(SolutionDir)Processor\bin\$(Platform)\$(Configuration)\Processor.dll" "$(TargetDir)"
+copy /Y "$(SolutionDir)GpuProcessor\bin\$(Platform)\$(Configuration)\GpuProcessor.dll" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

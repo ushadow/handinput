@@ -56,10 +56,19 @@ namespace handinput {
       n_states_ = (int) prior.size();
       feature_len_ = mixgaussians_[0]->feature_len();
       obslik_ = VectorXf::Zero(n_states_);
+      alpha_ = VectorXf::Zero(n_states_);
       prior_ = prior;
       transmat_t_ = transmat.transpose();
       loglik_ = 0;
+
+      Reset();
+      
       CheckRI();
+  }
+
+  void HMM::Reset() {
+    alpha_.setZero();
+    reset_ = true;
   }
 
   void HMM::CheckRI() {
@@ -76,8 +85,9 @@ namespace handinput {
 
   float HMM::Fwdback(const Eigen::Ref<const Eigen::VectorXf> x) {
     ComputeObslik(x);
-    if (alpha_.size() == 0) {
+    if (reset_) {
       alpha_ = prior_.cwiseProduct(obslik_);
+      reset_ = false;
     } else {
       alpha_ = (transmat_t_ * alpha_).cwiseProduct(obslik_).eval();
     }
@@ -89,12 +99,20 @@ namespace handinput {
     return loglik_;
   }
 
+  int HMM::MostLikelyState() {
+    using Eigen::VectorXf;
+    VectorXf::Index maxIndex;
+    alpha_.maxCoeff(&maxIndex);
+    return (int) maxIndex;
+  }
+
   void HMM::ComputeObslik(const Eigen::Ref<const Eigen::VectorXf> x) {
     for (int i = 0; i < n_states_; i++) {
       obslik_(i) = mixgaussians_[i]->Prob(x);
     }
   }
 
+  // Normalizes the alpha.
   float HMM::Normalize() {
     float norm = alpha_.norm();
     if (norm == 0)

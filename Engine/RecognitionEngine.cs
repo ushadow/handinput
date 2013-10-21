@@ -12,6 +12,7 @@ namespace HandInput.Engine {
 
     MProcessor processor = new MProcessor(Parameters.FeatureImageWidth, 
         Parameters.FeatureImageWidth, Parameters.ModelFile);
+    bool reset = true;
 
     public void Update(TrackingResult result) {
       if (result.RelPos.IsSome && result.BoundingBox.IsSome) {
@@ -20,6 +21,12 @@ namespace HandInput.Engine {
         image.ROI = result.BoundingBox.Value;
         processor.Update((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr);
         image.ROI = Rectangle.Empty;
+        reset = false;
+      } else {
+        if (!reset) {
+          reset = true;
+          processor.Reset();
+        }
       }
     }
   }

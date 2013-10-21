@@ -9,6 +9,7 @@ namespace handinput {
     ~MProcessor() { this->!MProcessor(); }
     !MProcessor() { delete processor_; }
     void Update(float x, float y, float z, System::IntPtr image);
+    void Reset() { processor_->Reset(); } 
   private:
     Processor* processor_;
   };

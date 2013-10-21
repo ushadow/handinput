@@ -14,12 +14,13 @@ using Microsoft.Kinect;
 using HandInput.Engine;
 using HandInput.Util;
 using Microsoft.Win32;
+using System.Configuration;
 
 // Replay related interactions.
 namespace HandInput.GesturesViewer {
   partial class MainWindow {
     static readonly int FPS = 30;
-    static readonly int SampleRate = 3;
+    static readonly int SampleRate = int.Parse(ConfigurationManager.AppSettings["sample_rate"]);
     DispatcherTimer timer;
 
     void replayButton_Click(object sender, RoutedEventArgs e) {
@@ -59,7 +60,7 @@ namespace HandInput.GesturesViewer {
     }
 
     void OnTimerTick(object sender, EventArgs e) {
-      frameSlider.Value += SampleRate;
+      StepForward();
     }
 
     void frameSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
@@ -94,6 +95,16 @@ namespace HandInput.GesturesViewer {
         else
           timer.Start();
       }
+    }
+
+    void StopPlay() {
+      if (timer != null && timer.IsEnabled) {
+          timer.Stop();
+      }
+    }
+
+    void StepForward() {
+      frameSlider.Value += SampleRate;
     }
 
     void StopReply() {
