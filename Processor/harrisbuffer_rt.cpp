@@ -1,15 +1,10 @@
 #include "pcheader.h"
 
-#include "harrisbuffer.h"
+#include "harrisbuffer_rt.h"
 #include "cvutil.h"
 
-//std::ofstream logfile("log.txt");
-
-
-const int LengthFeatures=34;//length of feature vector
-const int SizeNeighb=125; //mask of 5x5x5 (vectorized)
 //JET filter computed in MATLAB
-double jet[LengthFeatures][SizeNeighb]={
+double HarrisBufferRt::jet[kLengthFeatures][kSizeNeighb] = {
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.5,0,0,0,0,0,0,0,0,0,0.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.5,0,0.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -47,15 +42,7 @@ double jet[LengthFeatures][SizeNeighb]={
 };
 
 
-void LogMinMax(CvArr* mat,std::ostream& os)
-{
-  //cvNormalize(gray,frame,1,0,CV_MINMAX);
-  double m, M;
-  cvMinMaxLoc(mat, &m, &M, NULL, NULL, NULL);
-  os<<m<<"\t"<<M<<std::endl;
-}
-
-HarrisBuffer::HarrisBuffer(double tau2):kparam(5e-4),sig2(8.0),tau2_(tau2),delay(0),SignificantPointThresh(1E-9),Border(5),patchsizefactor(9.0)
+HarrisBufferRt::HarrisBufferRt(double tau2):kparam(5e-4),sig2(8.0),tau2_(tau2),delay(0),SignificantPointThresh(1E-9),Border(5),patchsizefactor(9.0)
 {
   iFrame=0;
 
@@ -92,7 +79,7 @@ HarrisBuffer::HarrisBuffer(double tau2):kparam(5e-4),sig2(8.0),tau2_(tau2),delay
   descriptortype="of";
 }
 
-HarrisBuffer::~HarrisBuffer(void)
+HarrisBufferRt::~HarrisBufferRt(void)
 { 
   if(normvec) cvReleaseMat(&normvec);
 
@@ -133,13 +120,20 @@ HarrisBuffer::~HarrisBuffer(void)
   if(opticalFlowNextFrame8u) cvReleaseImage(&opticalFlowNextFrame8u);
 }
 
-bool HarrisBuffer::Init(IplImage* firstfrm,std::string fname)
+bool HarrisBufferRt::Init(IplImage* firstfrm,std::string fname)
 {
   SpatialMaskSeparable=CVUtil::GaussianMask1D(sig2);
-  TemporalMask1=CVUtil::GaussianMask1D(tau2_, 0, 1);
-  TemporalMask2=CVUtil::GaussianMask1D(tau2_, 0, 1);
+
+  TemporalMask1.push_back(0.9);
+  TemporalMask1.push_back(0.07);
+  TemporalMask1.push_back(0.03);
+
+  TemporalMask2.push_back(0.9);
+  TemporalMask2.push_back(0.07);
+  TemporalMask2.push_back(0.03);
+
   DerivMask.push_back(-0.5);
-  DerivMask.push_back(0.0);
+  DerivMask.push_back(0);
   DerivMask.push_back(0.5);
 
   int sz1 = (int)TemporalMask1.size();
@@ -150,14 +144,7 @@ bool HarrisBuffer::Init(IplImage* firstfrm,std::string fname)
     return false;
   }
 
-  if( sz1 < 3 || sz2 < 3) {
-    std::cerr<<"Temporal smooting variance is too low"<<std::endl;
-    return false;
-  }
-
-  // estimate delay in point detection (in frames)
-  if(!delay)
-    delay = (int)((sz1 + sz2) / 2.0) + 2;
+  delay = 1;
 
   databuffer.Init(sz1);
   convbuffer.Init(sz2);
@@ -171,18 +158,17 @@ bool HarrisBuffer::Init(IplImage* firstfrm,std::string fname)
   original.Init(delay);//prb:? ??? sz1? sz2? delay?
   Hbuffer.Init(3);
 
-
   //header= cvCreateImageHeader(cvGetSize(aframe),IMGTYPE ,1);
   //tmp=cvCreateData(header);
   //todo:difference between cvMat and IplImage
   //		CvMat *work=cvCreateMat(frame->width,frame->height,CV_64FC1);
-  tmp= cvCreateImage(cvGetSize(firstfrm),IMGTYPE ,1);
-  tmp1= cvCreateImage(cvGetSize(firstfrm),IMGTYPE ,1);
-  tmp2= cvCreateImage(cvGetSize(firstfrm),IMGTYPE ,1);
-  tmp3= cvCreateImage(cvGetSize(firstfrm),IMGTYPE ,1);
-  tmp4= cvCreateImage(cvGetSize(firstfrm),IMGTYPE ,1);
-  tmp5= cvCreateImage(cvGetSize(firstfrm),IMGTYPE ,1);
-  tmp6= cvCreateImage(cvGetSize(firstfrm),IMGTYPE ,1);
+  tmp= cvCreateImage(cvGetSize(firstfrm), IMGTYPE, 1);
+  tmp1= cvCreateImage(cvGetSize(firstfrm), IMGTYPE, 1);
+  tmp2= cvCreateImage(cvGetSize(firstfrm), IMGTYPE, 1);
+  tmp3= cvCreateImage(cvGetSize(firstfrm), IMGTYPE, 1);
+  tmp4= cvCreateImage(cvGetSize(firstfrm), IMGTYPE, 1);
+  tmp5= cvCreateImage(cvGetSize(firstfrm), IMGTYPE, 1);
+  tmp6= cvCreateImage(cvGetSize(firstfrm), IMGTYPE, 1);
 
   frame = cvCreateImage(cvGetSize(firstfrm),IMGTYPE ,1);
   gray=cvCreateImage(cvGetSize(firstfrm),IPL_DEPTH_8U,1);
@@ -212,9 +198,9 @@ bool HarrisBuffer::Init(IplImage* firstfrm,std::string fname)
 
 
   //JetFilter=cvCreateMat( LengthFeatures, SizeNeighb, CV_64F );
-  cvInitMatHeader(&JetFilter,LengthFeatures,SizeNeighb,CV_64FC1,jet);
+  cvInitMatHeader(&JetFilter, kLengthFeatures, kSizeNeighb,CV_64FC1,jet);
   //Initilizing normalization vector for JET features
-  normvec= cvCreateMat( LengthFeatures, 1, CV_64F );
+  normvec= cvCreateMat(kLengthFeatures, 1, CV_64F );
   double sx1=sqrt(sig2);
   double st1=sqrt(tau2_);
   double sx2=sx1*sx1, sx3=sx1*sx2, sx4=sx1*sx3;
@@ -259,13 +245,11 @@ bool HarrisBuffer::Init(IplImage* firstfrm,std::string fname)
   return true;
 }
 
-void HarrisBuffer::ProcessFrame(IplImage* frm, IplImage* OFx_precomp, IplImage* OFy_precomp)
-{
-  int i;
-  if (!prevgray) cvCopy(frm,prevgray);
-  else cvCopy(gray,prevgray);
-  cvCopy(frm,gray);
-  cvScale(gray, frame, 1.0/255.0, 0.0);
+void HarrisBufferRt::ProcessFrame(IplImage* frm, IplImage* OFx_precomp, IplImage* OFy_precomp) {
+  if (!prevgray) cvCopy(frm, prevgray);
+  else cvCopy(gray, prevgray);
+  cvCopy(frm, gray);
+  cvScale(gray, frame, 1.0 / 255.0, 0.0);
 
   //Ross moved this 'till later
   original.Update(frame);
@@ -275,16 +259,15 @@ void HarrisBuffer::ProcessFrame(IplImage* frm, IplImage* OFx_precomp, IplImage* 
   databuffer.Update(tmp);
 
   //temporal filtering
-  int tstamp1 = databuffer.TemporalConvolve(tmp1, TemporalMask1);
+  int tstamp1 = databuffer.ExponentialSmooth(tmp1, TemporalMask1);
   convbuffer.Update(tmp1, tstamp1);
 
   int tstamp1d = convbuffer.TemporalConvolve(Lt, DerivMask);
-  cvScale(Lt, Lt, sqrt(tau2_) , 0);
 
-  convbuffer.GetFrame(tstamp1d,L);
+  convbuffer.GetFrame(tstamp1d, L);
   CVUtil::ImageGradient(L, Lx, Ly); //prb: a possible scale
-  cvScale(Lx, Lx, sqrt(sig2)*0.5 , 0);
-  cvScale(Ly, Ly, sqrt(sig2)*0.5 , 0);
+  cvScale(Lx, Lx, sqrt(sig2) * 0.5, 0);
+  cvScale(Ly, Ly, sqrt(sig2) * 0.5, 0);
 
   //update second-moment matrix
   GaussianSmoothingMul(Lx, Lx, tmp1, 2 * sig2);
@@ -302,12 +285,12 @@ void HarrisBuffer::ProcessFrame(IplImage* frm, IplImage* OFx_precomp, IplImage* 
 
   //update Harris buffer
   int tstamp2=0;
-  tstamp2=cxxbuffer.TemporalConvolve(cxx, TemporalMask2);
-  tstamp2=cxybuffer.TemporalConvolve(cxy, TemporalMask2);
-  tstamp2=cxtbuffer.TemporalConvolve(cxt, TemporalMask2);
-  tstamp2=cyybuffer.TemporalConvolve(cyy, TemporalMask2);
-  tstamp2=cytbuffer.TemporalConvolve(cyt, TemporalMask2);
-  tstamp2=cttbuffer.TemporalConvolve(ctt, TemporalMask2);
+  tstamp2=cxxbuffer.ExponentialSmooth(cxx, TemporalMask2);
+  tstamp2=cxybuffer.ExponentialSmooth(cxy, TemporalMask2);
+  tstamp2=cxtbuffer.ExponentialSmooth(cxt, TemporalMask2);
+  tstamp2=cyybuffer.ExponentialSmooth(cyy, TemporalMask2);
+  tstamp2=cytbuffer.ExponentialSmooth(cyt, TemporalMask2);
+  tstamp2=cttbuffer.ExponentialSmooth(ctt, TemporalMask2);
 
   // Estimate L&K optical flow from second moment matrix
   //OpticalFlowFromSMM();
@@ -317,47 +300,22 @@ void HarrisBuffer::ProcessFrame(IplImage* frm, IplImage* OFx_precomp, IplImage* 
 
   // compute 3D extension of Harris function
   HarrisFunction(kparam, tmp);
-  Hbuffer.Update(tmp,tstamp2);
+  Hbuffer.Update(tmp, tstamp2);
 
   //*** detect interest points
   DetectInterestPoints(Border);
-
-  //*** compute point descriptors
-  for(i=0;i<(int)ipList.size();i++) { 
-    if(!ipList[i].reject)
-    {
-      DetectedTrackingPoint dtp(ipList[i]);
-      //Here I want to add the interest point to the list of interest-points-to-track		
-      pointsToTrack.push_back(dtp);
-    }
-  }
-
-  //here's where I do the tracking
-  // go through pointsToTrack 
-  // for everything that hasn't finished tracking
-  // add it's most recent location to the list that the openCV KLT function will take
-  // run the opencv KLT function
-  // using the same "for" structure that added the points to the tracking list,
-  //  go through those points, and either add the new tracked position to the point
-  //  or, if tracking was lost, 
-  //   remove the point from pointsToTrack, and add it to pointsFinishedTracking
-
-  //first, allocate the prev_features structure
-
-  CalculateVelocityHistories();
 
   iFrame++;
   return;
 }
 
-void HarrisBuffer::GaussianSmoothingMul(IplImage* im1, IplImage* im2, IplImage* dst, double var)
+void HarrisBufferRt::GaussianSmoothingMul(IplImage* im1, IplImage* im2, IplImage* dst, double var)
 {
-  cvMul(im1,im2,tmp4);
-  CVUtil::GaussianSmooth(tmp4,dst,var,FFT);
+  cvMul(im1, im2, tmp4);
+  CVUtil::GaussianSmooth(tmp4, dst, var, FFT);
 }
 
-void HarrisBuffer::HarrisFunction(double k, IplImage* dst)
-{
+void HarrisBufferRt::HarrisFunction(double k, IplImage* dst) {
   // Harris function in 3D
   // original space-time Harris
   /*detC=  
@@ -402,7 +360,7 @@ void HarrisBuffer::HarrisFunction(double k, IplImage* dst)
 }
 
 
-void HarrisBuffer::OpticalFlowFromLK()
+void HarrisBufferRt::OpticalFlowFromLK()
 {
   //cvCalcOpticalFlowLK(prevgray, gray, cvSize(15,15), OFx, OFy);
   //cvCalcOpticalFlowHS(prevgray, gray, 0, OFx, OFy, 0.1, cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS,100,1e5));
@@ -442,7 +400,7 @@ void HarrisBuffer::OpticalFlowFromLK()
       cvReleaseImage(&OFysub);
 }
 
-void HarrisBuffer::OpticalFlowFromSMM()
+void HarrisBufferRt::OpticalFlowFromSMM()
 {
   // ref: Laptev et al. CVIU 2007, eq.(8)
   cvMul(cxx, cyy, tmp1);
@@ -462,7 +420,7 @@ void HarrisBuffer::OpticalFlowFromSMM()
   cvDiv(tmp6,tmp5,OFy);
 }
 
-IplImage* HarrisBuffer::getHBufferImage(int type)
+IplImage* HarrisBufferRt::getHBufferImage(int type)
 {
   int r;
   //cvAbs(tmp3,tmp3);cvLog(tmp3,tmp3);
@@ -477,7 +435,7 @@ IplImage* HarrisBuffer::getHBufferImage(int type)
   return vis;
 }
 
-void HarrisBuffer::WriteFeatures(InterestPoint &ip)
+void HarrisBufferRt::WriteFeatures(InterestPoint &ip)
 {
   assert(ip.features);
   double *data=(double*)ip.features->data.ptr;
@@ -487,11 +445,10 @@ void HarrisBuffer::WriteFeatures(InterestPoint &ip)
   FeatureFile<<std::endl;
 }
 
-void HarrisBuffer::DetectInterestPoints(int border)
-{
+void HarrisBufferRt::DetectInterestPoints(int border) {
   ipList.clear();
   Hbuffer.FindLocalMaxima(ipList, true);
-  CvMat *reg = cvCreateMat( SizeNeighb, 1, CV_64F );	
+  CvMat *reg = cvCreateMat(kSizeNeighb, 1, CV_64F);	
 
   int sz2=(int)TemporalMask2.size();
 
@@ -503,7 +460,7 @@ void HarrisBuffer::DetectInterestPoints(int border)
   //select significant points which are not in the boundary
   for(int i = 0; i < (int)ipList.size(); i++){
     // set s-t scales
-    ipList[i].sx2=sig2; ipList[i].st2 = tau2_;
+    ipList[i].sx2= sig2; ipList[i].st2 = tau2_;
 
     // set feature type : 5 for multi-scale Harris with this implementation
     ipList[i].ptype = 5;
@@ -519,7 +476,7 @@ void HarrisBuffer::DetectInterestPoints(int border)
   cvReleaseMat(&reg);
 }		
 
-int HarrisBuffer::NumberOfDetectedIPs()
+int HarrisBufferRt::NumberOfDetectedIPs()
 {
   //return ipList.size();
   int n=0;
@@ -529,7 +486,7 @@ int HarrisBuffer::NumberOfDetectedIPs()
   return n;
 }
 
-int HarrisBuffer::NumberOfDetectedTPs()
+int HarrisBufferRt::NumberOfDetectedTPs()
 {
   //printf("Started hb::numDetTPs\n");
   //printf("hb::size=%d\n",(int)pList.size());
@@ -542,7 +499,7 @@ int HarrisBuffer::NumberOfDetectedTPs()
   return n;
 }
 
-void HarrisBuffer::DrawInterestPoints(IplImage* im)
+void HarrisBufferRt::DrawInterestPoints(IplImage* im)
 {	
   //if(ipList.size()>0)
   //	if(ipList[0].t!=iFrame-convbuffer.BufferSize)
@@ -556,23 +513,20 @@ void HarrisBuffer::DrawInterestPoints(IplImage* im)
 
 
 
-void HarrisBuffer::CalculateVelocityHistories()
-{
-  if (pointsToTrack.size()>0)
-  {
+void HarrisBufferRt::CalculateVelocityHistories() {
+  if (pointsToTrack.size()>0) {
 
     CvPoint2D32f* prev_features=(CvPoint2D32f*)malloc((int)pointsToTrack.size()*sizeof(CvPoint2D32f));
     CvPoint2D32f* curr_features=(CvPoint2D32f*)malloc((int)pointsToTrack.size()*sizeof(CvPoint2D32f));
     char * foundFeature=(char *)malloc((int)pointsToTrack.size()*sizeof(char));
 
     CvTermCriteria optical_flow_termination_criteria = cvTermCriteria( 
-        CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, .3 );
+      CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, .3 );
 
     int i=0;
     std::list<DetectedTrackingPoint>::iterator it;
 
-    for(it=pointsToTrack.begin();it!=pointsToTrack.end(); ++it)
-    {
+    for(it=pointsToTrack.begin();it!=pointsToTrack.end(); ++it) {
       if ((*it).trajectory.size()==0)
         (*it).trajectory.push_back(cvPoint2D32f((*it).x,(*it).y));
       prev_features[i]= (*it).trajectory.back();
@@ -583,31 +537,28 @@ void HarrisBuffer::CalculateVelocityHistories()
     tempFrameNum += (int) (pointsToTrack.begin()->trajectory.size()) - 1;
 
     original.GetFrame(tempFrameNum, opticalFlowLastFrame);
-    original.GetFrame(tempFrameNum+1,opticalFlowNextFrame);
+    original.GetFrame(tempFrameNum + 1, opticalFlowNextFrame);
 
     cvScale(opticalFlowLastFrame, opticalFlowLastFrame8u, 255.0, 0.0);
     cvScale(opticalFlowNextFrame, opticalFlowNextFrame8u, 255.0, 0.0);
 
-    if (pointsToTrack.size()>0)
-    {
+    if (pointsToTrack.size() > 0) {
       cvCalcOpticalFlowPyrLK(opticalFlowLastFrame8u,opticalFlowNextFrame8u,NULL,NULL,prev_features,
-          curr_features,(int)pointsToTrack.size(),cvSize(3,3),0,foundFeature,NULL,
-          optical_flow_termination_criteria,0);
+        curr_features,(int)pointsToTrack.size(),cvSize(3,3),0,foundFeature,NULL,
+        optical_flow_termination_criteria,0);
     }	
 
     i=0;
 
-    for(it=pointsToTrack.begin();it!=pointsToTrack.end(); ++it)
-    {
+    for (it = pointsToTrack.begin(); it != pointsToTrack.end(); ++it) {
       if (foundFeature[i])
-        (*it).trajectory.push_back(cvPoint2D32f(curr_features[i].x,curr_features[i].y));
+        (*it).trajectory.push_back(cvPoint2D32f(curr_features[i].x, curr_features[i].y));
       i++;
     }
 
     i=0;
 
-    for(it=pointsToTrack.begin();it!=pointsToTrack.end(); ++it)
-    {
+    for (it=pointsToTrack.begin(); it!=pointsToTrack.end(); ++it) {
       if (!(foundFeature[i]))
       { 
         (*it).trackingFinished=true;
@@ -616,7 +567,6 @@ void HarrisBuffer::CalculateVelocityHistories()
       i++;
     }
 
-
     free(prev_features);
     free(curr_features);
     free(foundFeature);
@@ -624,7 +574,7 @@ void HarrisBuffer::CalculateVelocityHistories()
   }// if pointsToTrack.size()>0
 }
 
-void HarrisBuffer::finishProcessing()
+void HarrisBufferRt::finishProcessing()
 {
   int tempFrameNum;
   std::list<DetectedTrackingPoint>::iterator it;
@@ -651,7 +601,7 @@ void HarrisBuffer::finishProcessing()
 
 }
 
-void HarrisBuffer::AccumulateHistogram(CvMat *tdata, CvMat *wdata, double *hist, int nbins, bool normflag)
+void HarrisBufferRt::AccumulateHistogram(CvMat *tdata, CvMat *wdata, double *hist, int nbins, bool normflag)
 {
   // assuming the matrix values are doubles
   double *td=(double*)tdata->data.ptr;

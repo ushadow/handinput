@@ -14,7 +14,6 @@ using Emgu.CV.Util;
 
 namespace HandInput.Engine {
   public class PlayerDetector {
-    private static readonly int MaxDepth = 2000; // mm
     private static readonly int CvOpenIter = 1;
     private static readonly int ContourApproxLevel = 2;
 
@@ -23,22 +22,22 @@ namespace HandInput.Engine {
     /// <summary>
     /// Scaled depth value image for the player. Non-player and non-skin pixels are 0.
     /// </summary>
-    public Image<Gray, Byte> PlayerDepthImage { get; private set; }
+    public Image<Gray, Byte> DepthImage { get; private set; }
+    public Image<Gray, Byte> AlignedSkinMask;
 
     private int width, height;
     private MemStorage mem = new MemStorage();
     private ISkinDetector skinDetector;
-    private Image<Gray, Byte> alignedSkinMask;
 
     public static int ToWorldDepth(double depth) {
-      return (int)(MaxDepth - depth * MaxDepth / 255);
+      return (int)(Parameters.MaxDepth - depth * Parameters.MaxDepth / 255);
     }
 
     public PlayerDetector(int width, int height) {
       this.width = width;
       this.height = height;
       PlayerMask = new Image<Gray, Byte>(width, height);
-      PlayerDepthImage = new Image<Gray, Byte>(width, height);
+      DepthImage = new Image<Gray, Byte>(width, height);
     }
 
     /// <summary>
@@ -46,11 +45,9 @@ namespace HandInput.Engine {
     /// </summary>
     /// <param name="depthFrame"></param>
     /// <returns></returns>
-    public Rectangle detect(short[] depthFrame) {
+    public void Update(short[] depthFrame, byte[] colorPixelData, ColorDepthMapper mapper) {
       UpdatePlayerMask(depthFrame);
-      var contour = FindPlayerContour();
       UpdatePlayerDepthImage(depthFrame, PlayerMask.Data, null);
-      return contour.BoundingRectangle;
     }
 
     /// <summary>
@@ -59,20 +56,20 @@ namespace HandInput.Engine {
     /// <param name="depthFrame"></param>
     /// <param name="colorPixelData"></param>
     /// <param name="mapper"></param>
-    public void detectFilterSkin(short[] depthFrame, byte[] colorPixelData,
+    public void UpdateFilterSkin(short[] depthFrame, byte[] colorPixelData,
                                       ColorDepthMapper mapper) {
       if (skinDetector == null)
         skinDetector = new SkinDetectorGpu(width, height);
 
-      if (alignedSkinMask == null)
-        alignedSkinMask = new Image<Gray, Byte>(width, height);
+      if (AlignedSkinMask == null)
+        AlignedSkinMask = new Image<Gray, Byte>(width, height);
 
       var skinMask = skinDetector.DetectSkin(colorPixelData);
-      ImageUtil.AlignColorImage(skinMask, alignedSkinMask, depthFrame, mapper);
-      CvInvoke.cvMorphologyEx(alignedSkinMask.Ptr, alignedSkinMask.Ptr, IntPtr.Zero, IntPtr.Zero,
+      ImageUtil.AlignColorImage(skinMask, AlignedSkinMask, depthFrame, mapper);
+      CvInvoke.cvMorphologyEx(AlignedSkinMask.Ptr, AlignedSkinMask.Ptr, IntPtr.Zero, IntPtr.Zero,
                               CV_MORPH_OP.CV_MOP_CLOSE, 1);
       UpdatePlayerMask(depthFrame);
-      UpdatePlayerDepthImage(depthFrame, PlayerMask.Data, alignedSkinMask.Data);
+      UpdatePlayerDepthImage(depthFrame, PlayerMask.Data, AlignedSkinMask.Data);
     }
 
     private void UpdatePlayerMask(short[] depthFrame) {
@@ -112,28 +109,26 @@ namespace HandInput.Engine {
       return polyPtr;
     }
 
-    private void UpdatePlayerDepthImage(short[] depthFrame, Byte[, ,] playerMask, 
-        Byte[, ,] skinMask) {
-      CvInvoke.cvZero(PlayerDepthImage.Ptr);
-      var data = PlayerDepthImage.Data;
+    void UpdatePlayerDepthImage(short[] depthFrame, Byte[, ,] playerMask, Byte[, ,] skinMask) {
+      CvInvoke.cvZero(DepthImage.Ptr);
+      var data = DepthImage.Data;
 
-      var scale = (float)255 / MaxDepth;
+      var scale = (float)255 / Parameters.MaxDepth;
       for (int r = 0; r < height; r++)
         for (int c = 0; c < width; c++) {
           var index = r * width + c;
-          if (IsPlayerPixel(playerMask, skinMask, c, r)) {
-            short pixel = depthFrame[index];
-            var depth = DepthUtil.RawToDepth(pixel);
-            data[r, c, 0] = (byte)(Math.Max(0, MaxDepth - depth) * scale);
-          }
+          short pixel = depthFrame[index];
+          var depth = DepthUtil.RawToDepth(pixel);
+          depth = depth < Parameters.MinDepth ? Parameters.MaxDepth : depth;
+          data[r, c, 0] = (byte)(Math.Max(0, Parameters.MaxDepth - depth) * scale);
         }
     }
 
-    private bool IsPlayerPixel(Byte[, ,] playerMask, Byte[, ,] skinMask, int x, int y) {
+    bool IsPlayerPixel(Byte[, ,] playerMask, Byte[, ,] skinMask, int x, int y) {
       return (skinMask == null || skinMask[y, x, 0] > 0) && playerMask[y, x, 0] > 0;
     }
 
-    private bool IsPlayerPixel(Seq<Point> contour, Byte[, ,] skinMask, int x, int y) {
+    bool IsPlayerPixel(Seq<Point> contour, Byte[, ,] skinMask, int x, int y) {
       return contour.InContour(new Point(x, y)) >= 0 && (skinMask == null || skinMask[y, x, 0] > 0);
     }
 

@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Configuration;
 
 namespace HandInput.GesturesViewer {
+  // Manages gesture recording.
   partial class MainWindow {
     static readonly String DataDir = ConfigurationManager.AppSettings["data_dir"];
 
@@ -28,9 +29,9 @@ namespace HandInput.GesturesViewer {
     void OnTrainingEvent(Object sender, TrainingEventArgs e) {
       switch (e.Type) {
         case TrainingEventType.Start:
-          var timeSuffix = String.Format("-{0:yyyy-MM-dd_HH-mm}", DateTime.Now);
-          var fileName = Path.Combine(DataDir, String.Format("KinectData{0}.bin", timeSuffix));
-          var gtFile = Path.Combine(DataDir, String.Format("KinectDataGTD{0}.txt", timeSuffix));
+          var time = String.Format("{0:yyyy-MM-dd_HH-mm}", DateTime.Now);
+          var fileName = Path.Combine(DataDir, time, "KinectData_1.bin");
+          var gtFile = Path.Combine(DataDir, time, "KinectDataGTD_1.txt");
           sw = new StreamWriter(File.Create(gtFile));
           DirectRecord(fileName);
           break;

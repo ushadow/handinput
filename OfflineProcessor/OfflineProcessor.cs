@@ -50,7 +50,7 @@ namespace HandInput.OfflineProcessor {
     }
 
     private void ProcessFeature() {
-      SalienceDetector handTracker = null;
+      SalienceHandTracker handTracker = null;
       Int16[] depthPixelData = null;
       Byte[] colorPixelData = null;
 
@@ -61,7 +61,7 @@ namespace HandInput.OfflineProcessor {
         var colorFrame = allFrames.ColorImageFrame;
 
         if (handTracker == null)
-          handTracker = (SalienceDetector)Activator.CreateInstance(handTrackerType, new Object[] {
+          handTracker = (SalienceHandTracker)Activator.CreateInstance(handTrackerType, new Object[] {
             depthFrame.Width, depthFrame.Height, replayer.KinectParams});
         if (featureProcessor == null)
           featureProcessor = (SalienceFeatureProcessor)Activator.CreateInstance(
@@ -74,7 +74,7 @@ namespace HandInput.OfflineProcessor {
         depthFrame.CopyPixelDataTo(depthPixelData);
         colorFrame.CopyPixelDataTo(colorPixelData);
         var skeleton = SkeletonUtil.FirstTrackedSkeleton(allFrames.SkeletonFrame.Skeletons);
-        var result = handTracker.Detect(depthPixelData, colorPixelData, skeleton);
+        var result = handTracker.Update(depthPixelData, colorPixelData, skeleton);
         var feature = featureProcessor.Compute(result);
         if (feature.IsSome) {
           frameList.Add(allFrames.FrameNumber);

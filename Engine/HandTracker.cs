@@ -22,8 +22,6 @@ namespace HandInput.Engine {
     int width = 640, height = 480;
     Image<Gray, Byte> gray;
     Image<Gray, Byte> scaled;
-    MHarrisBuffer buffer = new MHarrisBuffer();
-    bool initialized = false;
 
     public HandTracker(CoordinateMapper coordMapper) {
       this.coordMapper = coordMapper;
@@ -33,22 +31,6 @@ namespace HandInput.Engine {
     }
 
     public Option<HandInputEvent> Update(SkeletonFrame sf, byte[] cf) {
-      if (cf != null) {
-        var image = ImageUtil.CreateBgrImage(cf, imageStorage, width, height);
-        CvInvoke.cvCvtColor(image, gray, COLOR_CONVERSION.CV_BGR2GRAY);
-        if (initialized) {
-          buffer.ProcessFrame(gray.Ptr);
-          var list = buffer.GetInterestPoints();
-          foreach (Object o in list) {
-            var point = (MInterestPoint)o;
-            Log.DebugFormat("({0}, {1}, {2})", point.X, point.Y, point.Sx2);
-          }
-        } else {
-          buffer.Init(gray.Ptr);
-          initialized = true;
-        }
-      }
-
       if (sf != null) {
         if (skeletonData == null || skeletonData.Length != sf.SkeletonArrayLength) {
           skeletonData = new Skeleton[sf.SkeletonArrayLength];

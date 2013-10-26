@@ -22,6 +22,8 @@ using HandInput.Engine;
 using HandInput.Util;
 using System.Runtime.Serialization.Formatters.Binary;
 
+using handinput;
+
 namespace HandInput.GesturesViewer {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
@@ -51,7 +53,7 @@ namespace HandInput.GesturesViewer {
     int depthFrameNumber;
     BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
     CancellationTokenSource cancellationTokenSource;
-    SalienceDetector handTracker;
+    IHandTracker handTracker;
     RecognitionEngine recogEngine;
     FPSCounter fpsCounter = new FPSCounter();
 
@@ -139,6 +141,7 @@ namespace HandInput.GesturesViewer {
       elevationSlider.DataContext = nuiCamera;
 
       kinectDisplay.DataContext = colorManager;
+      maskDispay.DataContext = depthDisplayManager;
     }
 
     void StartTracking() {
@@ -149,10 +152,11 @@ namespace HandInput.GesturesViewer {
     }
 
     void HandTrackingTask(CancellationToken token) {
-      handTracker = new SalienceDetector(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
+      Log.Debug("Start tracking");
+      handTracker = new StipHandTracker(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
         var data = buffer.Take();
-        handTracker.Detect(data.DepthData, data.ColorData, data.Skeleton);
+        handTracker.Update(data.DepthData, data.ColorData, data.Skeleton);
         fpsCounter.LogFPS();
       }
     }
@@ -162,17 +166,38 @@ namespace HandInput.GesturesViewer {
         cancellationTokenSource.Cancel();
     }
 
-    void UpdateDisplay() {
+    void UpdateDisplay(TrackingResult result) {
       gesturesCanvas.Children.Clear();
       if (handTracker != null) {
-        var bb = handTracker.PrevBoundingBox;
-        if (bb.IsSome && bb.Value.Width > 0) {
-          VisualUtil.DrawRectangle(gesturesCanvas, bb.Value, Brushes.Red);
-        }
-        depthDisplayManager.UpdateBitmap(handTracker.SmoothedDepth.Bytes);
+        if (handTracker is SalienceHandTracker)
+          UpdateSalienceHandTrackerDisplay();
+        else if (handTracker is StipHandTracker)
+          UpdateStipHandTrackerDisplay();
       } else if (displayDepth) {
         depthDisplayManager.UpdateBitmap();
       }
+    }
+
+    void UpdateStipHandTrackerDisplay() {
+      StipHandTracker sht = (StipHandTracker)handTracker;
+      if (sht.StipList != null) {
+        foreach (Object o in sht.StipList) {
+          MInterestPoint ip = (MInterestPoint)o;
+          VisualUtil.DrawPoint(gesturesCanvas, new Point(ip.X * 4, ip.Y * 4), Brushes.Red, 1, (int)ip.Sx2);
+        }
+      }
+      depthDisplayManager.UpdateBitmap(sht.Gray.Bytes);
+    }
+
+    void UpdateSalienceHandTrackerDisplay() {
+      SalienceHandTracker sht = (SalienceHandTracker)handTracker;
+      var bb = sht.PrevBoundingBox;
+      if (bb.IsSome && bb.Value.Width > 0) {
+        VisualUtil.DrawRectangle(gesturesCanvas, bb.Value, Brushes.Red);
+      }
+      var converted = sht.TemporalSmoothed.ConvertScale<Byte>(255, 0);
+      depthDisplayManager.UpdateBitmap(converted.Bytes);
+      depthDisplayManager.UpdateBitmapMask(sht.SaliencyProb.Data);
     }
 
     void kinectRuntime_AllFrameReady(object sender, AllFramesReadyEventArgs e) {
@@ -193,7 +218,7 @@ namespace HandInput.GesturesViewer {
 
         if (df != null) {
           depthFrameNumber = df.FrameNumber;
-          depthDisplayManager.Update(df);
+          depthDisplayManager.UpdatePixelData(df);
         }
 
         if (sf != null) {
@@ -206,10 +231,12 @@ namespace HandInput.GesturesViewer {
             });
         }
       }
-      UpdateDisplay();
+      UpdateDisplay(new TrackingResult());
     }
 
     void UpdateSkeletonDisplay(ReplaySkeletonFrame frame) {
+      if (frame.Skeletons == null)
+        return;
       Dictionary<int, string> stabilities = new Dictionary<int, string>();
       foreach (var skeleton in frame.Skeletons) {
         if (skeleton.TrackingState != SkeletonTrackingState.Tracked)
@@ -217,13 +244,14 @@ namespace HandInput.GesturesViewer {
 
         contextTracker.Add(skeleton.Position.ToVector3(), skeleton.TrackingId);
         stabilities.Add(skeleton.TrackingId,
-            contextTracker.IsStableRelativeToCurrentSpeed(skeleton.TrackingId) ? "Stable" : "Non stable");
+            contextTracker.IsStableRelativeToCurrentSpeed(skeleton.TrackingId) ?
+                                                          "Stable" : "Non stable");
       }
 
       try {
         skeletonDisplayManager.Draw(frame.Skeletons, seatedMode.IsChecked == true);
-      } catch (Exception) {
-
+      } catch (Exception e) {
+        Log.Error(e.Message);
       }
 
       stabilitiesList.ItemsSource = stabilities;

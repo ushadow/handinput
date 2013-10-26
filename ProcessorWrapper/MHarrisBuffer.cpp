@@ -1,6 +1,7 @@
 #include "Stdafx.h"
 #include "MHarrisBuffer.h"
 
+namespace handinput {
 bool MHarrisBuffer::Init(System::IntPtr image) {
   bool res = harrisbuffer_->Init(reinterpret_cast<IplImage*>(image.ToPointer()), "output.txt");
   return res;
@@ -23,4 +24,6 @@ System::Collections::ArrayList^ MHarrisBuffer::GetInterestPoints() {
       list->Add(gcnew MInterestPoint(point.x, point.y, point.sx2));
   }
   return list;
+}
+
 }

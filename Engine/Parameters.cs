@@ -26,6 +26,9 @@ namespace HandInput.Engine {
       }
     }
 
+    public static readonly int MaxDepth = 2000; // mm
+    public static readonly int MinDepth = 800; // mm
+
     // Default values;
     static int featureImageWidth = 64;
     static String modelFile = "G:\\salience\\model.mat";

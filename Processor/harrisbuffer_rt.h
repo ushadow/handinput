@@ -4,8 +4,12 @@
 #include "pcheader.h"
 #include "stbuffer.h"
 
-class PROCESSOR_API HarrisBuffer {
+// Realtime Harris3D detector.
+class PROCESSOR_API HarrisBufferRt {
 private:
+  static const int kLengthFeatures = 34; // lenngth of feature vector
+  static const int kSizeNeighb = 125; // mask of 5x5x5 (vectorized)
+  static double jet[kLengthFeatures][kSizeNeighb];
 
   CvMat* normvec;
   CvMat JetFilter;
@@ -39,7 +43,6 @@ private:
   std::ofstream FeatureFile;
 
   int iFrame;
-
 
   //temp images
   IplImage* tmp;
@@ -75,8 +78,6 @@ private:
   IplImage* opticalFlowLastFrame8u;
   IplImage* opticalFlowNextFrame8u;
 
-
-
   IplImage* timg;
   IplImage* wimg;
   IplImage* OFtimg;
@@ -104,8 +105,8 @@ public:
   double patchsizefactor;
   std::string descriptortype;
 
-  HarrisBuffer(double tau2 = 2.0);
-  ~HarrisBuffer(void);
+  HarrisBufferRt(double tau2 = 2.0);
+  ~HarrisBufferRt(void);
 
   IplImage* getHBufferImage(int type);
 

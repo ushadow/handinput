@@ -50,8 +50,7 @@ namespace HandInput.GesturesViewer {
       frameSlider.Maximum = replay.FrameCount;
       frameSlider.Value = 0;
 
-      handTracker = new HandInput.Engine.SalienceDetector(DepthWidth, DepthHeight,
-                                                          replay.KinectParams);
+      handTracker = new SkeletonHandTracker(DepthWidth, DepthHeight, replay.KinectParams);
       recogEngine = new RecognitionEngine();
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
@@ -71,6 +70,7 @@ namespace HandInput.GesturesViewer {
       else {
         timer.Stop();
         recogEngine = null;
+        replay = null;
       }
     }
 
@@ -78,14 +78,14 @@ namespace HandInput.GesturesViewer {
         ReplaySkeletonFrame sf) {
       if (df != null)
         statusTextBox.Text = df.FrameNumber.ToString();
-      depthDisplayManager.Update(df);
+      depthDisplayManager.UpdatePixelData(df);
       colorManager.Update(cf, !displayDepth);
       UpdateSkeletonDisplay(sf);
-      var result = handTracker.Detect(depthDisplayManager.PixelData, colorManager.PixelData,
+      var result = handTracker.Update(depthDisplayManager.PixelData, colorManager.PixelData,
           SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
       recogEngine.Update(result);
       fpsCounter.LogFPS();
-      UpdateDisplay();
+      UpdateDisplay(result);
     }
 
     void TogglePlay() {

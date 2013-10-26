@@ -46,7 +46,7 @@ std::vector<double> CVUtil::GaussianMask1D(double variance, int masksize, int sz
   int sz=masksize/2;
   if (!masksize)
     sz=(int)(sqrt(variance)*szfct);
-  double *tmp=new double[2*sz+1];	
+  double *tmp=new double[2 * sz + 1];	
   double sum=0;
   int x;
   for(x=-sz ; x<=sz ; x++)
@@ -62,14 +62,6 @@ std::vector<double> CVUtil::GaussianMask1D(double variance, int masksize, int sz
     mask.push_back(0);
   for(x=-nnz; x<=nnz ; x++)
     mask[x+nnz]=tmp[x+nnz];	
-
-  //std::vector<double> mask_large;
-  //for (int i=0;i<sz;i++)
-  //	mask_large.push_back(0);
-  //for (int i=0;i<mask.size();i++)
-  //	mask_large.push_back(mask[i]);
-  //for (int i=0;i<sz;i++)
-  //	mask_large.push_back(0);
 
   delete[] tmp;
   return mask;
@@ -141,7 +133,6 @@ int CVUtil::GaussianSmooth(IplImage* src, IplImage* dst, double sigma2, Smoothin
 
   //3x3 7x7 kernels  are more efficient
   //cvSmooth(src, dst, CV_GAUSSIAN, 7, 7, sqrt(sigma2));
-
 
   return 0;
 }

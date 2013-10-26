@@ -19,8 +19,6 @@ MultiScaleHarrisBuffer::MultiScaleHarrisBuffer(void)
   st2all.push_back(4.0);
 
   vis=NULL;
-  //framePyr=NULL;
-  //framePrevPyr=NULL;
 
   //descriptortype="hoghof";
   descriptortype="of";
@@ -106,7 +104,7 @@ bool MultiScaleHarrisBuffer::Init(IplImage* firstfrm,std::string fname,std::stri
         hbList[hb_ind].patchsizefactor=patchsizefactor;
         hbList[hb_ind].descriptortype=descriptortype;
         hbList[hb_ind].sig2=sx2all[j];
-        hbList[hb_ind].tau2=st2all[k];
+        hbList[hb_ind].tau2_ =st2all[k];
         hbList[hb_ind].kparam=kparam;
         hbList[hb_ind].SignificantPointThresh=SignificantPointThresh;
         hbList[hb_ind].Border=Border;

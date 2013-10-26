@@ -12,6 +12,8 @@ using Kinect.Toolbox.Record;
 
 using Common.Logging;
 
+using HandInput.Util;
+
 namespace HandInput.GesturesViewer {
   /// <summary>
   /// Manages the visualization of depth data.
@@ -21,18 +23,20 @@ namespace HandInput.GesturesViewer {
 
     public short[] PixelData { get; private set; }
     public WriteableBitmap Bitmap { get; private set; }
+    public WriteableBitmap BitmapMask { get; private set; }
 
-    int width, height, stride;
-    Int32Rect rect;
-    byte[] depthFrame;
+    int width, height;
+    byte[] depthFrame, transparentFrame;
 
     public DepthDisplayManager(int width, int height) {
       this.width = width;
       this.height = height;
+      Bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
+      BitmapMask = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
     }
 
-    public void Update(ReplayDepthImageFrame frame) {
-      if (PixelData == null) 
+    public void UpdatePixelData(ReplayDepthImageFrame frame) {
+      if (PixelData == null)
         PixelData = new short[frame.PixelDataLength];
       frame.CopyPixelDataTo(PixelData);
     }
@@ -42,28 +46,27 @@ namespace HandInput.GesturesViewer {
       UpdateBitmap(depthFrame);
     }
 
+    public void UpdateBitmap(byte[] data) {
+      UpdateBitmap(data, Bitmap);
+    }
+
+    public void UpdateBitmapMask(Single[, ,] data) {
+      if (transparentFrame == null) {
+        transparentFrame = new byte[width * height * 4];
+      }
+      ImageUtil.CreateMask(data, transparentFrame, width, true);
+      UpdateBitmap(transparentFrame, BitmapMask);
+    }
+
     /// <summary>
     /// Update the bitmap with the given byte array.
     /// </summary>
     /// <param name="data">the length of the data must be equal to this.width * this.height</param>
-    public void UpdateBitmap(byte[] data) {
-      if (data.Length != width * height) {
-        Log.FatalFormat("The length of the data is incorrent. Should be {0}; got {1}.",
-                        width * height, data.Length);
-      }
-
-      if (Bitmap == null)
-        InitializeBitmap();
-      Bitmap.WritePixels(rect, data, stride, 0);
-      RaisePropertyChanged(() => Bitmap);
-    }
-
-    void InitializeBitmap() {
-      if (Bitmap == null) {
-        Bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
-      }
-      stride = Bitmap.PixelWidth * Bitmap.Format.BitsPerPixel / 8;
-      rect = new Int32Rect(0, 0, Bitmap.PixelWidth, Bitmap.PixelHeight);
+    public void UpdateBitmap(byte[] data, WriteableBitmap bitmap) {
+      var stride = bitmap.PixelWidth * bitmap.Format.BitsPerPixel / 8;
+      var rect = new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight);
+      bitmap.WritePixels(rect, data, stride, 0);
+      RaisePropertyChanged(() => bitmap);
     }
 
     void ConvertDepthFrame(short[] depthFrame16) {

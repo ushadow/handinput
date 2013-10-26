@@ -1,6 +1,7 @@
 #pragma once
-#include "harrisbuffer.h"
+#include "harrisbuffer_rt.h"
 
+namespace handinput {
 public ref class MInterestPoint {
 public:
   int X, Y;
@@ -10,7 +11,7 @@ public:
 
 public ref class MHarrisBuffer {
 public:
-  MHarrisBuffer() { harrisbuffer_ = new HarrisBuffer(); }
+  MHarrisBuffer() { harrisbuffer_ = new HarrisBufferRt(1); }
   ~MHarrisBuffer() { this->!MHarrisBuffer(); }
   !MHarrisBuffer() { delete harrisbuffer_; } // Finalizer
   bool Init(System::IntPtr image);
@@ -18,6 +19,7 @@ public:
   void DrawInteresPoints(System::IntPtr image);
   System::Collections::ArrayList^ GetInterestPoints();
 private:
-  HarrisBuffer* harrisbuffer_;
+  HarrisBufferRt* harrisbuffer_;
 };
 
+}

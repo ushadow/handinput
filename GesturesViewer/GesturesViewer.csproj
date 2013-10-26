@@ -206,6 +206,10 @@
       <Project>{a508b43b-222e-4a0e-9280-a7f924ccfab4}</Project>
       <Name>Engine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ProcessorWrapper\ProcessorWrapper.vcxproj">
+      <Project>{141272a8-30f0-433f-ad0c-dda69a6077d0}</Project>
+      <Name>ProcessorWrapper</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Util\Util.csproj">
       <Project>{0e934dee-d1f2-49b9-b8e9-06164d72e4ac}</Project>
       <Name>Util</Name>

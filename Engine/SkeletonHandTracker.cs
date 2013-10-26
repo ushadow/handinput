@@ -18,7 +18,7 @@ using HandInput.Util;
 using System.Windows.Media.Media3D;
 
 namespace HandInput.Engine {
-  public class HandDetector {
+  public class SkeletonHandTracker : IHandTracker {
     private class DistanceComparer : IComparer<Rectangle> {
       private Dictionary<Rectangle, double> costDict;
 
@@ -71,7 +71,7 @@ namespace HandInput.Engine {
     private ColorDepthMapper mapper;
     private SkinDetector skinDetetor;
 
-    public HandDetector(int width, int height, byte[] kinectParamsBytes) {
+    public SkeletonHandTracker(int width, int height, byte[] kinectParamsBytes) {
       this.width = width;
       this.height = height;
       playerMask = new Image<Gray, Byte>(width, height);
@@ -94,9 +94,9 @@ namespace HandInput.Engine {
     /// </summary>
     /// <param name="depthData"></param>
     /// <returns></returns>
-    public Option<Vector3D> detect(short[] depthData, byte[] colorPixelData, Skeleton skeleton,
-      JointType jointType) {
-      var skeHandJoint = SkeletonUtil.GetJoint(skeleton, jointType);
+    public TrackingResult Update(short[] depthData, byte[] colorPixelData, Skeleton skeleton) {
+
+      var skeHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
 
       var playerMask = CreatePlayerImage(depthData);
 
@@ -115,10 +115,10 @@ namespace HandInput.Engine {
         var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);
         var detectSkeHandJointPos = FindHand(depthData, HandCandidates.First());
         var relPos = SkeletonUtil.Sub(detectSkeHandJointPos, shoulderCenterJoint.Position);
-        return new Some<Vector3D>(relPos);
+        return new TrackingResult() { RelPos = new Some<Vector3D>(relPos) };
       }
 
-      return new None<Vector3D>();
+      return new TrackingResult() { RelPos = new None<Vector3D>() };
     }
 
     private Image<Gray, Byte> CreatePlayerImage(short[] depthFrame) {

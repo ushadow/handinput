@@ -18,8 +18,10 @@ using HandInput.Util;
 using Microsoft.Kinect;
 using Common.Logging;
 
+using handinput;
+
 namespace HandInput.Engine {
-  public class SalienceDetector {
+  public class SalienceHandTracker : IHandTracker {
     public static readonly float HandWidth = 0.095f; // m
     private static readonly int NumBin = 256;
     private static readonly int DefaultZDist = 1; // m
@@ -33,6 +35,7 @@ namespace HandInput.Engine {
     public Option<Rectangle> PrevBoundingBox { get; private set; }
     // Smoothed player depth image.
     public Image<Gray, Byte> SmoothedDepth { get; private set; }
+    public Image<Gray, Single> TemporalSmoothed { get; private set; }
     public Image<Gray, Byte> Diff0 { get; private set; }
     public Image<Gray, Byte> DiffMask1 { get; private set; }
     public Image<Gray, Byte> DiffMask0 { get; private set; }
@@ -46,6 +49,7 @@ namespace HandInput.Engine {
     private MCvConnectedComp connectedComp = new MCvConnectedComp();
     private MCvBox2D shiftedBox = new MCvBox2D();
     private ColorDepthMapper mapper;
+    private MHandTracker handTracker;
 
     /// <summary>
     /// Creates a detector based on salience.
@@ -53,12 +57,12 @@ namespace HandInput.Engine {
     /// <param name="width"></param>
     /// <param name="height"></param>
     /// <param name="kinectParamsBinary">Kinect parameters in binary.</param>
-    public SalienceDetector(int width, int height, Byte[] kinectParams) {
+    public SalienceHandTracker(int width, int height, Byte[] kinectParams) {
       Init(width, height);
       mapper = new ColorDepthMapper(kinectParams);
     }
 
-    public SalienceDetector(int width, int height, CoordinateMapper mapper) {
+    public SalienceHandTracker(int width, int height, CoordinateMapper mapper) {
       Init(width, height);
       this.mapper = new ColorDepthMapper(mapper);
     }
@@ -72,7 +76,7 @@ namespace HandInput.Engine {
     /// relative to the image.</param>
     /// <returns>The position of the best bounding box relative to the shoulder joint in skeleton 
     /// coordinates if the bounding box is valid. Otherwise returns None.</returns>
-    public TrackingResult Detect(short[] depthFrame, byte[] colorPixelData, Skeleton skeleton) {
+    public TrackingResult Update(short[] depthFrame, byte[] colorPixelData, Skeleton skeleton) {
       t++;
 
       Option<Vector3D> relPos = new None<Vector3D>();
@@ -80,10 +84,12 @@ namespace HandInput.Engine {
       if (skeleton == null || depthFrame == null)
         return new TrackingResult() { RelPos = relPos};
 
-      playerDetector.detectFilterSkin(depthFrame, colorPixelData, mapper);
-      var playerDepthImage = playerDetector.PlayerDepthImage;
-      CvInvoke.cvSmooth(playerDepthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5,
+      playerDetector.UpdateFilterSkin(depthFrame, colorPixelData, mapper);
+      var depthImage = playerDetector.DepthImage;
+      CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5,
                         0, 0);
+      handTracker.Update(SmoothedDepth.Ptr, TemporalSmoothed.Ptr);
+      CvInvoke.cvConvertScale(TemporalSmoothed.Ptr, SmoothedDepth.Ptr, 255, 0);
 
       if (t > 1) {
         CvInvoke.cvAbsDiff(SmoothedDepth.Ptr, Diff0.Ptr, Diff0.Ptr);
@@ -105,12 +111,15 @@ namespace HandInput.Engine {
           var diffData = Diff0.Data;
           var depthData = SmoothedDepth.Data;
           var probData = SaliencyProb.Data;
+          var skinMaskData = playerDetector.AlignedSkinMask.Data;
+          var playerMaskData = playerDetector.PlayerMask.Data;
           for (int i = 0; i < DiffMask1.Height; i++)
             for (int j = 0; j < DiffMask1.Width; j++) {
               if (diffMaskData[i, j, 0] > 0) {
                 var diffBin = diffData[i, j, 0];
                 var depthBin = depthData[i, j, 0];
-                probData[i, j, 0] = diffCumulativeDist[diffBin] * depthCumulativeDist[depthBin];
+                probData[i, j, 0] = diffCumulativeDist[diffBin] * depthCumulativeDist[depthBin] *
+                  (playerMaskData[i, j, 0] == 255 ? 1 : 0) * (skinMaskData[i, j, 0] == 255 ? 1 : 0);
               }
             }
           var skeHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
@@ -128,6 +137,8 @@ namespace HandInput.Engine {
       this.width = width;
       this.height = height;
 
+      handTracker = new MHandTracker(width, height);
+
       // Diff at t - 0;
       DiffMask0 = new Image<Gray, Byte>(width, height);
       DiffMask1 = new Image<Gray, Byte>(width, height);
@@ -135,6 +146,7 @@ namespace HandInput.Engine {
       Diff0 = new Image<Gray, Byte>(width, height);
       SmoothedDepth = new Image<Gray, Byte>(width, height);
       TempMask = new Image<Gray, Byte>(width, height);
+      TemporalSmoothed = new Image<Gray, Single>(width, height);
 
       diffCumulativeDist = new float[NumBin];
       depthCumulativeDist = new float[NumBin];
@@ -208,7 +220,7 @@ namespace HandInput.Engine {
 
       float bestScore = 0;
       Seq<Point> bestContour = null;
-      Option<Rectangle> bestBoundingBox = new None<Rectangle>();
+      Option<Rectangle> bestBoundingBox = PrevBoundingBox;
 
       float z = DefaultZDist;
       if (hand != null)

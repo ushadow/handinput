@@ -39,8 +39,7 @@ STBuffer::STBuffer(int size):Buffer(NULL),Width(0),Height(0)
 }
 
 
-void STBuffer::CreateLocalMasks()
-{
+void STBuffer::CreateLocalMasks() {
   //creating neighbourhood masks
   int s=0,i,j,k;
   //3x3x3 mask
@@ -71,8 +70,6 @@ void STBuffer::CreateLocalMasks()
               s++;
             }
           }
-
-
 
           //3x3p2 mask
           s=0;
@@ -115,9 +112,8 @@ STBuffer::~STBuffer(void)
     cvReleaseMat(&Buffer);
 }
 
-void STBuffer::Init(const int size)
-{
-  BufferSize=size;
+void STBuffer::Init(const int size) {
+  BufferSize = size;
 }
 
 int STBuffer::GetSingleFrame(int i,IplImage* dst)
@@ -139,50 +135,79 @@ int STBuffer::GetFrame(int istamp,IplImage* dst)
 
 void STBuffer::Update(IplImage* newframe)
 {
-  if(!Buffer) //if (!Data.size())
-  {
+  if(!Buffer) {
     FrameIndices.Init(BufferSize);
-    /*for (  int i=0;i<BufferSize;i++)
-    Data.push_back(cvCloneImage(newframe)); */
-    Width=newframe->width;Height=newframe->height;
-    Buffer=cvCreateMat(BufferSize, Width*Height,DATATYPE);
+    Width = newframe->width;
+    Height = newframe->height;
+    Buffer = cvCreateMat(BufferSize, Width * Height, DATATYPE);
   }
   else
   {
-    int k=FrameIndices.Add();
-    /*IplImage* pIm=Data[k];
-    cvCopy(newframe,pIm);*/
+    int k = FrameIndices.Add();
     assert(newframe->widthStep * newframe->height == Buffer->step);
-    memcpy((void*)(Buffer->data.ptr + Buffer->step*k) ,
+    memcpy((void*)(Buffer->data.ptr + Buffer->step * k) ,
       newframe->imageData,Buffer->step);
   }
 
 }
 
-void STBuffer::Update(IplImage* newframe,   int istamp)
-{
-  if(!Buffer) //if (!Data.size())
-  {
+void STBuffer::Update(IplImage* newframe, int istamp) {
+  if(!Buffer) {
     FrameIndices.Init(BufferSize, istamp);
     /*for (  int i=0;i<BufferSize;i++)
     Data.push_back(cvCloneImage(newframe)); */
     Width=newframe->width;Height=newframe->height;
     Buffer=cvCreateMat(BufferSize, Width*Height,DATATYPE);
-  }
-  else
-  {
-    int k=FrameIndices.Add(istamp);
-    /*IplImage* pIm=Data[k];
-    cvCopy(newframe,pIm);*/
-    //M(i,j) = ((IMG_ELEM_TYPE*)(mat->data.ptr + mat->step*i))[j]
-    //cvReduce cvReshape(0,0,0);
+  } else {
+    int k = FrameIndices.Add(istamp);
     assert(newframe->widthStep * newframe->height == Buffer->step);
-    memcpy((void*)(Buffer->data.ptr + Buffer->step*k) ,
+    memcpy((void*)(Buffer->data.ptr + Buffer->step * k) ,
       newframe->imageData,Buffer->step);
   }
 }
 
+int STBuffer::ExponentialSmooth(IplImage* dst, std::vector<double> mask) {
+  int	tfsz = (int)mask.size();
+  assert(tfsz<=BufferSize);
 
+  int i;
+
+  if(BufferSize) {
+    assert(dst->widthStep * dst->height == Buffer->step);
+  }
+
+  int tstampres = FrameIndices.Last();
+
+  if ((int)mask.size() < BufferSize)
+    for(i=(int)mask.size();i<BufferSize;i++)
+      mask.push_back(0);
+
+  // If current frame is t,
+  // Sorted[i] = the index of (t - i)th frame in FrameIndices. 
+  std::vector<int> Sorted = FrameIndices.GetSortedIndices();
+
+  CvMat *fil = cvCreateMat(1, BufferSize, DATATYPE);
+  assert(BufferSize == (int)mask.size()); //filter is too big (it could be cut)
+  IMG_ELEM_TYPE* filter = new IMG_ELEM_TYPE[BufferSize];
+
+  for (i = 0; i < BufferSize; i++)
+    filter[Sorted[i]] = (IMG_ELEM_TYPE)mask[i];
+
+  for(i=0;i<BufferSize;i++)
+    cvmSet(fil,0,i, filter[i]);
+
+  CvMat *rdst, dsthdr;
+  rdst = cvReshape(dst, &dsthdr, 0, 1);
+  cvMatMul(fil, Buffer, rdst);
+
+  //memcpy((void*)(Buffer->data.ptr + Buffer->step * FrameIndices.LastIndex),
+         //dst->imageData, Buffer->step);
+
+  delete[] filter;
+  cvReleaseMat(&fil);
+
+  return tstampres;
+}
 /*
 mask should be a symmetric filter and its size should be an odd number
 */
@@ -193,44 +218,34 @@ int STBuffer::TemporalConvolve(IplImage* dst,std::vector<double> mask)
 
   int i;
 
-
-  if(BufferSize)
-  {
+  if(BufferSize) {
     assert(dst->widthStep * dst->height == Buffer->step);
-    assert(BufferSize>=3);
+    assert(BufferSize >= 3);
   }
 
-  assert(tfsz%2); //the size of filter should be odd
+  assert(tfsz % 2); //the size of filter should be odd
 
-  int tstampres=FrameIndices.Middle(tfsz);
+  int tstampres = FrameIndices.Middle(tfsz);
 
-
-  if((int)mask.size()<BufferSize)
-    for(i=(int)mask.size();i<BufferSize;i++)
+  if((int)mask.size() < BufferSize)
+    for(i = (int)mask.size(); i < BufferSize;i++)
       mask.push_back(0);
 
+  std::vector<int> Sorted = FrameIndices.GetSortedIndices();
 
-
-
-
-  std::vector<int> Sorted =FrameIndices.GetSortedIndices();
-
-  CvMat *fil=cvCreateMat(1,BufferSize,DATATYPE);
-  assert(BufferSize==(int)mask.size()); //filter is too big (it could be cut)
+  CvMat *fil = cvCreateMat(1, BufferSize, DATATYPE);
+  assert(BufferSize == (int)mask.size()); //filter is too big (it could be cut)
   IMG_ELEM_TYPE* filter=new IMG_ELEM_TYPE[BufferSize];
 
-  for(i=0;i<BufferSize;i++)
-    filter[Sorted[i]]=(IMG_ELEM_TYPE)mask[i];
+  for (i = 0; i < BufferSize; i++)
+    filter[Sorted[i]] = (IMG_ELEM_TYPE)mask[i];
 
   for(i=0;i<BufferSize;i++)
     cvmSet(fil,0,i, filter[i]);
 
-
-
   CvMat *rdst, dsthdr;
-  rdst = cvReshape(dst,&dsthdr,0,1);
-  cvMatMul(fil,Buffer,rdst);
-
+  rdst = cvReshape(dst, &dsthdr, 0, 1);
+  cvMatMul(fil, Buffer, rdst);
 
   delete[] filter;
   cvReleaseMat(&fil);
@@ -361,7 +376,7 @@ void STBuffer::GetLocalRegion(int x,int y,int t,
   delete[] SI;
 }
 
-void STBuffer::FindLocalMaxima(InterestPointList& pts,bool full)
+void STBuffer::FindLocalMaxima(InterestPointList& pts, bool full)
 {
   int cols=Width;
   int rows=Height;
@@ -376,28 +391,12 @@ void STBuffer::FindLocalMaxima(InterestPointList& pts,bool full)
   int ns;//number of neighbours in the mask
   int *neighbs;// pointer to the mask array
 
-  //choosing the right neighbour mask
-  /*if(BufferSize>=5)
-  {
-  db=2;
-  if(full){
-  ns=124; neighbs=(int*)Neighbs3x3x3;
+  db=1;
+  if (full) {
+    ns=26; neighbs=(int*)Neighbs3x3x3;
+  } else {
+    ns=10; neighbs=(int*)Neighbs3x3p2;
   }
-  else{
-  ns=28; neighbs=(int*)Neighbs5x5p4;
-  }
-  }
-  else*/
-  {
-    db=1;
-    if(full){
-      ns=26; neighbs=(int*)Neighbs3x3x3;
-    }
-    else{
-      ns=10; neighbs=(int*)Neighbs3x3p2;
-    }
-  }
-
 
   std::vector<int> Sorted =FrameIndices.GetSortedIndices();
   int *SI=new int[Sorted.size()];
@@ -411,9 +410,8 @@ void STBuffer::FindLocalMaxima(InterestPointList& pts,bool full)
         s=0;
         v=MM(SI[k],i,j);
         for(n=0;n<ns;n++)
-          //if ( v > MM(SI[neighbs[n][0]+k], neighbs[n][1]+i, neighbs[n][2]+j) )
-            if ( v > MM(SI[neighbs[3*n+0]+k], neighbs[3*n+1]+i, neighbs[3*n+2]+j) )
-              s++;
+          if ( v > MM(SI[neighbs[3*n+0]+k], neighbs[3*n+1]+i, neighbs[3*n+2]+j) )
+            s++;
         if(s==ns)//local maxima
         {
           pt.x=j;pt.y=i;pt.t=FrameIndices.get(SI[k]);pt.val=v;

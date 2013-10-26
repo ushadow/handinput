@@ -48,6 +48,7 @@
         <Viewbox Margin="5" Grid.RowSpan="6">
             <Grid Width="640" Height="480" ClipToBounds="True">
                 <Image x:Name="kinectDisplay" Source="{Binding Bitmap}"/>
+                <Image x:Name="maskDispay" Source="{Binding BitmapMask}"/>
                 <Canvas x:Name="kinectCanvas"/>
                 <Canvas x:Name="gesturesCanvas"/>
                 <Rectangle Stroke="Black" StrokeThickness="1"/>

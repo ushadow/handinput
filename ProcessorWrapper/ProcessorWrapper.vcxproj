@@ -131,7 +131,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>G:\workspace\HandInput\Processor;G:\program-files\eigen-eigen-ffa86ffb5570;G:\program-files\MATLAB\R2013b\extern\include;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\program-files\wavelib\MSVCDLL\src;G:\workspace\HandInput\Processor;G:\program-files\eigen-eigen-ffa86ffb5570;G:\program-files\MATLAB\R2013b\extern\include;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -150,7 +150,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MFeatureProcessor.h" />
+    <ClInclude Include="MHandTracker.h" />
     <ClInclude Include="MHarrisBuffer.h" />
+    <ClCompile Include="MHandTracker.cpp" />
     <ClCompile Include="MProcessor.cpp">
       <FileType>CppHeader</FileType>
     </ClCompile>
