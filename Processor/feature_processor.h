@@ -10,7 +10,8 @@ namespace handinput {
     FeatureProcessor(int w, int h);
     ~FeatureProcessor(void);
 
-    // Returns the float array of the feature vector. Can be null.
+    // Returns the float array of the feature vector. Can be null if there are not enough data to
+    // compute all the features.
     float* Compute(float x, float y, float z, cv::Mat& image, bool visualize = false);
 
     // Computes the descriptor feature from the image.
@@ -39,6 +40,7 @@ namespace handinput {
     std::unique_ptr<cv::Mat> scaled_image_, float_image_;
     // HOG descriptor.
     std::unique_ptr<float[]> feature_;
+    // Pointer to the start of descriptor in the feature array.
     float* descriptor_;
     Eigen::VectorXf prev_pos_, prev_v_;
 

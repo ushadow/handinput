@@ -6,9 +6,9 @@ namespace handinput {
     inf_engine_.reset(new InfEngine(model_file));
   }
 
-  void Processor::Update(float x, float y, float z, IplImage* image) {
+  void Processor::Update(float x, float y, float z, IplImage* image, bool visualize) {
     cv::Mat mat(image); // Default is not copying data.
-    float* feature = feature_proc_->Compute(x, y, z, mat);
+    float* feature = feature_proc_->Compute(x, y, z, mat, visualize);
     if (feature != NULL)
       inf_engine_->Update(feature);
   }

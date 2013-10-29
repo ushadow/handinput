@@ -40,16 +40,16 @@ namespace HandInput.Engine {
     public Image<Gray, Byte> DiffMask1 { get; private set; }
     public Image<Gray, Byte> DiffMask0 { get; private set; }
 
-    private float[] diffCumulativeDist, depthCumulativeDist;
-    private PlayerDetector playerDetector;
-    private int t = 0;
-    private int width, height;
-    private IntPtr storage = CvInvoke.cvCreateMemStorage(0);
-    private IntPtr contourPtr = new IntPtr();
-    private MCvConnectedComp connectedComp = new MCvConnectedComp();
-    private MCvBox2D shiftedBox = new MCvBox2D();
-    private ColorDepthMapper mapper;
-    private MHandTracker handTracker;
+    float[] diffCumulativeDist, depthCumulativeDist;
+    PlayerDetector playerDetector;
+    int t = 0;
+    int width, height;
+    IntPtr storage = CvInvoke.cvCreateMemStorage(0);
+    IntPtr contourPtr = new IntPtr();
+    MCvConnectedComp connectedComp = new MCvConnectedComp();
+    MCvBox2D shiftedBox = new MCvBox2D();
+    ColorDepthMapper mapper;
+    MHandTracker handTracker;
 
     /// <summary>
     /// Creates a detector based on salience.
@@ -59,12 +59,14 @@ namespace HandInput.Engine {
     /// <param name="kinectParamsBinary">Kinect parameters in binary.</param>
     public SalienceHandTracker(int width, int height, Byte[] kinectParams) {
       Init(width, height);
-      mapper = new ColorDepthMapper(kinectParams);
+      mapper = new ColorDepthMapper(kinectParams, Parameters.ColorImageFormat, 
+                                    Parameters.DepthImageFormat);
     }
 
     public SalienceHandTracker(int width, int height, CoordinateMapper mapper) {
       Init(width, height);
-      this.mapper = new ColorDepthMapper(mapper);
+      this.mapper = new ColorDepthMapper(mapper, Parameters.ColorImageFormat,
+                                         Parameters.DepthImageFormat);
     }
 
     /// <summary>
@@ -82,10 +84,11 @@ namespace HandInput.Engine {
       Option<Vector3D> relPos = new None<Vector3D>();
 
       if (skeleton == null || depthFrame == null)
-        return new TrackingResult() { RelPos = relPos};
+        return new TrackingResult();
 
-      playerDetector.UpdateFilterSkin(depthFrame, colorPixelData, mapper);
+      playerDetector.UpdateMasks(depthFrame, colorPixelData, mapper);
       var depthImage = playerDetector.DepthImage;
+      // Medin smoothing cannot be in place.
       CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5,
                         0, 0);
       handTracker.Update(SmoothedDepth.Ptr, TemporalSmoothed.Ptr);
@@ -129,8 +132,7 @@ namespace HandInput.Engine {
         }
       }
       SmoothedDepth.CopyTo(Diff0);
-      return new TrackingResult() { RelPos = relPos, SmoothedDepth = SmoothedDepth, 
-                                    BoundingBox = PrevBoundingBox };
+      return new TrackingResult(relPos, SmoothedDepth, PrevBoundingBox);
     }
 
     void Init(int width, int height) {
@@ -208,10 +210,10 @@ namespace HandInput.Engine {
     }
 
     /// <summary>
-    /// If no bounding box is found, returns None.
+    /// If no bounding box is found, returns the last bounding box.
     /// </summary>
     /// <returns></returns>
-    private Option<Rectangle> FindBestBoundingBox(Joint hand) {
+    Option<Rectangle> FindBestBoundingBox(Joint hand) {
       CvInvoke.cvConvert(SaliencyProb.Ptr, TempMask.Ptr);
       // Non-zero pixels are treated as 1s. Source image content is modifield.
       CvInvoke.cvFindContours(TempMask.Ptr, storage, ref contourPtr, StructSize.MCvContour,

@@ -23,14 +23,13 @@ using System.Runtime.InteropServices;
 namespace HandInput.Engine {
   public class SalienceFeatureProcessor {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
-    static readonly int FeatureImageWidth = 64;
 
     public int FeatureLength { get; private set; }
     public int DescriptorLength { get; private set; }
     public bool Visualize { get; set; }
 
-    MFeatureProcessor featureProcessor = new MFeatureProcessor(FeatureImageWidth,
-        FeatureImageWidth);
+    MFeatureProcessor featureProcessor = new MFeatureProcessor(Parameters.FeatureImageWidth,
+        Parameters.FeatureImageWidth);
 
     public SalienceFeatureProcessor() {
       DescriptorLength = featureProcessor.HOGLength();

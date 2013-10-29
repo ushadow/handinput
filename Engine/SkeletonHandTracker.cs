@@ -71,7 +71,7 @@ namespace HandInput.Engine {
     private ColorDepthMapper mapper;
     private SkinDetector skinDetetor;
 
-    public SkeletonHandTracker(int width, int height, byte[] kinectParamsBytes) {
+    public SkeletonHandTracker(int width, int height, byte[] kinectParams) {
       this.width = width;
       this.height = height;
       playerMask = new Image<Gray, Byte>(width, height);
@@ -79,11 +79,8 @@ namespace HandInput.Engine {
       alignedImg = new Image<Gray, Byte>(width, height);
       HandImage = new Image<Gray, Byte>(width, height);
 
-      var bf = new BinaryFormatter();
-      Stream stream = new MemoryStream(kinectParamsBytes);
-      var kinectParams = bf.Deserialize(stream) as IEnumerable<byte>;
-      stream.Close();
-      mapper = new ColorDepthMapper(kinectParams);
+      mapper = new ColorDepthMapper(kinectParams, Parameters.ColorImageFormat,
+                                    Parameters.DepthImageFormat);
       skinDetetor = new SkinDetector(width, height);
       HandBox = new MCvBox2D();
       HandCandidates = new List<Rectangle>();
@@ -95,30 +92,35 @@ namespace HandInput.Engine {
     /// <param name="depthData"></param>
     /// <returns></returns>
     public TrackingResult Update(short[] depthData, byte[] colorPixelData, Skeleton skeleton) {
+      if (skeleton != null) {
+        var skeHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
 
-      var skeHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
+        var playerMask = CreatePlayerImage(depthData);
 
-      var playerMask = CreatePlayerImage(depthData);
+        if (colorPixelData != null) {
+          SkinMask = skinDetetor.DetectSkin(colorPixelData);
+          AlignColorImage(depthData, SkinMask);
+          CvInvoke.cvAnd(playerMask.Ptr, alignedImg.Ptr, HandMask.Ptr, IntPtr.Zero);
+          CvInvoke.cvDilate(HandMask.Ptr, HandMask.Ptr, Rect5, MorphIter);
+          CvInvoke.cvDilate(HandMask.Ptr, HandMask.Ptr, IntPtr.Zero, MorphIter);
+        }
 
-      if (colorPixelData != null) {
-        SkinMask = skinDetetor.DetectSkin(colorPixelData);
-        AlignColorImage(depthData, SkinMask);
-        CvInvoke.cvAnd(playerMask.Ptr, alignedImg.Ptr, HandMask.Ptr, IntPtr.Zero);
-        CvInvoke.cvDilate(HandMask.Ptr, HandMask.Ptr, Rect5, MorphIter);
-        CvInvoke.cvDilate(HandMask.Ptr, HandMask.Ptr, IntPtr.Zero, MorphIter);
+        FindContours(skeHandJoint);
+        RankCandidates(HandCandidates, skeHandJoint, PrevHand, depthData);
+
+        if (HandCandidates.Count > 0) {
+          var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);
+          var detectSkeHandJointPos = FindHand(depthData, HandCandidates.First());
+          var relPos = SkeletonUtil.Sub(detectSkeHandJointPos, shoulderCenterJoint.Position);
+          return new TrackingResult(new Some<Vector3D>(relPos), HandImage,
+            new Some<Rectangle>(
+              new Rectangle((int)(HandBox.center.X - HandBox.size.Width / 2),
+              (int)(HandBox.center.Y - HandBox.size.Height / 2), (int)(HandBox.size.Width),
+              (int)HandBox.size.Height)));
+        }
       }
 
-      FindContours(skeHandJoint);
-      RankCandidates(HandCandidates, skeHandJoint, PrevHand, depthData);
-
-      if (HandCandidates.Count > 0) {
-        var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);
-        var detectSkeHandJointPos = FindHand(depthData, HandCandidates.First());
-        var relPos = SkeletonUtil.Sub(detectSkeHandJointPos, shoulderCenterJoint.Position);
-        return new TrackingResult() { RelPos = new Some<Vector3D>(relPos) };
-      }
-
-      return new TrackingResult() { RelPos = new None<Vector3D>() };
+      return new TrackingResult();
     }
 
     private Image<Gray, Byte> CreatePlayerImage(short[] depthFrame) {

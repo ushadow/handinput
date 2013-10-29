@@ -9,6 +9,7 @@ namespace HandInput.GesturesViewer {
   // Manages gesture recording.
   partial class MainWindow {
     static readonly String DataDir = ConfigurationManager.AppSettings["data_dir"];
+    static readonly String Pid = ConfigurationManager.AppSettings["pid"]; 
 
     StreamWriter sw;
 
@@ -30,8 +31,10 @@ namespace HandInput.GesturesViewer {
       switch (e.Type) {
         case TrainingEventType.Start:
           var time = String.Format("{0:yyyy-MM-dd_HH-mm}", DateTime.Now);
-          var fileName = Path.Combine(DataDir, time, "KinectData_1.bin");
-          var gtFile = Path.Combine(DataDir, time, "KinectDataGTD_1.txt");
+          var dir = Path.Combine(DataDir, Pid, time);
+          Directory.CreateDirectory(dir);
+          var fileName = Path.Combine(dir, "KinectData_1.bin");
+          var gtFile = Path.Combine(dir, "KinectDataGTD_1.txt");
           sw = new StreamWriter(File.Create(gtFile));
           DirectRecord(fileName);
           break;

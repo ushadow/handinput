@@ -50,7 +50,7 @@ namespace HandInput.OfflineProcessor {
     }
 
     private void ProcessFeature() {
-      SalienceHandTracker handTracker = null;
+      IHandTracker handTracker = null;
       Int16[] depthPixelData = null;
       Byte[] colorPixelData = null;
 
@@ -61,7 +61,7 @@ namespace HandInput.OfflineProcessor {
         var colorFrame = allFrames.ColorImageFrame;
 
         if (handTracker == null)
-          handTracker = (SalienceHandTracker)Activator.CreateInstance(handTrackerType, new Object[] {
+          handTracker = (IHandTracker)Activator.CreateInstance(handTrackerType, new Object[] {
             depthFrame.Width, depthFrame.Height, replayer.KinectParams});
         if (featureProcessor == null)
           featureProcessor = (SalienceFeatureProcessor)Activator.CreateInstance(

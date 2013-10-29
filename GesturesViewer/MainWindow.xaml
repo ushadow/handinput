@@ -71,8 +71,8 @@
             </StackPanel>
             <Button Content="Replay" x:Name="replayButton" Click="replayButton_Click" VerticalAlignment="Center" Grid.Row="1" Width="Auto"/>
             <Button Content="Capture Gesture" x:Name="recordGesture" Click="recordGesture_Click" VerticalAlignment="Center" Grid.Row="2" Width="Auto"/>
-            <CheckBox Content="Near Mode" x:Name="nearMode" Grid.Row="4" VerticalContentAlignment="Top" Checked="nearMode_Checked_1" Unchecked="nearMode_Unchecked_1" IsChecked="True"/>
-            <CheckBox Content="Seated Mode" x:Name="seatedMode" Grid.Row="5" VerticalContentAlignment="Top" Checked="seatedMode_Checked_1" Unchecked="seatedMode_Unchecked_1" IsChecked="True"/>
+            <CheckBox Content="Near Mode" x:Name="nearMode" Grid.Row="4" VerticalContentAlignment="Top" Checked="nearMode_Checked_1" Unchecked="nearMode_Unchecked_1" IsChecked="False"/>
+            <CheckBox Content="Seated Mode" x:Name="seatedMode" Grid.Row="5" VerticalContentAlignment="Top" Checked="seatedMode_Checked_1" Unchecked="seatedMode_Unchecked_1" IsChecked="False"/>
             <CheckBox Content="Control Mouse" x:Name="controlMouse" Grid.Row="6" VerticalContentAlignment="Top"/>
         </Grid>
         <TextBlock Text="STATUS" Grid.Column="1" Grid.Row="2" Margin="4"/>

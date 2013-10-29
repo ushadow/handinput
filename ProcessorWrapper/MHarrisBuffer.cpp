@@ -21,7 +21,7 @@ System::Collections::ArrayList^ MHarrisBuffer::GetInterestPoints() {
   for (int i = 0; i < (int)harrisbuffer_->ipList.size(); i++) {
     InterestPoint& point = harrisbuffer_->ipList[i];
     if (!point.reject)
-      list->Add(gcnew MInterestPoint(point.x, point.y, point.sx2));
+      list->Add(System::Drawing::Point(point.x, point.y));
   }
   return list;
 }

@@ -14,12 +14,12 @@ namespace HandInput.Engine {
         Parameters.FeatureImageWidth, Parameters.ModelFile);
     bool reset = true;
 
-    public void Update(TrackingResult result) {
+    public void Update(TrackingResult result, bool visualize = false) {
       if (result.RelPos.IsSome && result.BoundingBox.IsSome) {
         var pos = result.RelPos.Value;
         var image = result.SmoothedDepth;
         image.ROI = result.BoundingBox.Value;
-        processor.Update((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr);
+        processor.Update((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr, visualize);
         image.ROI = Rectangle.Empty;
         reset = false;
       } else {

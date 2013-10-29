@@ -17,6 +17,8 @@ public:
   bool Init(System::IntPtr image);
   void ProcessFrame(System::IntPtr image);
   void DrawInteresPoints(System::IntPtr image);
+  // Returns an array list of interest points. If no interest point is detected, an empty list is
+  // returned.
   System::Collections::ArrayList^ GetInterestPoints();
 private:
   HarrisBufferRt* harrisbuffer_;

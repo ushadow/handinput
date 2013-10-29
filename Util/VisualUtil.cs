@@ -63,7 +63,7 @@ namespace HandInput.Util {
     public static Rectangle DrawRectangle(Canvas canvas, Point topLeft, Size size, Brush s) {
       var rect = new Rectangle();
       rect.Stroke = s;
-
+      rect.StrokeThickness = 2;
       rect.Width = size.Width;
       rect.Height = size.Height;
 

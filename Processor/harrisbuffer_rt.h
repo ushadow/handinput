@@ -9,7 +9,6 @@ class PROCESSOR_API HarrisBufferRt {
 private:
   static const int kLengthFeatures = 34; // lenngth of feature vector
   static const int kSizeNeighb = 125; // mask of 5x5x5 (vectorized)
-  static double jet[kLengthFeatures][kSizeNeighb];
 
   CvMat* normvec;
   CvMat JetFilter;
@@ -70,8 +69,6 @@ private:
   IplImage* Lt;
   IplImage* Lx;
   IplImage* Ly;
-  IplImage* OFx;
-  IplImage* OFy;
 
   IplImage* opticalFlowLastFrame;
   IplImage* opticalFlowNextFrame;
@@ -114,8 +111,6 @@ public:
   void ProcessFrame(IplImage* frame, IplImage* OFx_precomp, IplImage* OFy_precomp);
   void DetectInterestPoints(int border=0);
   void DrawInterestPoints(IplImage* im);
-  void OpticalFlowFromSMM();
-  void OpticalFlowFromLK();
   int NumberOfDetectedIPs();
   int NumberOfDetectedTPs();	
 
@@ -126,8 +121,5 @@ public:
   int CurrentlyDoneFrameID(){return iFrame-convbuffer.BufferSize;}
 
 };
-
-
-
 
 #endif //HARRISBUFFER_H

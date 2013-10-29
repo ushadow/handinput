@@ -52,7 +52,7 @@ namespace handinput {
 
     hog_->Compute((float*) float_image_->data, descriptor_);
     if (visualize) {
-      cv::Mat vis = VisualizeHOG(*float_image_);
+      cv::Mat vis = VisualizeHOG(*scaled_image_);
       DisplayImage(vis);
     }
     return descriptor_;
@@ -65,7 +65,6 @@ namespace handinput {
     Mat visu;
     cv::resize(orig_image, visu, Size(orig_image.cols * zoom_factor, 
                                       orig_image.rows * zoom_factor));
-
     float radRangeForOneBin = (float) M_PI / kNBins; 
 
     // prepare data structure: 9 orientation / gradient strenghts for each cell

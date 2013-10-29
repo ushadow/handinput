@@ -8,6 +8,8 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Windows.Media;
+using System.Runtime.Serialization.Formatters.Binary;
+using drawing = System.Drawing;
 
 using Microsoft.Kinect;
 using Microsoft.Win32;
@@ -20,7 +22,6 @@ using Common.Logging;
 
 using HandInput.Engine;
 using HandInput.Util;
-using System.Runtime.Serialization.Formatters.Binary;
 
 using handinput;
 
@@ -30,8 +31,6 @@ namespace HandInput.GesturesViewer {
   /// </summary>
   public partial class MainWindow {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
-    static readonly ColorImageFormat ColorImageFormat = ColorImageFormat.RgbResolution640x480Fps30;
-    static readonly DepthImageFormat DepthImageFormat = DepthImageFormat.Resolution640x480Fps30;
     static readonly int DepthWidth = 640, DepthHeight = 480;
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
@@ -120,9 +119,9 @@ namespace HandInput.GesturesViewer {
       audioManager = new AudioStreamManager(kinectSensor.AudioSource);
       audioBeamAngle.DataContext = audioManager;
 
-      kinectSensor.ColorStream.Enable(ColorImageFormat);
+      kinectSensor.ColorStream.Enable(Parameters.ColorImageFormat);
 
-      kinectSensor.DepthStream.Enable(DepthImageFormat);
+      kinectSensor.DepthStream.Enable(Parameters.DepthImageFormat);
 
       kinectSensor.SkeletonStream.Enable(new TransformSmoothParameters {
         Smoothing = 0.5f,
@@ -153,7 +152,7 @@ namespace HandInput.GesturesViewer {
 
     void HandTrackingTask(CancellationToken token) {
       Log.Debug("Start tracking");
-      handTracker = new StipHandTracker(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
+      handTracker = new SalienceHandTracker(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
         var data = buffer.Take();
         handTracker.Update(data.DepthData, data.ColorData, data.Skeleton);
@@ -168,25 +167,16 @@ namespace HandInput.GesturesViewer {
 
     void UpdateDisplay(TrackingResult result) {
       gesturesCanvas.Children.Clear();
+      if (result.BoundingBox.IsSome) {
+        VisualUtil.DrawRectangle(gesturesCanvas, result.BoundingBox.Value, Brushes.Red);
+      }
       if (handTracker != null) {
         if (handTracker is SalienceHandTracker)
           UpdateSalienceHandTrackerDisplay();
-        else if (handTracker is StipHandTracker)
-          UpdateStipHandTrackerDisplay();
-      } else if (displayDepth) {
-        depthDisplayManager.UpdateBitmap();
       }
-    }
-
-    void UpdateStipHandTrackerDisplay() {
-      StipHandTracker sht = (StipHandTracker)handTracker;
-      if (sht.StipList != null) {
-        foreach (Object o in sht.StipList) {
-          MInterestPoint ip = (MInterestPoint)o;
-          VisualUtil.DrawPoint(gesturesCanvas, new Point(ip.X * 4, ip.Y * 4), Brushes.Red, 1, (int)ip.Sx2);
-        }
+      if (displayDepth && result.SmoothedDepth != null) {
+        depthDisplayManager.UpdateBitmap(result.SmoothedDepth.Bytes);
       }
-      depthDisplayManager.UpdateBitmap(sht.Gray.Bytes);
     }
 
     void UpdateSalienceHandTrackerDisplay() {
@@ -208,7 +198,7 @@ namespace HandInput.GesturesViewer {
       using (var df = e.OpenDepthImageFrame())
       using (var sf = e.OpenSkeletonFrame()) {
         try {
-          if (recorder != null) {
+          if (recorder != null && sf != null) {
             recorder.Record(sf, df, cf);
           }
         } catch (ObjectDisposedException) { }

@@ -13,17 +13,22 @@ namespace HandInput.Util {
   /// Maps points between color, depth and skeleton coordinates.
   /// </summary>
   public class ColorDepthMapper {
-    private static readonly ColorImageFormat ColorFormat =
-        ColorImageFormat.RgbResolution640x480Fps30;
-    private static readonly DepthImageFormat DepthFormat = DepthImageFormat.Resolution640x480Fps30;
-    private CoordinateMapper mapper;
+    
+    CoordinateMapper mapper;
+    ColorImageFormat cif;
+    DepthImageFormat dif;
 
-    public ColorDepthMapper(IEnumerable<byte> kinectParams) {
+    public ColorDepthMapper(IEnumerable<byte> kinectParams, ColorImageFormat cif, 
+                            DepthImageFormat dif) {
       mapper = new CoordinateMapper(kinectParams);
+      this.cif = cif;
+      this.dif = dif;
     }
 
-    public ColorDepthMapper(CoordinateMapper mapper) {
+    public ColorDepthMapper(CoordinateMapper mapper, ColorImageFormat cif, DepthImageFormat dif) {
       this.mapper = mapper;
+      this.cif = cif;
+      this.dif = dif;
     }
 
     /// <summary>
@@ -40,15 +45,18 @@ namespace HandInput.Util {
         Depth = depth
       };
 
-      return mapper.MapDepthPointToColorPoint(DepthFormat, dp, ColorFormat);
+      return mapper.MapDepthPointToColorPoint(dif, dp, cif);
     }
 
     public DepthImagePoint MapSkeletonPointToDepthPoint(SkeletonPoint sp) {
-      return mapper.MapSkeletonPointToDepthPoint(sp, DepthFormat);
+      return mapper.MapSkeletonPointToDepthPoint(sp, dif);
     }
 
+    public ColorImagePoint MapSkeletonPointToColorPoint(SkeletonPoint sp) {
+      return mapper.MapSkeletonPointToColorPoint(sp, cif);
+    }
     public SkeletonPoint MapDepthPointToSkeletonPoint(DepthImagePoint depthImagePoint) {
-      return mapper.MapDepthPointToSkeletonPoint(DepthFormat, depthImagePoint);
+      return mapper.MapDepthPointToSkeletonPoint(dif, depthImagePoint);
     }
 
     public SkeletonPoint MapDepthPointToSkeletonPoint(int x, int y, int depth) {
