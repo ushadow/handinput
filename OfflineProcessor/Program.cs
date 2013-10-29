@@ -32,7 +32,7 @@ namespace HandInput.OfflineProcessor {
     /// Default options.
     /// </summary>
     private static int nSession = 4;
-    private static int sampleRate = 4;
+    private static int sampleRate = 1;
     private static String type = "fe";
     private static String sessionToProcess = null;
     private static String featureType = "kinectxsens";
