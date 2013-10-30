@@ -3,10 +3,14 @@
 #include "stbuffer.h"
 
 namespace handinput {
-  class DataBuffer {
+  class PROCESSOR_API DataBuffer {
   public:
     DataBuffer(int size);
     ~DataBuffer() {};
+
+    cv::Mat GetFrame(int istamp);
+    cv::Mat GetSingleFrame(int i);
+
     void Update(const cv::Mat& image);
     void TemporalConvolve(cv::Mat* dst, std::vector<double> mask);
   private:

@@ -116,8 +116,7 @@ void STBuffer::Init(const int size) {
   BufferSize = size;
 }
 
-int STBuffer::GetSingleFrame(int i,IplImage* dst)
-{
+int STBuffer::GetSingleFrame(int i,IplImage* dst) {
   if(i<0 || i>=BufferSize)
     return -1;
   assert(dst->widthStep * dst->height == Buffer->step);

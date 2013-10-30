@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\gtest-1.7.0\src\gtest-all.cc" />
     <ClCompile Include="..\..\gtest-1.7.0\src\gtest_main.cc" />
+    <ClCompile Include="databuffer_test.cpp" />
     <ClCompile Include="feature_processor_test.cpp" />
     <ClCompile Include="gaussian_test.cpp" />
     <ClCompile Include="hmm_test.cpp" />

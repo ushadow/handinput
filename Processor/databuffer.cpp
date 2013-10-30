@@ -4,6 +4,17 @@
 namespace handinput {
   DataBuffer::DataBuffer(int size) : buffer_size_(size), width_(0), height_(0) {}
 
+  cv::Mat DataBuffer::GetFrame(int istamp) {
+    int i = frame_indices_.find(istamp);
+    return GetSingleFrame(i);
+  }
+
+  cv::Mat DataBuffer::GetSingleFrame(int i) {
+    if (i < 0 || i >= buffer_size_)
+      return cv::Mat();
+    return cv::Mat(height_, width_, DATATYPE, buffer_.data + buffer_.step[0] * i);
+  }
+
   void DataBuffer::Update(const cv::Mat& newframe) {
     if(buffer_.empty()) {
       frame_indices_.Init(buffer_size_);
