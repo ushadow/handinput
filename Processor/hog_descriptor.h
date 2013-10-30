@@ -3,7 +3,8 @@
 
 namespace handinput {
   
-// One-fold normalization HOG descriptor.
+// One-fold normalization HOG descriptor. The length of the descriptor is 
+// (w / sbin - 1) * (h / sbin - 1) * obin.
 class HOGDescriptor {
 public:
   // w: width of the input image.

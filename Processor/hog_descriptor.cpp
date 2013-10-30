@@ -126,17 +126,17 @@ namespace handinput {
       for(x = 0; x < nb; x++) {
         N[x] += H[x + o * nb] * H[x + o * nb];
       }
-    for (y = 0; y < hb1_; y++ ) for (x = 0; x < wb1_; x++ ) {
-      HG1 = HG + y * wb1_ + x; 
-      for (y1 = fold_per_dim_ - 1; y1 >= 0; y1--) 
-        for (x1 = fold_per_dim_ - 1; x1 >= 0; x1--) {
-          N1 = N + (y + y1) * wb + (x + x1);  H1 = H + (y + 1) * wb + (x + 1);
-          n = 1 / sqrt(*N1 + *(N1 + 1) + *(N1 + wb) + *(N1 + wb + 1) + eps);
-          for (o = 0; o < obin; o++) { 
-            *HG1 = Mind((float) (*H1 * n), 0.2f); 
-            HG1 += nb1; H1 += nb; }
-        }
-    } 
+      for (y = 0; y < hb1_; y++ ) for (x = 0; x < wb1_; x++ ) {
+        HG1 = HG + y * wb1_ + x; 
+        for (y1 = fold_per_dim_ - 1; y1 >= 0; y1--) 
+          for (x1 = fold_per_dim_ - 1; x1 >= 0; x1--) {
+            N1 = N + (y + y1) * wb + (x + x1);  H1 = H + (y + 1) * wb + (x + 1);
+            n = 1 / sqrt(*N1 + *(N1 + 1) + *(N1 + wb) + *(N1 + wb + 1) + eps);
+            for (o = 0; o < obin; o++) { 
+              *HG1 = Mind((float) (*H1 * n), 0.2f); 
+              HG1 += nb1; H1 += nb; }
+          }
+      } 
   }
 
   // I: input image

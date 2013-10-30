@@ -6,11 +6,11 @@ namespace handinput {
   class DataBuffer {
   public:
     DataBuffer(int size);
-    ~DataBuffer();
-    void Update(IplImage* image);
-    void TemporalConvolve(IplImage* dst, std::vector<double> mask);
+    ~DataBuffer() {};
+    void Update(const cv::Mat& image);
+    void TemporalConvolve(cv::Mat* dst, std::vector<double> mask);
   private:
-    CvMat* buffer_;
+    cv::Mat buffer_;
     int buffer_size_;
     int width_, height_;
     CircularIndex frame_indices_;

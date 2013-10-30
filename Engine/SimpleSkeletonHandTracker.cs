@@ -25,6 +25,7 @@ namespace HandInput.Engine {
     static readonly int DefaultZDist = 1; // m
     static readonly float HandWidth = 0.095f; // m
 
+    // Hand bounding box in detph image.
     public Rectangle HandRect { get; private set; }
     public Image<Gray, Byte> SmoothedDepth { get; private set; }
     public Image<Gray, Byte> HandMask { get; private set; }
@@ -68,24 +69,12 @@ namespace HandInput.Engine {
         CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5, 0, 0);
         FindBestBoundingBox(HandRect);
 
-        var handX = (int)HandRect.Center().X;
-        var handY = (int)HandRect.Center().Y;
-        var handDepth = ComputeHandDepth(handX, handY, depthFrame);
-        var relPos = RelativePosToShoulder(handX, handY, handDepth, skeleton);
+        var relPos = SkeletonUtil.RelativePosToShoulder(HandRect, SmoothedDepth.Data, width, 
+            height, skeleton, mapper);
         return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth,
                                   new Some<Rectangle>(HandRect));
       }
       return new TrackingResult();
-    }
-
-    int ComputeHandDepth(int x, int y, short[] depthFrame) {
-      return DepthUtil.RawToDepth(depthFrame[y * width + x]);
-    }
-
-    Vector3D RelativePosToShoulder(int handX, int handY, int depth, Skeleton skeleton) {
-      var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);
-      var handWorldPoint = mapper.MapDepthPointToSkeletonPoint(handX, handY, depth);
-      return SkeletonUtil.Sub(handWorldPoint, shoulderCenterJoint.Position);
     }
 
     void Init(int width, int height) {

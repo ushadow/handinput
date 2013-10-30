@@ -128,7 +128,8 @@ namespace HandInput.Engine {
           var skeHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
           PrevBoundingBox = FindBestBoundingBox(skeHandJoint);
           if (PrevBoundingBox.IsSome && PrevBoundingBox.Value.Width > 0)
-            relPos = new Some<Vector3D>(RelativePosToShoulder(PrevBoundingBox.Value, skeleton));
+            relPos = new Some<Vector3D>(SkeletonUtil.RelativePosToShoulder(PrevBoundingBox.Value, 
+                SmoothedDepth.Data, width, height, skeleton, mapper));
         }
       }
       SmoothedDepth.CopyTo(Diff0);
@@ -154,31 +155,6 @@ namespace HandInput.Engine {
       depthCumulativeDist = new float[NumBin];
       playerDetector = new PlayerDetector(width, height);
       PrevBoundingBox = new None<Rectangle>();
-    }
-
-    private Vector3D RelativePosToShoulder(Rectangle rect, Skeleton skeleton) {
-      var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);
-
-      var aveDepth = 0.0;
-      var count = 0;
-      var depthData = SmoothedDepth.Data;
-      for (int y = rect.Top; y < rect.Top + rect.Height && y < height; y++)
-        for (int x = rect.Left; x < rect.Left + rect.Width && x < width; x++) {
-          if (x > 0 && y > 0) {
-            aveDepth += depthData[y, x, 0];
-            count++;
-          }
-        }
-
-      var depth = PlayerDetector.ToWorldDepth(aveDepth / count);
-      var center = rect.Center();
-      var centerX = Math.Max(0, center.X);
-      centerX = Math.Min(centerX, width);
-      var centerY = Math.Max(0, center.Y);
-      centerY = Math.Min(centerY, height);
-      var salientPoint = mapper.MapDepthPointToSkeletonPoint((int)centerX, (int)centerY, depth);
-      var relPos = SkeletonUtil.Sub(salientPoint, shoulderCenterJoint.Position);
-      return relPos;
     }
 
     /// <summary>

@@ -21,7 +21,7 @@ using handinput;
 using System.Runtime.InteropServices;
 
 namespace HandInput.Engine {
-  public class SalienceFeatureProcessor {
+  public class FeatureProcessor {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
     public int FeatureLength { get; private set; }
@@ -31,7 +31,7 @@ namespace HandInput.Engine {
     MFeatureProcessor featureProcessor = new MFeatureProcessor(Parameters.FeatureImageWidth,
         Parameters.FeatureImageWidth);
 
-    public SalienceFeatureProcessor() {
+    public FeatureProcessor() {
       DescriptorLength = featureProcessor.HOGLength();
       FeatureLength = 3 * 3 + DescriptorLength;
       Visualize = false;

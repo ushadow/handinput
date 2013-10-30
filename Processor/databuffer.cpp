@@ -2,25 +2,22 @@
 #include "databuffer.h"
 
 namespace handinput {
-  DataBuffer::DataBuffer(int size) : buffer_(NULL), buffer_size_(size), width_(0), height_(0) {}
+  DataBuffer::DataBuffer(int size) : buffer_size_(size), width_(0), height_(0) {}
 
-  DataBuffer::~DataBuffer() {
-    if (buffer_)
-      cvReleaseMat(&buffer_);
-  }  void DataBuffer::Update(IplImage* newframe) {
-    if(!buffer_) {
+  void DataBuffer::Update(const cv::Mat& newframe) {
+    if(buffer_.empty()) {
       frame_indices_.Init(buffer_size_);
-      width_ = newframe->width;
-      height_ = newframe->height;
-      std::cout << width_ << std::endl;
-      buffer_ = cvCreateMat(buffer_size_, width_ * height_, DATATYPE);
+      width_ = newframe.cols;
+      height_ = newframe.rows;
+      buffer_.create(buffer_size_, width_ * height_, DATATYPE);
     } 
     int k = frame_indices_.Add();
-    memcpy((void*)(buffer_->data.ptr + buffer_->step * k) ,
-      newframe->imageData, buffer_->step);
+    memcpy((void*)(buffer_.data + buffer_.step[0] * k) ,
+      newframe.data, buffer_.step[0]);
   }
 
-  void DataBuffer::TemporalConvolve(IplImage* dst, std::vector<double> mask) {
+  void DataBuffer::TemporalConvolve(cv::Mat* dst, std::vector<double> mask) {
+    using cv::Mat;
     int	tfsz = (int)mask.size();
     int i;
 
@@ -30,19 +27,13 @@ namespace handinput {
 
     std::vector<int> Sorted = frame_indices_.GetSortedIndices();
 
-    CvMat *fil = cvCreateMat(1, buffer_size_, DATATYPE);
-    IMG_ELEM_TYPE* filter=new IMG_ELEM_TYPE[buffer_size_];
-
+    IMG_ELEM_TYPE* filter = new IMG_ELEM_TYPE[buffer_size_];
     for (i = 0; i < buffer_size_; i++)
       filter[Sorted[i]] = (IMG_ELEM_TYPE)mask[i];
+    Mat fil(1, buffer_size_, DATATYPE, filter);
 
-    for (i=0; i < buffer_size_;i++)
-      cvmSet(fil, 0, i, filter[i]);
-
-    CvMat *rdst, dsthdr;
-    rdst = cvReshape(dst, &dsthdr, 0, 1);
-    cvMatMul(fil, buffer_, rdst);
+    Mat rdst = dst->reshape(1, 1);
+    rdst = fil * buffer_; 
     delete[] filter;
-    cvReleaseMat(&fil);
   }
 }

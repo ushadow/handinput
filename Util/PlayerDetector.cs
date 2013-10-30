@@ -9,10 +9,9 @@ using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
 using Emgu.CV.GPU;
 
-using HandInput.Util;
 using Emgu.CV.Util;
 
-namespace HandInput.Engine {
+namespace HandInput.Util {
   public class PlayerDetector {
     private static readonly int CvOpenIter = 1;
     private static readonly int ContourApproxLevel = 2;

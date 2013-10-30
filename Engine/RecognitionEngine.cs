@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using handinput;
 using System.Drawing;
+using HandInput.Util;
 
 namespace HandInput.Engine {
   public class RecognitionEngine {

@@ -176,7 +176,7 @@ namespace HandInput.OfflineProcessor {
             } else {
               var outFile = Path.Combine(outputSessionFolder, Path.ChangeExtension(name, Ext));
               OfflineProcessor proc = new OfflineProcessor(inFile, outFile, readLock, writeLock,
-                typeof(SimpleSkeletonHandTracker), typeof(SalienceFeatureProcessor), sampleRate);
+                typeof(SimpleSkeletonHandTracker), typeof(FeatureProcessor), sampleRate);
               try {
                 pp.Spawn(proc.Process);
               } catch (Exception ex) {

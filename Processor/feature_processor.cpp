@@ -5,7 +5,7 @@ namespace handinput {
 
   const std::string FeatureProcessor::kDebugWindowName = "Debug";
 
-  FeatureProcessor::FeatureProcessor(int w, int h) : w_(w), h_(h) {
+  FeatureProcessor::FeatureProcessor(int w, int h) : w_(w), h_(h), pos_buffer_(kSpan) {
     hog_.reset(new HOGDescriptor(w, h, kCellSize, kNBins));
     scaled_image_.reset(new cv::Mat(h, w, CV_8U)); 
     float_image_.reset(new cv::Mat(h, w, CV_32F));
@@ -19,29 +19,33 @@ namespace handinput {
 
   float* FeatureProcessor::Compute(float x, float y, float z, cv::Mat& image, bool visualize) {
     using Eigen::Vector3f;
-    Vector3f pos(x, y, z);
+    using cv::Mat;
+    using cv::Mat_;
+    Mat pos = (Mat_<float>(1, 3) << x, y, z);
+    pos_buffer_.Update(pos);
+
     bool updated = false;
-    if (prev_pos_.size() != 0) {
-      Vector3f v = pos - prev_pos_;
-      if (prev_v_.size() != 0) {
-        Vector3f a = v - prev_v_;
-        CopyVectorToArray(pos, feature_.get(), 0);
-        CopyVectorToArray(v, feature_.get(), 3);
-        CopyVectorToArray(a, feature_.get(), 6);
+    if (!prev_pos_.empty()) {
+      Mat v = pos - prev_pos_;
+      if (!prev_v_.empty()) {
+        Mat a = v - prev_v_;
+        CopyMatToArray(pos, feature_.get(), 0);
+        CopyMatToArray(v, feature_.get(), 3);
+        CopyMatToArray(a, feature_.get(), 6);
         Compute(image, visualize);
         updated = true;
       }
       prev_v_ = v;
     }
     prev_pos_ = pos;
+
     if (updated)
       return feature_.get();
     else return NULL;
   }
 
-  void FeatureProcessor::CopyVectorToArray(const Eigen::Ref<const Eigen::VectorXf> v, float* a,
-    int start) {
-    std::copy(v.data(), v.data() + v.size(), a + start);
+  void FeatureProcessor::CopyMatToArray(const cv::Mat& v, float* a, int start) {
+    std::copy(v.begin<float>(), v.end<float>(), a + start);
   }
 
   // Resizes the image and converts the image to float point values. 

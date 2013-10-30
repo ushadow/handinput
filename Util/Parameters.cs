@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 using Microsoft.Kinect;
 
-namespace HandInput.Engine {
+namespace HandInput.Util {
+  // Common parameters used by all modules.
   static public class Parameters {
     public static int FeatureImageWidth {
       get {

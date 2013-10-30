@@ -166,7 +166,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>G:\program-files\MATLAB\R2013b\extern\include;G:\program-files\eigen-eigen-ffa86ffb5570;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include;G:\workspace\HandInput\Processor;G:\workspace\gtest-1.7.0;G:\workspace\gtest-1.7.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\program-files\wavelib\MSVCDLL\src;G:\program-files\MATLAB\R2013b\extern\include;G:\program-files\eigen-eigen-ffa86ffb5570;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include;G:\workspace\HandInput\Processor;G:\workspace\gtest-1.7.0;G:\workspace\gtest-1.7.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>

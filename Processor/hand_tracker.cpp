@@ -25,7 +25,7 @@ namespace handinput {
   void HandTracker::Update(IplImage* image, IplImage* dst) {
     cvScale(image, frame_, 1.0 / 255.0, 0);
     databuffer_.Update(frame_);
-    databuffer_.TemporalConvolve(dst, temporal_mask_);
+    databuffer_.TemporalConvolve(&cv::Mat(dst), temporal_mask_);
   }
 
   void HandTracker::WaveletReconstruction(IplImage* image) {

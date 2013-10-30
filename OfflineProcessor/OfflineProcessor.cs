@@ -24,7 +24,7 @@ namespace HandInput.OfflineProcessor {
     IList<Single[]> featureList = new List<Single[]>();
     IList<Int32> frameList = new List<Int32>();
     int sampleRate;
-    SalienceFeatureProcessor featureProcessor;
+    FeatureProcessor featureProcessor;
 
     public OfflineProcessor(String inputFile, String outputFile, Object readLock,
       Object writeLock, Type handTrackerType, Type featureProcessorType, int sampleRate) {
@@ -64,7 +64,7 @@ namespace HandInput.OfflineProcessor {
           handTracker = (IHandTracker)Activator.CreateInstance(handTrackerType, new Object[] {
             depthFrame.Width, depthFrame.Height, replayer.KinectParams});
         if (featureProcessor == null)
-          featureProcessor = (SalienceFeatureProcessor)Activator.CreateInstance(
+          featureProcessor = (FeatureProcessor)Activator.CreateInstance(
               featureProcessorType);
         if (depthPixelData == null)
           depthPixelData = new Int16[depthFrame.PixelDataLength];

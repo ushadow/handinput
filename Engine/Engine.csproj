@@ -100,8 +100,6 @@
     <Compile Include="IHandTracker.cs" />
     <Compile Include="StipHandTracker.cs" />
     <Compile Include="KinectDataPacket.cs" />
-    <Compile Include="Parameters.cs" />
-    <Compile Include="PlayerDetector.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecognitionEngine.cs" />

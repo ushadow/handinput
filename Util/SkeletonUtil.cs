@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Media.Media3D;
 
 using Microsoft.Kinect;
+using System.Drawing;
 
 namespace HandInput.Util {
   /// <summary>
@@ -83,6 +84,31 @@ namespace HandInput.Util {
     /// <param name="sp2"></param>
     public static Vector3D Sub(SkeletonPoint sp1, SkeletonPoint sp2) {
       return new Vector3D(sp1.X - sp2.X, sp1.Y - sp2.Y, sp1.Z - sp2.Z);
+    }
+    
+    public static Vector3D RelativePosToShoulder(Rectangle rect, byte[,,] depthData, int width,
+      int height, Skeleton skeleton, ColorDepthMapper mapper) {
+      var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);
+
+      var aveDepth = 0.0;
+      var count = 0;
+      for (int y = rect.Top; y < rect.Top + rect.Height && y < height; y++)
+        for (int x = rect.Left; x < rect.Left + rect.Width && x < width; x++) {
+          if (x > 0 && y > 0) {
+            aveDepth += depthData[y, x, 0];
+            count++;
+          }
+        }
+
+      var depth = PlayerDetector.ToWorldDepth(aveDepth / count);
+      var center = rect.Center();
+      var centerX = Math.Max(0, center.X);
+      centerX = Math.Min(centerX, width);
+      var centerY = Math.Max(0, center.Y);
+      centerY = Math.Min(centerY, height);
+      var salientPoint = mapper.MapDepthPointToSkeletonPoint((int)centerX, (int)centerY, depth);
+      var relPos = SkeletonUtil.Sub(salientPoint, shoulderCenterJoint.Position);
+      return relPos;
     }
 
     private static float Distance2(SkeletonPoint p1, SkeletonPoint p2) {
