@@ -27,20 +27,19 @@ namespace handinput {
       newframe.data, buffer_.step[0]);
   }
 
-  void DataBuffer::TemporalConvolve(cv::Mat* dst, std::vector<double> mask) {
+  void DataBuffer::TemporalConvolve(cv::Mat* dst, std::vector<float> mask) {
     using cv::Mat;
     int	tfsz = (int)mask.size();
-    int i;
 
     if ((int)mask.size() < buffer_size_)
-      for(i = (int)mask.size(); i < buffer_size_; i++)
+      for (int i = (int)mask.size(); i < buffer_size_; i++)
         mask.push_back(0);
 
-    std::vector<int> Sorted = frame_indices_.GetSortedIndices();
+    std::vector<int> sorted = frame_indices_.GetSortedIndices();
 
     IMG_ELEM_TYPE* filter = new IMG_ELEM_TYPE[buffer_size_];
-    for (i = 0; i < buffer_size_; i++)
-      filter[Sorted[i]] = (IMG_ELEM_TYPE)mask[i];
+    for (int i = 0; i < buffer_size_; i++)
+      filter[sorted[i]] = (IMG_ELEM_TYPE)mask[i];
     Mat fil(1, buffer_size_, DATATYPE, filter);
 
     Mat rdst = dst->reshape(1, 1);

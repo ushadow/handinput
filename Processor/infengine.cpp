@@ -45,6 +45,7 @@ namespace handinput {
     using Eigen::VectorXf;
 
     int motion_feature_len = feature_len_ - n_principal_comps_;
+
     Map<VectorXf> des(raw_feature + motion_feature_len, descriptor_len_);
     VectorXf res(n_principal_comps_);
     res.noalias() = principal_comp_ * (des - pca_mean_);
@@ -53,10 +54,13 @@ namespace handinput {
     VectorXf full_feature(feature_len_);
     full_feature << motion_feature, res;
     // Normalize feature.
-    full_feature = (full_feature - std_mu_).cwiseProduct(std_sigma_);
+    full_feature = (full_feature - std_mu_).cwiseQuotient(std_sigma_);
 
     float loglik = hmm_->Fwdback(full_feature);
-    std::cout << hmm_->MostLikelyState() << std::endl;
+    int state = hmm_->MostLikelyState();
+    int gesture  = state / 6 + 1;
+    std::cout << "most likely state = " << hmm_->MostLikelyState() << std::endl;
+    std::cout << "most likely gesture = " << gesture << std::endl;
     return loglik;
   }
 }

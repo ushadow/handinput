@@ -84,13 +84,13 @@ bool HarrisBufferRt::Init(IplImage* firstfrm,std::string fname)
 {
   SpatialMaskSeparable=CVUtil::GaussianMask1D(sig2);
 
-  TemporalMask1.push_back(0.9);
-  TemporalMask1.push_back(0.07);
-  TemporalMask1.push_back(0.03);
+  TemporalMask1.push_back(1.0 / 3);
+  TemporalMask1.push_back(1.0 / 3);
+  TemporalMask1.push_back(1.0 / 3);
 
-  TemporalMask2.push_back(0.9);
-  TemporalMask2.push_back(0.07);
-  TemporalMask2.push_back(0.03);
+  TemporalMask2.push_back(1.0 / 3);
+  TemporalMask2.push_back(1.0 / 3);
+  TemporalMask2.push_back(1.0 / 3);
 
   DerivMask.push_back(-0.5);
   DerivMask.push_back(0);

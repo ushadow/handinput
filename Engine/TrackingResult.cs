@@ -13,6 +13,10 @@ using System.Drawing;
 
 namespace HandInput.Engine {
   public class TrackingResult {
+    /// <summary>
+    /// Relative postion of the right hand with respect to the center of the shoulder.
+    /// X axis is rightward, Y axis is upward, Z axis is away from the camera.
+    /// </summary>
     public Option<Vector3D> RelPos { get; private set; }
     public Image<Gray, Byte> SmoothedDepth { get; private set; }
     public Option<Rectangle> BoundingBox { get; private set; }

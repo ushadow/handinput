@@ -5,7 +5,8 @@ namespace handinput {
 
   const std::string FeatureProcessor::kDebugWindowName = "Debug";
 
-  FeatureProcessor::FeatureProcessor(int w, int h) : w_(w), h_(h), pos_buffer_(kSpan) {
+  FeatureProcessor::FeatureProcessor(int w, int h) : w_(w), h_(h), pos_buffer_(kSpan), 
+    temporal_mask_(kSpan, 1.0f / kSpan) {
     hog_.reset(new HOGDescriptor(w, h, kCellSize, kNBins));
     scaled_image_.reset(new cv::Mat(h, w, CV_8U)); 
     float_image_.reset(new cv::Mat(h, w, CV_32F));
@@ -23,7 +24,9 @@ namespace handinput {
     using cv::Mat_;
     Mat pos = (Mat_<float>(1, 3) << x, y, z);
     pos_buffer_.Update(pos);
-
+    
+    if (pos_buffer_.IsFull())
+      pos_buffer_.TemporalConvolve(&pos, temporal_mask_);
     bool updated = false;
     if (!prev_pos_.empty()) {
       Mat v = pos - prev_pos_;

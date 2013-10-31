@@ -45,6 +45,7 @@ namespace handinput {
     float* descriptor_;
     cv::Mat prev_pos_, prev_v_;
     DataBuffer pos_buffer_;
+    std::vector<float> temporal_mask_;
 
     void DisplayImage(cv::Mat& image);
   };

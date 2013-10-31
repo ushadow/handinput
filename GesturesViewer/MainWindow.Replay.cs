@@ -51,7 +51,7 @@ namespace HandInput.GesturesViewer {
       frameSlider.Value = 0;
 
       handTracker = new SimpleSkeletonHandTracker(DepthWidth, DepthHeight, replay.KinectParams);
-      recogEngine = new RecognitionEngine();
+      recogEngine = new RecognitionEngine(ConfigurationManager.AppSettings["model_file"]);
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
       timer.Tick += new EventHandler(OnTimerTick);

@@ -110,6 +110,7 @@ public:
     return Indices[t];
   }
 
+  // Returns the last timestamp.
   int Last() { return Indices[LastIndex]; }
 
   int get(int i) {

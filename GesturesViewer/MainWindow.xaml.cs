@@ -152,7 +152,7 @@ namespace HandInput.GesturesViewer {
 
     void HandTrackingTask(CancellationToken token) {
       Log.Debug("Start tracking");
-      handTracker = new SalienceHandTracker(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
+      handTracker = new StipHandTracker(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
         var data = buffer.Take();
         handTracker.Update(data.DepthData, data.ColorData, data.Skeleton);
@@ -173,9 +173,18 @@ namespace HandInput.GesturesViewer {
       if (handTracker != null) {
         if (handTracker is SalienceHandTracker)
           UpdateSalienceHandTrackerDisplay();
+        else if (handTracker is StipHandTracker)
+          UpdateStipHandTrackerDisplay();
       }
       if (displayDepth && result.SmoothedDepth != null) {
         depthDisplayManager.UpdateBitmap(result.SmoothedDepth.Bytes);
+      }
+    }
+
+    void UpdateStipHandTrackerDisplay() {
+      StipHandTracker sht = (StipHandTracker)handTracker;
+      foreach (drawing.Point p in sht.InterestPoints) {
+        VisualUtil.DrawPoint(gesturesCanvas, new Point(p.X, p.Y), Brushes.Red, 1, 5);
       }
     }
 

@@ -8,9 +8,9 @@ namespace handinput {
     height_(height), vec1_(height, std::vector<double>(width)),
     idwt_output_(height, std::vector<double>(width)) {
 
-      temporal_mask_.push_back(0.8);
-      temporal_mask_.push_back(0.15);
-      temporal_mask_.push_back(0.05);
+      temporal_mask_.push_back(0.8f);
+      temporal_mask_.push_back(0.15f);
+      temporal_mask_.push_back(0.05f);
 
       filtcoef(kWaveletName, l1_, h1_, l2_, h2_);
 

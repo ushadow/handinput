@@ -56,7 +56,7 @@ namespace HandInput.Engine {
     public TrackingResult Update(short[] depthFrame, byte[] cf, Skeleton skeleton) {
       InterestPoints.Clear();
 
-      ConvertColorImage(cf);
+      ConvertDepthImage(depthFrame);
       if (!initialized) {
         buffer.Init(smallGray.Ptr);
         initialized = true;
@@ -114,10 +114,11 @@ namespace HandInput.Engine {
           var index = r * width + c;
           var pixel = depthFrame[index];
           var depth = DepthUtil.RawToDepth(pixel);
-          //depth = (depth < Parameters.MinDepth || depth > Parameters.MaxDepth) ?
-          //        Parameters.MaxDepth : depth;
+          depth = (depth < Parameters.MinDepth || depth > Parameters.MaxDepth) ?
+                  Parameters.MaxDepth : depth;
           data[r, c, 0] = (byte)((Parameters.MaxDepth - depth) * scale);
         }
+      CvInvoke.cvResize(Gray.Ptr, smallGray.Ptr, INTER.CV_INTER_LINEAR);
     }
 
     /// <summary>

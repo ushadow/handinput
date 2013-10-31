@@ -115,8 +115,10 @@ namespace handinput {
   // Normalizes the alpha.
   float HMM::Normalize() {
     float norm = alpha_.norm();
-    if (norm == 0)
+    if (norm == 0) {
       norm = 1;
+      reset_ = true;
+    }
     alpha_ = alpha_ / norm;
     return norm;
   }
