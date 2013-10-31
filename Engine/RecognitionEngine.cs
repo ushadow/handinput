@@ -18,16 +18,18 @@ namespace HandInput.Engine {
 
     public RecognitionEngine(String modelFile) {
       this.modelFile = modelFile;
-      processor = new MProcessor(Parameters.FeatureImageWidth, Parameters.FeatureImageWidth, 
+      processor = new MProcessor(Parameters.FeatureImageWidth, Parameters.FeatureImageWidth,
                                  modelFile);
     }
 
-    public void Update(TrackingResult result, bool visualize = false) {
+
+    public int Update(TrackingResult result, bool visualize = false) {
+      int gesture = 0;
       if (result.RelPos.IsSome && result.BoundingBox.IsSome) {
         var pos = result.RelPos.Value;
         var image = result.SmoothedDepth;
         image.ROI = result.BoundingBox.Value;
-        processor.Update((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr, visualize);
+        gesture = processor.Update((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr, visualize);
         image.ROI = Rectangle.Empty;
         reset = false;
       } else {
@@ -36,6 +38,7 @@ namespace HandInput.Engine {
           processor.Reset();
         }
       }
+      return gesture;
     }
   }
 }

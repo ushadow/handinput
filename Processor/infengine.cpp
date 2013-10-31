@@ -40,7 +40,7 @@ namespace handinput {
     matClose(file);
   }
 
-  float InfEngine::Update(float* raw_feature) {
+  int InfEngine::Update(float* raw_feature) {
     using Eigen::Map;
     using Eigen::VectorXf;
 
@@ -56,11 +56,10 @@ namespace handinput {
     // Normalize feature.
     full_feature = (full_feature - std_mu_).cwiseQuotient(std_sigma_);
 
-    float loglik = hmm_->Fwdback(full_feature);
+    hmm_->Fwdback(full_feature);
     int state = hmm_->MostLikelyState();
     int gesture  = state / 6 + 1;
     std::cout << "most likely state = " << hmm_->MostLikelyState() << std::endl;
-    std::cout << "most likely gesture = " << gesture << std::endl;
-    return loglik;
+    return gesture;
   }
 }

@@ -9,7 +9,9 @@ namespace handinput {
   class PROCESSOR_API Processor {
   public:
     Processor(int w, int h, const std::string& model_file);
-    void Update(float x, float y, float z, IplImage* image, bool visualize = false);
+    // Returns
+    // The most probable gesture label. Returns 0 if the gesture is unknown.
+    int Update(float x, float y, float z, IplImage* image, bool visualize = false);
     void Reset() { inf_engine_->Reset(); };
   private:
     std::unique_ptr<FeatureProcessor> feature_proc_;

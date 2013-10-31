@@ -19,7 +19,10 @@ namespace handinput {
     const HMM* hmm() const { return hmm_.get(); }
 
     // raw_feature: feature before dimensional reduction. Cannot be null.
-    float Update(float* raw_feature);
+    //
+    // Returns
+    // The most probable gesture label.
+    int Update(float* raw_feature);
     void Reset() { hmm_->Reset(); }
   private:
     int descriptor_len_, n_principal_comps_, feature_len_;

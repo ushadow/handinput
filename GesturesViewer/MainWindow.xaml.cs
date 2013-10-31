@@ -24,6 +24,8 @@ using HandInput.Engine;
 using HandInput.Util;
 
 using handinput;
+using System.Configuration;
+using System.Windows.Threading;
 
 namespace HandInput.GesturesViewer {
   /// <summary>
@@ -32,6 +34,7 @@ namespace HandInput.GesturesViewer {
   public partial class MainWindow {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
     static readonly int DepthWidth = 640, DepthHeight = 480;
+    static readonly String ModelFile = ConfigurationManager.AppSettings["model_file"];
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
     readonly DepthDisplayManager depthDisplayManager = new DepthDisplayManager(DepthWidth, DepthHeight);
@@ -152,12 +155,23 @@ namespace HandInput.GesturesViewer {
 
     void HandTrackingTask(CancellationToken token) {
       Log.Debug("Start tracking");
-      handTracker = new StipHandTracker(DepthWidth, DepthHeight, kinectSensor.CoordinateMapper);
+      handTracker = new SimpleSkeletonHandTracker(DepthWidth, DepthHeight, 
+                                                  kinectSensor.CoordinateMapper);
+      recogEngine = new RecognitionEngine(ModelFile);
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
         var data = buffer.Take();
-        handTracker.Update(data.DepthData, data.ColorData, data.Skeleton);
+        var result = handTracker.Update(data.DepthData, data.ColorData, data.Skeleton);
+        int gesture = recogEngine.Update(result);
+        Dispatcher.Invoke(DispatcherPriority.Normal, new Action<TrackingResult>(UpdateDisplay),
+          result);
+        Dispatcher.Invoke(DispatcherPriority.Normal, new Action<String>(SetStatus), 
+            gesture.ToString());
         fpsCounter.LogFPS();
       }
+    }
+
+    void SetStatus(String status) {
+      statusTextBox.Text = status;
     }
 
     void CancelTracking() {
@@ -230,7 +244,6 @@ namespace HandInput.GesturesViewer {
             });
         }
       }
-      UpdateDisplay(new TrackingResult());
     }
 
     void UpdateSkeletonDisplay(ReplaySkeletonFrame frame) {
