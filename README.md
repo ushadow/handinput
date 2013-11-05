@@ -12,7 +12,7 @@ Hand tracking and gesture recognition
   * Using x64 version dlls
 
 ## Run
-* Use visual Studio to build the solution.
+* Use Visual Studio to build the solution.
 * GestuerViewer.exe in the GestureViewer project is the main interface to run the program. 
 
 ## Modules
