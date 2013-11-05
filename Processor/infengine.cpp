@@ -36,6 +36,12 @@ namespace handinput {
 
     hmm_.reset(HMM::CreateFromMxArray(mxGetField(model, 0, "infModel")));
 
+    mxArray* param = mxGetField(model, 0, "param");
+    mxArray* vocabulary_size_mx = mxGetField(param, 0, "vocabularySize");
+    mxArray* n_states_mx = mxGetField(param, 0, "nS");
+    n_vocabularies_ = (int)mxGetScalar(vocabulary_size_mx);
+    n_states_per_gesture_ = (int)mxGetScalar(n_states_mx);
+
     mxDestroyArray(model);
     matClose(file);
   }
@@ -58,8 +64,15 @@ namespace handinput {
 
     hmm_->Fwdback(full_feature);
     int state = hmm_->MostLikelyState();
-    int gesture  = state / 6 + 1;
-    std::cout << "most likely state = " << hmm_->MostLikelyState() << std::endl;
-    return gesture;
+    int stage = state % n_states_per_gesture_;
+    if (stage > n_states_per_gesture_ / 2) {
+      int gesture  = state / n_states_per_gesture_ + 1;
+      std::cout << "most likely state = " << hmm_->MostLikelyState() << std::endl;
+      return gesture;
+    } else if (state == hmm_->n_states() - 1) {
+      // Rest position.
+      return n_vocabularies_;
+    }
+    return 0; // Unknown.
   }
 }

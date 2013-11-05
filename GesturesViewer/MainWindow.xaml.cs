@@ -161,17 +161,19 @@ namespace HandInput.GesturesViewer {
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
         var data = buffer.Take();
         var result = handTracker.Update(data.DepthData, data.ColorData, data.Skeleton);
-        int gesture = recogEngine.Update(result);
+        int gestureIndex = recogEngine.Update(result);
         Dispatcher.Invoke(DispatcherPriority.Normal, new Action<TrackingResult>(UpdateDisplay),
           result);
-        Dispatcher.Invoke(DispatcherPriority.Normal, new Action<String>(SetStatus), 
-            gesture.ToString());
+        if (gestureIndex >= 1 && gestureIndex <=2)
+          Dispatcher.Invoke(DispatcherPriority.Normal, new Action<String>(SetStatus), 
+              Gestures[gestureIndex]);
         fpsCounter.LogFPS();
       }
     }
 
     void SetStatus(String status) {
-      statusTextBox.Text = status;
+      statusTextBox.AppendText(status + '\n');
+      statusTextBox.ScrollToEnd();
     }
 
     void CancelTracking() {

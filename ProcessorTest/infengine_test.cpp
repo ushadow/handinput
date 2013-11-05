@@ -29,6 +29,8 @@ TEST(InfEngineTest, Initialization) {
   ASSERT_EQ(2025, pca_mean->size());
   ASSERT_NEAR(0.0218, pca_mean->coeff(0), ABS_ERROR);
   ASSERT_NEAR(0.0045, pca_mean->coeff(kDescriptorLen - 1), ABS_ERROR);
+  ASSERT_EQ(2, engine.n_vocabularies());
+  ASSERT_EQ(6, engine.n_states_per_gesture());
 
   const MatrixXf* pc = engine.principal_comp();
   ASSERT_EQ(N_PRINCIPAL_COMPS, pc->rows());

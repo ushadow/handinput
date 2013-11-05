@@ -76,7 +76,8 @@
             <CheckBox Content="Control Mouse" x:Name="controlMouse" Grid.Row="6" VerticalContentAlignment="Top"/>
         </Grid>
         <TextBlock Text="STATUS" Grid.Column="1" Grid.Row="2" Margin="4"/>
-        <TextBox x:Name="statusTextBox" FontSize="20" Grid.Column="1" Margin="10,10,10,0" Grid.Row="3"/>
+        <TextBox x:Name="statusTextBox" FontSize="20" Grid.Column="1" Margin="10,10,10,0" Grid.Row="3"
+                 ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
         <StackPanel Grid.Row="6" Margin="212,0" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Rectangle x:Name="audioBeamAngle" Height="20" Width="300" Margin="5">
                 <Rectangle.Fill>

@@ -9,7 +9,8 @@ namespace HandInput.GesturesViewer {
   // Manages gesture recording.
   partial class MainWindow {
     static readonly String DataDir = ConfigurationManager.AppSettings["data_dir"];
-    static readonly String Pid = ConfigurationManager.AppSettings["pid"]; 
+    static readonly String Pid = ConfigurationManager.AppSettings["pid"];
+    static readonly String[] Gestures = ConfigurationManager.AppSettings["gestures"].Split(',');
 
     StreamWriter sw;
 
