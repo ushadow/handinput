@@ -10,7 +10,7 @@ Hand tracking and gesture recognition
 * [Kinect SDK 1.7] (http://www.microsoft.com/en-us/kinectforwindowsdev/Downloads.aspx)
 * [Emgu] (http://sourceforge.net/projects/emgucv/files/emgucv/2.4.9-alpha/libemgucv-windows-universal-gpu-2.4.9.1847.zip/download) (version: Windows, universal, GPU, 2.4.9.1847)
   * Using x64 version dlls
-* Modified Kinect Toolbox] (https://github.com/uShadow/kinect-toolbox)
+* [Modified Kinect Toolbox] (https://github.com/uShadow/kinect-toolbox)
 
 ## Run
 * Use Visual Studio to build the solution.
