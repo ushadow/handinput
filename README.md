@@ -5,6 +5,7 @@ Hand tracking and gesture recognition
 ## Develop Environment
 * Windows 7 64bit
 * Visual Studio 2012
+* NuGet 2.7 ([with package restore during build enabled] (http://docs.nuget.org/docs/workflows/using-nuget-without-committing-packages))
 
 ## Dependencies
 * [Kinect SDK 1.7] (http://www.microsoft.com/en-us/kinectforwindowsdev/Downloads.aspx)
