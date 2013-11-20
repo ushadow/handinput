@@ -13,3 +13,5 @@ Debug
 *.user
 *.sdf
 *.vcxproj.filters
+lib/*
+!lib/.gitkeep

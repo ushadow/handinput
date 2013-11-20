@@ -165,7 +165,7 @@
       <Optimization>Full</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>G:\program-files\fftw-3.3.3-dll64;G:\program-files\wavelib\MSVCDLL\src;G:\program-files\eigen-eigen-ffa86ffb5570;G:\program-files\MATLAB\R2013b\extern\include;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\program-files\fftw-3.3.3-dll64;G:\program-files\wavelib\MSVCDLL\src;G:\program-files\eigen-eigen-ffa86ffb5570;G:\program-files\MATLAB\R2013b\extern\include;$(SolutionDir)lib\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(SolutionDir)lib\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>PROCESSOR_EXPORTS;WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -178,7 +178,7 @@
     <Link>
       <AdditionalDependencies>opencv_core249.lib;opencv_imgproc249.lib;opencv_highgui249.lib;opencv_video249.lib;opencv_objdetect249.lib;libmat.lib;libmx.lib;libfftw3-3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>G:\program-files\fftw-3.3.3-dll64;G:\program-files\MATLAB\R2013b\extern\lib\win64\microsoft;G:\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>G:\program-files\fftw-3.3.3-dll64;G:\program-files\MATLAB\R2013b\extern\lib\win64\microsoft;$(SolutionDir)lib\libemgucv-windows-universal-gpu-2.4.9.1847\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
