@@ -118,10 +118,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\KinectWpfViewers\Microsoft.Samples.Kinect.WpfViewers.csproj">
-      <Project>{4de23893-27e7-423f-9bb6-ba21dac2c45e}</Project>
-      <Name>Microsoft.Samples.Kinect.WpfViewers</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Microsoft.Kinect.Toolkit\Microsoft.Kinect.Toolkit.csproj">
       <Project>{c6f9c31b-6130-4443-a5cc-ef0664552ecd}</Project>
       <Name>Microsoft.Kinect.Toolkit</Name>
