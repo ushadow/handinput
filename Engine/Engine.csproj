@@ -126,10 +126,6 @@
       <Project>{c6f9c31b-6130-4443-a5cc-ef0664552ecd}</Project>
       <Name>Microsoft.Kinect.Toolkit</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\WebSocketServer\WebSocketServer\WebSocketServer.csproj">
-      <Project>{cc9cfe96-4647-4e8a-89f7-4818b4a006fe}</Project>
-      <Name>WebSocketServer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ProcessorWrapper\ProcessorWrapper.vcxproj">
       <Project>{141272a8-30f0-433f-ad0c-dda69a6077d0}</Project>
       <Name>ProcessorWrapper</Name>
