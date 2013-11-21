@@ -165,7 +165,7 @@
       <Optimization>Full</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>G:\program-files\fftw-3.3.3-dll64;G:\program-files\wavelib\MSVCDLL\src;G:\program-files\eigen-eigen-ffa86ffb5570;G:\program-files\MATLAB\R2013b\extern\include;$(SolutionDir)lib\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(SolutionDir)lib\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\program-files\fftw-3.3.3-dll64;G:\program-files\wavelib\MSVCDLL\src;G:\program-files\eigen-eigen-ffa86ffb5570;$(MATLAB)\extern\include;$(SolutionDir)lib\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(SolutionDir)lib\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>PROCESSOR_EXPORTS;WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
