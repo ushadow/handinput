@@ -194,11 +194,11 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\KinectToolbox\Kinect.Toolbox.csproj">
+    <ProjectReference Include="..\..\kinect_toolbox\Kinect.Toolbox.csproj">
       <Project>{2c84ce43-cdab-4541-a55a-7f849e8ac247}</Project>
       <Name>Kinect.Toolbox</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\KinectToolbox\Kinect.Toolbox.Voice\Kinect.Toolbox.Voice.csproj">
+    <ProjectReference Include="..\..\kinect_toolbox\Kinect.Toolbox.Voice\Kinect.Toolbox.Voice.csproj">
       <Project>{09dae56b-715f-4069-bb66-a110d876a772}</Project>
       <Name>Kinect.Toolbox.Voice</Name>
     </ProjectReference>

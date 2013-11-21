@@ -90,10 +90,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\KinectToolbox\Kinect.Toolbox.csproj">
-      <Project>{2c84ce43-cdab-4541-a55a-7f849e8ac247}</Project>
-      <Name>Kinect.Toolbox</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{a508b43b-222e-4a0e-9280-a7f924ccfab4}</Project>
       <Name>Engine</Name>
