@@ -33,6 +33,3 @@
 
 #include <Eigen/Dense>
 
-#include "wavelet2d.h"
-
-
