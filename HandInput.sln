@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Kinect.Toolkit", "..\Microsoft.Kinect.Toolkit\Microsoft.Kinect.Toolkit.csproj", "{C6F9C31B-6130-4443-A5CC-EF0664552ECD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Samples.Kinect.WpfViewers", "..\KinectWpfViewers\Microsoft.Samples.Kinect.WpfViewers.csproj", "{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSocketServer", "..\WebSocketServer\WebSocketServer\WebSocketServer.csproj", "{CC9CFE96-4647-4E8A-89F7-4818B4A006FE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9F6AFB18-5354-4950-BA0F-A9CF233094E8}"
@@ -66,20 +64,6 @@ Global
 		{C6F9C31B-6130-4443-A5CC-EF0664552ECD}.Release|Win32.ActiveCfg = Release|Any CPU
 		{C6F9C31B-6130-4443-A5CC-EF0664552ECD}.Release|x64.ActiveCfg = Release|Any CPU
 		{C6F9C31B-6130-4443-A5CC-EF0664552ECD}.Release|x86.ActiveCfg = Release|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Release|Win32.ActiveCfg = Release|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Release|x64.ActiveCfg = Release|Any CPU
-		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Release|x86.ActiveCfg = Release|Any CPU
 		{CC9CFE96-4647-4E8A-89F7-4818B4A006FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CC9CFE96-4647-4E8A-89F7-4818B4A006FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC9CFE96-4647-4E8A-89F7-4818B4A006FE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
