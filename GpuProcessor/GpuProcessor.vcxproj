@@ -83,7 +83,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
-    <IncludePath>$(CUDA_PATH)\include\crt;$(CUDA_PATH)\include;G:\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\include\opencv;G:\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(CUDA_PATH)\include\crt;$(CUDA_PATH)\include;$(SolutionDir)lib\emgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(SolutionDir)lib\emgucv-windows-universal-gpu-2.4.9.1847\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath)</IncludePath>
     <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
