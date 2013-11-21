@@ -60,19 +60,19 @@
     </Reference>
     <Reference Include="Emgu.CV, Version=2.4.9.1847, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.CV.dll</HintPath>
+      <HintPath>..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.CV.dll</HintPath>
     </Reference>
     <Reference Include="Emgu.CV.GPU, Version=2.4.9.1847, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.CV.GPU.dll</HintPath>
+      <HintPath>..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.CV.GPU.dll</HintPath>
     </Reference>
     <Reference Include="Emgu.CV.UI, Version=2.4.9.1847, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.UI\bin\x64\Release\Emgu.CV.UI.dll</HintPath>
+      <HintPath>..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.UI\bin\x64\Release\Emgu.CV.UI.dll</HintPath>
     </Reference>
     <Reference Include="Emgu.Util, Version=2.4.9.1847, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\program-files\Emgu\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.Util.dll</HintPath>
+      <HintPath>..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.Util.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Kinect, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json">
