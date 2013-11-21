@@ -80,10 +80,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\WebSocketServer\WebSocketServer\WebSocketServer.csproj">
-      <Project>{cc9cfe96-4647-4e8a-89f7-4818b4a006fe}</Project>
-      <Name>WebSocketServer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{a508b43b-222e-4a0e-9280-a7f924ccfab4}</Project>
       <Name>Engine</Name>
