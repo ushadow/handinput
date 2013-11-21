@@ -7,7 +7,7 @@ Hand tracking and gesture recognition
 * Visual Studio 2012
 * [Visual C++ Compiler November 2012 CTP] (http://www.microsoft.com/en-us/download/details.aspx?id=35515)
 * NuGet 2.7 ([with package restore during build enabled] (http://docs.nuget.org/docs/workflows/using-nuget-without-committing-packages))
-* NVIDIA CUDA 5.5
+* NVIDIA CUDA 5.5 and NVIDIA Nsight >3.1
 
 ## Dependencies
 * [Kinect SDK 1.7] (http://www.microsoft.com/en-us/kinectforwindowsdev/Downloads.aspx)
