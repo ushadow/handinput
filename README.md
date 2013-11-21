@@ -14,6 +14,7 @@ Hand tracking and gesture recognition
   * Using x64 version dlls, which requires a rebuild of the source by changing the platform to x64 instead of Any CPU.
 * [Modified Kinect Toolbox] (https://github.com/uShadow/kinect-toolbox)
 * Microsoft.Kinect.Toolkit (placed in the same directory as this solution).
+* Matlab 2013b 64bit
 
 ## Run
 * Use Visual Studio to build the solution.
