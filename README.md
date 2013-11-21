@@ -5,6 +5,7 @@ Hand tracking and gesture recognition
 ## Develop Environment
 * Windows 7 64bit
 * Visual Studio 2012
+* [Visual C++ Compiler November 2012 CTP] (http://www.microsoft.com/en-us/download/details.aspx?id=35515)
 * NuGet 2.7 ([with package restore during build enabled] (http://docs.nuget.org/docs/workflows/using-nuget-without-committing-packages))
 
 ## Dependencies
