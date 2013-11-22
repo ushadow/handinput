@@ -131,16 +131,16 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(SolutionDir)Processor;$(EIGEN)\;$(MATLAB)\extern\include;$(SolutionDir)lib\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(SolutionDir)lib\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Processor;$(EIGEN)\;$(MATLAB)\extern\include;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opencv_core249.lib;opencv_imgproc249.lib;opencv_highgui249.lib;opencv_video249.lib;opencv_objdetect249.lib;libmat.lib;libmx.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(MATLAB)\extern\lib\win64\microsoft;$(SolutionDir)lib\libemgucv-windows-universal-gpu-2.4.9.1847\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(MATLAB)\extern\lib\win64\microsoft;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)Processor\bin\$(Platform)\$(Configuration)\Processor.dll" "$(TargetDir)"</Command>
+      <Command>copy /Y "$(ProjectDir)..\Processor\bin\$(Platform)\$(Configuration)\Processor.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

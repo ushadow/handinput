@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
+using windows = System.Windows;
 using System.Windows.Media.Media3D;
 
 using Microsoft.Kinect;
@@ -85,8 +85,8 @@ namespace HandInput.Util {
     public static Vector3D Sub(SkeletonPoint sp1, SkeletonPoint sp2) {
       return new Vector3D(sp1.X - sp2.X, sp1.Y - sp2.Y, sp1.Z - sp2.Z);
     }
-    
-    public static Vector3D RelativePosToShoulder(Rectangle rect, byte[,,] depthData, int width,
+
+    public static Vector3D RelativePosToShoulder(Rectangle rect, byte[, ,] depthData, int width,
       int height, Skeleton skeleton, ColorDepthMapper mapper) {
       var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);
 
