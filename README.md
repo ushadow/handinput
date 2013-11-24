@@ -16,6 +16,7 @@ Hand tracking and gesture recognition
 * [Modified Kinect Toolbox] (https://github.com/uShadow/kinect-toolbox)
 * Microsoft.Kinect.Toolkit (placed in the same directory as this solution).
 * Matlab 2013b 64bit (define $MATLAB evironment variable)
+  * Make sure `<path to matlab>\bin\win64` is in `path`
 * [Eigen 3.2.0] (http://eigen.tuxfamily.org/index.php?title=Main_Page)
 
 ## Run
