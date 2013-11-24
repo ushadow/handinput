@@ -191,10 +191,18 @@ namespace HandInput.GesturesViewer {
           UpdateSalienceHandTrackerDisplay();
         else if (handTracker is StipHandTracker)
           UpdateStipHandTrackerDisplay();
+        else if (handTracker is SimpleSkeletonHandTracker) {
+          UpdateSimpleHandTrackerDisplay();
+        }
       }
       if (displayDepth && result.SmoothedDepth != null) {
         depthDisplayManager.UpdateBitmap(result.SmoothedDepth.Bytes);
       }
+    }
+
+    void UpdateSimpleHandTrackerDisplay() {
+      SimpleSkeletonHandTracker ssht = (SimpleSkeletonHandTracker)handTracker;
+      VisualUtil.DrawRectangle(gesturesCanvas, ssht.InitialHandRect, Brushes.Green);
     }
 
     void UpdateStipHandTrackerDisplay() {
@@ -223,7 +231,7 @@ namespace HandInput.GesturesViewer {
       using (var df = e.OpenDepthImageFrame())
       using (var sf = e.OpenSkeletonFrame()) {
         try {
-          if (recorder != null && sf != null) {
+          if (recorder != null && sf != null && df !=null && cf != null) {
             recorder.Record(sf, df, cf);
           }
         } catch (ObjectDisposedException) { }

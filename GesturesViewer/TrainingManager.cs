@@ -19,10 +19,11 @@ namespace HandInput.GesturesViewer {
   }
 
   public class TrainingManager : INotifyPropertyChanged {
-    private static readonly int WaitTime = 3000; //ms
-    private static readonly int NumRepitions = 3;
-    private static readonly int StartRepCount = 1;
-    private static readonly ILog Log = LogManager.GetCurrentClassLogger();
+    static readonly int GestureWaitTime = 3000; //ms
+    static readonly int StartWaitTime = 6000;
+    static readonly int NumRepitions = 3;
+    static readonly int StartRepCount = 1;
+    static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
     public String Status {
       get {
@@ -36,10 +37,11 @@ namespace HandInput.GesturesViewer {
     public event PropertyChangedEventHandler PropertyChanged;
     public event EventHandler<TrainingEventArgs> TrainingEvent;
 
-    private String[] gestures;
-    private String status;
-    private Timer timer = new Timer(WaitTime);
-    private Int32 counter = 0, repCounter = StartRepCount;
+    String[] gestures;
+    String status;
+    Timer timer = new Timer(StartWaitTime);
+    Int32 counter = 0, repCounter = StartRepCount;
+    Boolean started = false;
 
     public TrainingManager() {
 
@@ -52,9 +54,8 @@ namespace HandInput.GesturesViewer {
     /// Starts gesture training recording procedure.
     /// </summary>
     public void Start() {
-      timer.Enabled = true;
       Status = "Starting...";
-      TrainingEvent(this, new TrainingEventArgs(TrainingEventType.Start));
+      timer.Enabled = true;
     }
 
     private void OnPropertyChanged(String propName) {
@@ -64,6 +65,13 @@ namespace HandInput.GesturesViewer {
     }
 
     private void OnTimeEvent(object source, ElapsedEventArgs e) {
+      if (!started) {
+        started = true;
+        timer.Interval = GestureWaitTime;
+        TrainingEvent(this, new TrainingEventArgs(TrainingEventType.Start));
+        return;
+      }
+
       if (counter < gestures.Count()) {
         var gesture = gestures[counter];
         Status = String.Format("{0} #{1}", gesture, repCounter);

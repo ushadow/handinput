@@ -27,6 +27,7 @@ namespace HandInput.Engine {
 
     // Hand bounding box in detph image.
     public Rectangle HandRect { get; private set; }
+    public Rectangle InitialHandRect { get; private set; }
     public Image<Gray, Byte> SmoothedDepth { get; private set; }
     public Image<Gray, Byte> HandMask { get; private set; }
 
@@ -62,12 +63,12 @@ namespace HandInput.Engine {
         var rightHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
         var point = mapper.MapSkeletonPointToDepthPoint(rightHandJoint.Position);
         z = rightHandJoint.Position.Z;
-        HandRect = ComputeInitialRect(point, z);
+        InitialHandRect = ComputeInitialRect(point, z);
 
-        playerDetector.FilterPlayer(depthFrame, cf, mapper);
+        playerDetector.UpdateMasks(depthFrame, cf, mapper, Rectangle.Empty, true, true);
         var depthImage = playerDetector.DepthImage;
         CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5, 0, 0);
-        FindBestBoundingBox(HandRect);
+        FindBestBoundingBox(InitialHandRect);
 
         var relPos = SkeletonUtil.RelativePosToShoulder(HandRect, SmoothedDepth.Data, width, 
             height, skeleton, mapper);
@@ -86,10 +87,11 @@ namespace HandInput.Engine {
     }
 
     /// <summary>
+    /// Computes initial hand searching rectangle in the depth image.
     /// </summary>
     /// <returns></returns>
     Rectangle ComputeInitialRect(DepthImagePoint point, float z) {
-      var scaledHandWidth = DepthUtil.GetDepthImageLength(width, HandWidth, z);
+      var scaledHandWidth = DepthUtil.GetDepthImageLength(width, HandWidth, z) * 2;
       return new Rectangle((int)(point.X - scaledHandWidth / 2),
         (int)(point.Y - scaledHandWidth / 2), (int)(scaledHandWidth), (int)(scaledHandWidth));
     }

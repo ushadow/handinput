@@ -64,13 +64,15 @@ namespace HandInput.GesturesViewer {
 
     void frameSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
       int index = (int)e.NewValue;
-      var frame = replay.FrameAt(index);
-      if (frame != null)
-        ReplayFrame(frame.DepthImageFrame, frame.ColorImageFrame, frame.SkeletonFrame);
-      else {
-        timer.Stop();
-        recogEngine = null;
-        replay = null;
+      if (replay != null) {
+        var frame = replay.FrameAt(index);
+        if (frame != null) {
+          ReplayFrame(frame.DepthImageFrame, frame.ColorImageFrame, frame.SkeletonFrame);
+        } else {
+          timer.Stop();
+          recogEngine = null;
+          replay = null;
+        }
       }
     }
 
@@ -81,11 +83,13 @@ namespace HandInput.GesturesViewer {
       depthDisplayManager.UpdatePixelData(df);
       colorManager.Update(cf, !displayDepth);
       UpdateSkeletonDisplay(sf);
-      var result = handTracker.Update(depthDisplayManager.PixelData, colorManager.PixelData,
-          SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
-      recogEngine.Update(result, true);
-      fpsCounter.LogFPS();
-      UpdateDisplay(result);
+      if (handTracker != null && recogEngine != null) {
+        var result = handTracker.Update(depthDisplayManager.PixelData, colorManager.PixelData,
+            SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
+        recogEngine.Update(result, true);
+        fpsCounter.LogFPS();
+        UpdateDisplay(result);
+      }
     }
 
     void TogglePlay() {
@@ -99,7 +103,7 @@ namespace HandInput.GesturesViewer {
 
     void StopPlay() {
       if (timer != null && timer.IsEnabled) {
-          timer.Stop();
+        timer.Stop();
       }
     }
 

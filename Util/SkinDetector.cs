@@ -57,8 +57,8 @@ namespace HandInput.Util {
         roiWidth = roi.Width;
         roiHeight = roi.Height;
       }
-      for (int i = roi.Top; i < roi.Top + roi.Height; i++)
-        for (int j = roi.Left; j <roi.Left + roi.Width; j++) {
+      for (int i = roi.Top; i < roi.Top + roiHeight; i++)
+        for (int j = roi.Left; j <roi.Left + roiWidth; j++) {
           y = YCrCbData[i, j, 0];
           cr = YCrCbData[i, j, 1];
           cb = YCrCbData[i, j, 2];

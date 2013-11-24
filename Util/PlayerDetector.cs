@@ -49,6 +49,10 @@ namespace HandInput.Util {
       UpdatePlayerDepthImage(depthFrame, PlayerMask.Data, null);
     }
 
+    public void UpdateMasks(short[] depthFrame, byte[] colorPixelData, ColorDepthMapper mapper) {
+      UpdateMasks(depthFrame, colorPixelData, mapper, Rectangle.Empty, false, false);
+    }
+
     /// <summary>
     /// Updates both skin mask and player mask.
     /// </summary>
@@ -56,22 +60,29 @@ namespace HandInput.Util {
     /// <param name="colorPixelData"></param>
     /// <param name="mapper"></param>
     public void UpdateMasks(short[] depthFrame, byte[] colorPixelData, ColorDepthMapper mapper,
-      bool filterPlayer = false) {
+      Rectangle roi, bool filterPlayer = false, bool filterSkin = false) {
       if (skinDetector == null)
-        skinDetector = new SkinDetectorGpu(width, height);
+        skinDetector = new SkinDetector(width, height);
 
       if (AlignedSkinMask == null)
         AlignedSkinMask = new Image<Gray, Byte>(width, height);
 
-      var skinMask = skinDetector.DetectSkin(colorPixelData);
-      ImageUtil.AlignColorImage(skinMask, AlignedSkinMask, depthFrame, mapper);
-      CvInvoke.cvMorphologyEx(AlignedSkinMask.Ptr, AlignedSkinMask.Ptr, IntPtr.Zero, IntPtr.Zero,
-                              CV_MORPH_OP.CV_MOP_CLOSE, 1);
+      AlignedSkinMask = skinDetector.DetectSkin(colorPixelData);
+      //ImageUtil.AlignColorImage(skinMaskImage, AlignedSkinMask, depthFrame, mapper);
+      //CvInvoke.cvMorphologyEx(AlignedSkinMask.Ptr, AlignedSkinMask.Ptr, IntPtr.Zero, IntPtr.Zero,
+      //                        CV_MORPH_OP.CV_MOP_CLOSE, 1);
       UpdatePlayerMask(depthFrame);
       byte[, ,] playerMask = null;
+      byte[, ,] skinMask = null;
       if (filterPlayer)
         playerMask = PlayerMask.Data;
-      UpdatePlayerDepthImage(depthFrame, null, null);
+      if (filterSkin)
+        skinMask = AlignedSkinMask.Data;
+      UpdatePlayerDepthImage(depthFrame, playerMask, skinMask);
+    }
+
+    private Rectangle RoiInColorImage(Rectangle roi, ColorDepthMapper mapper) {
+      return Rectangle.Empty;
     }
 
     private void UpdatePlayerMask(short[] depthFrame) {
@@ -91,7 +102,7 @@ namespace HandInput.Util {
           IntPtr.Zero, IntPtr.Zero, CV_MORPH_OP.CV_MOP_OPEN, CvOpenIter);
     }
 
-    private Seq<Point> FindPlayerContour() {
+    Seq<Point> FindPlayerContour() {
       var contourPtr = new IntPtr();
       CvInvoke.cvFindContours(PlayerMask.Ptr, mem.Ptr, ref contourPtr, StructSize.MCvContour,
           RETR_TYPE.CV_RETR_EXTERNAL, CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE, new Point(0, 0));
