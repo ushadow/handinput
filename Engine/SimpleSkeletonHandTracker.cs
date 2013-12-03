@@ -19,6 +19,9 @@ using Common.Logging;
 using handinput;
 
 namespace HandInput.Engine {
+  /// <summary>
+  /// Hand tracking based on Kinect skeleton.
+  /// </summary>
   public class SimpleSkeletonHandTracker : IHandTracker {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
     static readonly int CamShiftIter = 4;
@@ -61,11 +64,11 @@ namespace HandInput.Engine {
       if (skeleton != null) {
         float z = DefaultZDist;
         var rightHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
-        var point = mapper.MapSkeletonPointToDepthPoint(rightHandJoint.Position);
+        var rightHandDepthPos = mapper.MapSkeletonPointToDepthPoint(rightHandJoint.Position);
         z = rightHandJoint.Position.Z;
-        InitialHandRect = ComputeInitialRect(point, z);
+        InitialHandRect = ComputeInitialRect(rightHandDepthPos, z);
 
-        playerDetector.UpdateMasks(depthFrame, cf, mapper, Rectangle.Empty, true, true);
+        playerDetector.UpdateMasks(depthFrame, cf, mapper, InitialHandRect, true, true);
         var depthImage = playerDetector.DepthImage;
         CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5, 0, 0);
         FindBestBoundingBox(InitialHandRect);

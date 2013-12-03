@@ -57,5 +57,9 @@ namespace HandInput.Util {
       skinGpu.Download(skin);
       return skin;
     }
+
+    public Image<Gray, Byte> DetectSkin(byte[] image, Rectangle roi) {
+      return DetectSkin(image);
+    }
   }
 }

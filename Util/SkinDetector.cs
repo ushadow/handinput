@@ -45,6 +45,7 @@ namespace HandInput.Util {
       // http://www.chinamca.com/UploadFile/200642991948257.pdf
       ImageUtil.UpdateBgrImage(img, bgrImage.Data, width, height);
       CvInvoke.cvCvtColor(bgrImage, ycc, COLOR_CONVERSION.CV_BGR2YCrCb);
+      skin.ROI = roi;
 
       int y, cr, cb, x1, y1, value;
 

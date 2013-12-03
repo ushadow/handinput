@@ -2,20 +2,26 @@
 using System.Windows.Media;
 using System.Windows;
 using drawing = System.Drawing;
+using System.Threading.Tasks;
+
 using Microsoft.Kinect;
+
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.GPU;
-using System.Threading.Tasks;
+using Emgu.CV.CvEnum;
+
+using Common.Logging;
 
 namespace HandInput.Util {
   /// <summary>
   /// Utility functions related to image manipulation.
   /// </summary>
   public static class ImageUtil {
-    public const int BlueIndex = 0;
-    public const int GreenIndex = 1;
-    public const int RedIndex = 2;
+    static readonly ILog Log = LogManager.GetCurrentClassLogger();
+    static readonly int BlueIndex = 0;
+    static readonly int GreenIndex = 1;
+    static readonly int RedIndex = 2;
 
     public static void ColorPixel(byte[] pixels, int index, Color color) {
       pixels[index + BlueIndex] = color.B;
@@ -157,19 +163,31 @@ namespace HandInput.Util {
 
     public static void AlignColorImage(Image<Gray, Byte> colorImg, Image<Gray, Byte> alignedImg,
         short[] depthFrame, ColorDepthMapper mapper) {
+      var width = alignedImg.Width;
+      var height = alignedImg.Height;
+
+      alignedImg.ROI = colorImg.ROI;
       CvInvoke.cvZero(alignedImg.Ptr);
       var data = colorImg.Data;
       var alignedData = alignedImg.Data;
-      var width = colorImg.Width;
-      var height = colorImg.Height;
-      for (int r = 0; r < height; r++)
-        for (int c = 0; c < width; c++) {
+      var roiWidth = width;
+      var roidHeight = height;
+      var roi = colorImg.ROI;
+      if (!roi.IsEmpty) {
+        roiWidth = roi.Width;
+        roidHeight = roi.Height;
+      }
+      for (int r = roi.Top; r < roi.Top + roidHeight; r++)
+        for (int c = roi.Left; c < roi.Left + roiWidth; c++) {
           var depthPixel = depthFrame[r * width + c];
           var depth = DepthUtil.RawToDepth(depthPixel);
           var cp = mapper.MapDepthPointToColorPoint(c, r, depth);
           if (cp.X >= 0 && cp.X < width && cp.Y >= 0 && cp.Y < height)
             alignedData[r, c, 0] = data[cp.Y, cp.X, 0];
         }
+      CvInvoke.cvMorphologyEx(alignedImg.Ptr, alignedImg.Ptr, IntPtr.Zero, IntPtr.Zero,
+                              CV_MORPH_OP.CV_MOP_CLOSE, 1);
+      alignedImg.ROI = drawing.Rectangle.Empty;
     }
 
     public static void CreateMask(byte[] orig, byte[] mask, int width, drawing.Rectangle rect,
