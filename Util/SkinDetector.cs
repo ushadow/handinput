@@ -10,22 +10,25 @@ namespace HandInput.Util {
   public class SkinDetector : ISkinDetector {
     public static readonly StructuringElementEx Rect6 = new StructuringElementEx(5, 5, 3, 3,
         Emgu.CV.CvEnum.CV_ELEMENT_SHAPE.CV_SHAPE_RECT);
-    
+
+    public Image<Gray, Byte> SkinImage { get; private set; }
+
     int width, height;
 
     /// <summary>
     /// Binary mask of skin. 255 for skin and 0 for non-skin pixels.
     /// </summary>
-    Image<Gray, Byte> skin;
+    Image<Gray, Byte> skinMask;
     Image<Ycc, Byte> ycc;
     Image<Bgr, Byte> bgrImage;
    
     public SkinDetector(int width, int height) {
       this.width = width;
       this.height = height;
-      skin = new Image<Gray, Byte>(width, height);
+      skinMask = new Image<Gray, Byte>(width, height);
       ycc = new Image<Ycc, Byte>(width, height);
       bgrImage = new Image<Bgr, Byte>(width, height);
+      SkinImage = new Image<Gray, Byte>(width, height);
     }
 
     public Image<Gray, Byte> DetectSkin(Byte[] img) {
@@ -33,24 +36,31 @@ namespace HandInput.Util {
     }
 
     /// <summary>
+    /// Skin detection.
+    /// Code adapted from here
+    /// http://blog.csdn.net/scyscyao/archive/2010/04/09/5468577.aspx
+    /// Look at this paper for reference (Chinese!!!!!)
+    /// http://www.chinamca.com/UploadFile/200642991948257.pdf
     /// 
     /// </summary>
     /// <param name="img"></param>
     /// <returns>A reference of the skin mask. There is only one image allocated for skin mask and
     /// the image is reused.</returns>
     public Image<Gray, Byte> DetectSkin(Byte[] img, Rectangle roi) {
-      //Code adapted from here
-      // http://blog.csdn.net/scyscyao/archive/2010/04/09/5468577.aspx
-      // Look at this paper for reference (Chinese!!!!!)
-      // http://www.chinamca.com/UploadFile/200642991948257.pdf
-      ImageUtil.UpdateBgrImage(img, bgrImage.Data, width, height);
+      ImageUtil.UpdateBgrImage(img, bgrImage.Data, width, height, roi);
+      bgrImage.ROI = roi;
+      ycc.ROI = roi;
       CvInvoke.cvCvtColor(bgrImage, ycc, COLOR_CONVERSION.CV_BGR2YCrCb);
-      skin.ROI = roi;
+      
+      SkinImage.ROI = Rectangle.Empty;
+      CvInvoke.cvZero(SkinImage.Ptr);
+      SkinImage.ROI = roi;
+      CvInvoke.cvCvtColor(bgrImage, SkinImage, COLOR_CONVERSION.CV_BGR2GRAY);
 
       int y, cr, cb, x1, y1, value;
 
       Byte[, ,] YCrCbData = ycc.Data;
-      Byte[, ,] skinData = skin.Data;
+      Byte[, ,] skinData = skinMask.Data;
 
       var roiWidth = width;
       var roiHeight = height;
@@ -78,10 +88,11 @@ namespace HandInput.Util {
 
         }
 
-      CvInvoke.cvMorphologyEx(skin.Ptr, skin.Ptr, IntPtr.Zero, Rect6.Ptr, CV_MORPH_OP.CV_MOP_OPEN,
-                              1);
-
-      return skin;
+      skinMask.ROI = roi;
+      CvInvoke.cvMorphologyEx(skinMask.Ptr, skinMask.Ptr, IntPtr.Zero, Rect6.Ptr, 
+                              CV_MORPH_OP.CV_MOP_OPEN, 1);
+      CvInvoke.cvAnd(SkinImage.Ptr, skinMask.Ptr, SkinImage.Ptr, IntPtr.Zero);
+      return skinMask;
     }
   }
 }

@@ -19,6 +19,8 @@ namespace HandInput.Engine {
     /// </summary>
     public Option<Vector3D> RelPos { get; private set; }
     public Image<Gray, Byte> SmoothedDepth { get; private set; }
+    // Can be null.
+    public Image<Gray, Byte> Color { get; private set; }
     public Option<Rectangle> BoundingBox { get; private set; }
 
     public TrackingResult() {
@@ -27,10 +29,11 @@ namespace HandInput.Engine {
     }
 
     public TrackingResult(Option<Vector3D> relPos, Image<Gray, Byte> smoothedDepth,
-        Option<Rectangle> box) {
+        Option<Rectangle> box, Image<Gray, Byte> skin = null) {
       RelPos = relPos;
       SmoothedDepth = smoothedDepth;
       BoundingBox = box;
+      Color = skin;
     }
   }
 }

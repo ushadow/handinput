@@ -9,8 +9,10 @@ namespace handinput {
     processor_ = new Processor(w, h, str);
   }
 
-  int MProcessor::Update(float x, float y, float z, System::IntPtr image, bool visualize) {
-    return processor_->Update(x, y, z, reinterpret_cast<IplImage*>(image.ToPointer()), visualize);
+  int MProcessor::Update(float x, float y, float z, System::IntPtr image, System::IntPtr skin,
+                         bool visualize) {
+    return processor_->Update(x, y, z, reinterpret_cast<IplImage*>(image.ToPointer()), 
+        reinterpret_cast<IplImage*>(skin.ToPointer()), visualize);
   }
 }
 

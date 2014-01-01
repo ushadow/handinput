@@ -75,8 +75,8 @@ namespace HandInput.Engine {
 
         var relPos = SkeletonUtil.RelativePosToShoulder(HandRect, SmoothedDepth.Data, width, 
             height, skeleton, mapper);
-        return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth,
-                                  new Some<Rectangle>(HandRect));
+        return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth, 
+                                  new Some<Rectangle>(HandRect), playerDetector.Skin);
       }
       return new TrackingResult();
     }

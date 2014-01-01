@@ -23,6 +23,9 @@ namespace HandInput.Util {
     /// </summary>
     public Image<Gray, Byte> DepthImage { get; private set; }
     public Image<Gray, Byte> AlignedSkinMask;
+    public Image<Gray, Byte> Skin {
+      get { return skinDetector.SkinImage; }
+    }
 
     private int width, height;
     private MemStorage mem = new MemStorage();
@@ -121,6 +124,7 @@ namespace HandInput.Util {
 
     void UpdatePlayerDepthImage(short[] depthFrame, Byte[, ,] playerMask, Byte[, ,] skinMask,
         Rectangle roi) {
+      // Clear depth image.
       CvInvoke.cvZero(DepthImage.Ptr);
       var data = DepthImage.Data;
 

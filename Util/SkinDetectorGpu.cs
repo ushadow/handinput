@@ -25,7 +25,9 @@ namespace HandInput.Util {
                                                       {1, 1, 1, 1, 1},
                                                       {1, 1, 1, 1, 1},
                                                       {1, 1, 1, 1, 1}};
-    static readonly Matrix<Byte> Kernel = new Matrix<Byte>(StructElem); 
+    static readonly Matrix<Byte> Kernel = new Matrix<Byte>(StructElem);
+
+    public Image<Gray, Byte> SkinImage { get; private set; }
     
     GpuImage<Bgr, Byte> bgrImageGpu;
     GpuImage<Ycc, Byte> yccImageGpu;

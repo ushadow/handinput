@@ -13,7 +13,8 @@ namespace handinput {
 
     // Returns the float array of the feature vector. Can be null if there are not enough data to
     // compute f
-    float* Compute(float x, float y, float z, cv::Mat& image, bool visualize = false);
+    float* Compute(float x, float y, float z, cv::Mat& image, cv::Mat& skin, 
+                   bool visualize = false);
 
     // Computes the descriptor feature from the image.
     //
@@ -22,7 +23,7 @@ namespace handinput {
     //
     // Returns the float array of HOG descriptors. This object still has the ownership of the float 
     // array.
-    float* Compute(cv::Mat& image, bool visualize = false);
+    float* Compute(cv::Mat& image, std::string window_name, bool visualize = false);
     cv::Mat VisualizeHOG(cv::Mat& orig_image, int zoom_factor = 3);
     int HOGLength() { return hog_->Length(); }
     int FeatureLength() { return hog_->Length() + kMotionFeatureLen; }
@@ -32,7 +33,8 @@ namespace handinput {
     static const int kNBins = 9;
     static const int kMotionFeatureLen = 9;
     static const int kSpan = 15;
-    static const std::string kDebugWindowName;
+    static const std::string kDepthWindowName;
+    static const std::string kColorWindowName;
 
     static void CopyMatToArray(const cv::Mat& v, float* a, int start_index);
     
@@ -47,7 +49,7 @@ namespace handinput {
     DataBuffer pos_buffer_;
     std::vector<float> temporal_mask_;
 
-    void DisplayImage(cv::Mat& image);
+    void DisplayImage(cv::Mat& image, std::string window_name);
   };
 
 }

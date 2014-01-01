@@ -3,7 +3,8 @@
 
 namespace handinput {
 
-  const std::string FeatureProcessor::kDebugWindowName = "Debug";
+  const std::string FeatureProcessor::kDepthWindowName = "Depth";
+  const std::string FeatureProcessor::kColorWindowName = "Color";
 
   FeatureProcessor::FeatureProcessor(int w, int h) : w_(w), h_(h), pos_buffer_(kSpan), 
     temporal_mask_(kSpan, 1.0f / kSpan) {
@@ -18,7 +19,8 @@ namespace handinput {
     cv::destroyAllWindows();
   }
 
-  float* FeatureProcessor::Compute(float x, float y, float z, cv::Mat& image, bool visualize) {
+  float* FeatureProcessor::Compute(float x, float y, float z, cv::Mat& image, cv::Mat& skin,
+                                   bool visualize) {
     using Eigen::Vector3f;
     using cv::Mat;
     using cv::Mat_;
@@ -35,7 +37,8 @@ namespace handinput {
         CopyMatToArray(pos, feature_.get(), 0);
         CopyMatToArray(v, feature_.get(), 3);
         CopyMatToArray(a, feature_.get(), 6);
-        Compute(image, visualize);
+        Compute(image, kDepthWindowName, visualize);
+        Compute(skin, kColorWindowName, visualize);
         updated = true;
       }
       prev_v_ = v;
@@ -52,7 +55,7 @@ namespace handinput {
   }
 
   // Resizes the image and converts the image to float point values. 
-  float* FeatureProcessor::Compute(cv::Mat& image, bool visualize) {
+  float* FeatureProcessor::Compute(cv::Mat& image, std::string window_name, bool visualize) {
     // Uses the default linear interpolation.
     cv::resize(image, *scaled_image_, cv::Size(w_, h_));
     scaled_image_->convertTo(*float_image_, CV_32F);
@@ -60,7 +63,7 @@ namespace handinput {
     hog_->Compute((float*) float_image_->data, descriptor_);
     if (visualize) {
       cv::Mat vis = VisualizeHOG(*scaled_image_);
-      DisplayImage(vis);
+      DisplayImage(vis, window_name);
     }
     return descriptor_;
   }
@@ -159,9 +162,9 @@ namespace handinput {
     return visu;
   }
 
-  void FeatureProcessor::DisplayImage(cv::Mat& image) {
+  void FeatureProcessor::DisplayImage(cv::Mat& image, std::string window_name) {
     // If the window with the same name already exists, the function does nothing.
-    cv::namedWindow(kDebugWindowName);
-    cv::imshow(kDebugWindowName, image);
+    cv::namedWindow(window_name);
+    cv::imshow(window_name, image);
   }
 }

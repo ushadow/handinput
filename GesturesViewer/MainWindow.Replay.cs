@@ -80,11 +80,11 @@ namespace HandInput.GesturesViewer {
         ReplaySkeletonFrame sf) {
       if (df != null)
         statusTextBox.Text = df.FrameNumber.ToString();
-      depthDisplayManager.UpdatePixelData(df);
-      colorManager.Update(cf, !displayDepth);
+      debugDisplayManager.UpdatePixelData(df);
+      colorManager.Update(cf, !displayDebug);
       UpdateSkeletonDisplay(sf);
       if (handTracker != null && recogEngine != null) {
-        var result = handTracker.Update(depthDisplayManager.PixelData, colorManager.PixelData,
+        var result = handTracker.Update(debugDisplayManager.DepthPixelData, colorManager.PixelData,
             SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
         recogEngine.Update(result, true);
         fpsCounter.LogFPS();
@@ -126,7 +126,7 @@ namespace HandInput.GesturesViewer {
     }
 
     void replay_ColorImageFrameReady(object sender, ReplayColorImageFrameReadyEventArgs e) {
-      if (displayDepth)
+      if (displayDebug)
         return;
 
       colorManager.Update(e.ColorImageFrame);

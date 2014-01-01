@@ -22,14 +22,16 @@ namespace HandInput.Engine {
                                  modelFile);
     }
 
-
     public int Update(TrackingResult result, bool visualize = false) {
       int gesture = 0;
       if (result.RelPos.IsSome && result.BoundingBox.IsSome) {
         var pos = result.RelPos.Value;
         var image = result.SmoothedDepth;
+        var skin = result.Color;
         image.ROI = result.BoundingBox.Value;
-        gesture = processor.Update((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr, visualize);
+        skin.ROI = result.BoundingBox.Value;
+        gesture = processor.Update((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr, 
+                                    skin.Ptr, visualize);
         image.ROI = Rectangle.Empty;
         reset = false;
       } else {

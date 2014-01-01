@@ -18,17 +18,17 @@ namespace HandInput.GesturesViewer {
   /// <summary>
   /// Manages the visualization of depth data.
   /// </summary>
-  class DepthDisplayManager : Notifier, IStreamManager {
+  class DebugDisplayManager : Notifier, IStreamManager {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
-    public short[] PixelData { get; private set; }
+    public short[] DepthPixelData { get; private set; }
     public WriteableBitmap Bitmap { get; private set; }
     public WriteableBitmap BitmapMask { get; private set; }
 
     int width, height;
     byte[] depthFrame, transparentFrame;
 
-    public DepthDisplayManager(int width, int height) {
+    public DebugDisplayManager(int width, int height) {
       this.width = width;
       this.height = height;
       Bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
@@ -36,13 +36,13 @@ namespace HandInput.GesturesViewer {
     }
 
     public void UpdatePixelData(ReplayDepthImageFrame frame) {
-      if (PixelData == null)
-        PixelData = new short[frame.PixelDataLength];
-      frame.CopyPixelDataTo(PixelData);
+      if (DepthPixelData == null)
+        DepthPixelData = new short[frame.PixelDataLength];
+      frame.CopyPixelDataTo(DepthPixelData);
     }
 
     public void UpdateBitmap() {
-      ConvertDepthFrame(PixelData);
+      ConvertDepthFrame(DepthPixelData);
       UpdateBitmap(depthFrame);
     }
 

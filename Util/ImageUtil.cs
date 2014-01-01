@@ -35,8 +35,19 @@ namespace HandInput.Util {
     }
 
     public static void UpdateBgrImage(byte[] src, Byte[, ,] dst, int width, int height) {
-      for (int r = 0; r < height; r++)
-        for (int c = 0; c < width; c++)
+      UpdateBgrImage(src, dst, width, height, drawing.Rectangle.Empty);
+    }
+
+    public static void UpdateBgrImage(byte[] src, Byte[, ,] dst, int width, int height, 
+                                      drawing.Rectangle roi) {
+      var roiHeight = height;
+      var roiWidth = width;
+      if (!roi.IsEmpty) {
+        roiHeight = roi.Height;
+        roiWidth = roi.Width;
+      }
+      for (int r = roi.Top; r < roi.Top + roiHeight; r++)
+        for (int c = roi.Left; c < roi.Left + roiWidth; c++)
           for (int channel = 0; channel < 3; channel++) {
             dst[r, c, channel] = src[(r * width + c) * 4 + channel];
           }

@@ -32,12 +32,14 @@ namespace HandInput.GesturesViewer {
   /// Interaction logic for MainWindow.xaml
   /// </summary>
   public partial class MainWindow {
+    enum DisplayOption {DEPTH, COLOR};
+    
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
     static readonly int DepthWidth = 640, DepthHeight = 480;
     static readonly String ModelFile = ConfigurationManager.AppSettings["model_file"];
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
-    readonly DepthDisplayManager depthDisplayManager = new DepthDisplayManager(DepthWidth, DepthHeight);
+    readonly DebugDisplayManager debugDisplayManager = new DebugDisplayManager(DepthWidth, DepthHeight);
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
 
@@ -45,7 +47,8 @@ namespace HandInput.GesturesViewer {
 
     AudioStreamManager audioManager;
     SkeletonDisplayManager skeletonDisplayManager;
-    bool displayDepth = false;
+    bool displayDebug = false;
+    DisplayOption displayOption = DisplayOption.DEPTH;
 
     KinectRecorder recorder;
     KinectAllFramesReplay replay;
@@ -143,7 +146,7 @@ namespace HandInput.GesturesViewer {
       elevationSlider.DataContext = nuiCamera;
 
       kinectDisplay.DataContext = colorManager;
-      maskDispay.DataContext = depthDisplayManager;
+      maskDispay.DataContext = debugDisplayManager;
     }
 
     void StartTracking() {
@@ -195,8 +198,11 @@ namespace HandInput.GesturesViewer {
           UpdateSimpleHandTrackerDisplay();
         }
       }
-      if (displayDepth && result.SmoothedDepth != null) {
-        depthDisplayManager.UpdateBitmap(result.SmoothedDepth.Bytes);
+      if (displayDebug) {
+        if (displayOption == DisplayOption.DEPTH && result.SmoothedDepth != null) 
+          debugDisplayManager.UpdateBitmap(result.SmoothedDepth.Bytes);
+        if (displayOption == DisplayOption.COLOR && result.Color != null)
+          debugDisplayManager.UpdateBitmap(result.Color.Bytes);
       }
     }
 
@@ -219,8 +225,8 @@ namespace HandInput.GesturesViewer {
         VisualUtil.DrawRectangle(gesturesCanvas, bb.Value, Brushes.Red);
       }
       var converted = sht.TemporalSmoothed.ConvertScale<Byte>(255, 0);
-      depthDisplayManager.UpdateBitmap(converted.Bytes);
-      depthDisplayManager.UpdateBitmapMask(sht.SaliencyProb.Data);
+      debugDisplayManager.UpdateBitmap(converted.Bytes);
+      debugDisplayManager.UpdateBitmapMask(sht.SaliencyProb.Data);
     }
 
     void kinectRuntime_AllFrameReady(object sender, AllFramesReadyEventArgs e) {
@@ -237,11 +243,11 @@ namespace HandInput.GesturesViewer {
         } catch (ObjectDisposedException) { }
 
         if (cf != null)
-          colorManager.Update(cf, !displayDepth);
+          colorManager.Update(cf, !displayDebug);
 
         if (df != null) {
           depthFrameNumber = df.FrameNumber;
-          depthDisplayManager.UpdatePixelData(df);
+          debugDisplayManager.UpdatePixelData(df);
         }
 
         if (sf != null) {
@@ -249,7 +255,7 @@ namespace HandInput.GesturesViewer {
           if (buffer.Count <= 1)
             buffer.Add(new KinectDataPacket {
               ColorData = colorManager.PixelData,
-              DepthData = depthDisplayManager.PixelData,
+              DepthData = debugDisplayManager.DepthPixelData,
               Skeleton = SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons())
             });
         }
@@ -304,13 +310,13 @@ namespace HandInput.GesturesViewer {
     }
 
     void Button_Click(object sender, RoutedEventArgs e) {
-      displayDepth = !displayDepth;
+      displayDebug = !displayDebug;
 
-      if (displayDepth) {
+      if (displayDebug) {
         viewButton.Content = "View Color";
-        kinectDisplay.DataContext = depthDisplayManager;
+        kinectDisplay.DataContext = debugDisplayManager;
       } else {
-        viewButton.Content = "View Depth";
+        viewButton.Content = "View Debug";
         kinectDisplay.DataContext = colorManager;
       }
     }
@@ -358,6 +364,12 @@ namespace HandInput.GesturesViewer {
           break;
         case Key.N:
           StepForward();
+          break;
+        case Key.C:
+          displayOption = DisplayOption.COLOR;
+          break;
+        case Key.D:
+          displayOption = DisplayOption.DEPTH;
           break;
         default:
           break;

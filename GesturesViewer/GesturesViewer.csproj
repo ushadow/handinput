@@ -146,7 +146,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="DepthDisplayManager.cs" />
+    <Compile Include="DebugDisplayManager.cs" />
     <Compile Include="MainWindow.Replay.cs" />
     <Compile Include="TrainingManager.cs" />
     <Page Include="MainWindow.xaml">
