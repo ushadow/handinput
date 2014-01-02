@@ -72,6 +72,14 @@ namespace HandInput.Util {
       return new Image<Bgr, Byte>(dst);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="src">Each pixel in src has 4 bytes.</param>
+    /// <param name="dst">Each pixel in dst has 3 channels.</param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
     public static Image<Bgr, Single> CreateCVImage(byte[] src, Single[, ,] dst, int width,
         int height) {
       for (int r = 0; r < height; r++)

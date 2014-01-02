@@ -1,3 +1,4 @@
+#include "pcheader.h"
 #include "mixgaussian.h"
 
 #define ABS_ERROR 1e-9

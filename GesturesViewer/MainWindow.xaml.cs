@@ -26,19 +26,22 @@ using HandInput.Util;
 using handinput;
 using System.Configuration;
 using System.Windows.Threading;
+using Emgu.CV;
+using Emgu.CV.Structure;
 
 namespace HandInput.GesturesViewer {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// </summary>
   public partial class MainWindow {
-    enum DisplayOption {DEPTH, COLOR};
-    
+    enum DisplayOption { DEPTH, COLOR };
+
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
     static readonly int DepthWidth = 640, DepthHeight = 480;
     static readonly String ModelFile = ConfigurationManager.AppSettings["model_file"];
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
+    readonly DepthStreamManager depthManager = new DepthStreamManager();
     readonly DebugDisplayManager debugDisplayManager = new DebugDisplayManager(DepthWidth, DepthHeight);
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
@@ -61,6 +64,8 @@ namespace HandInput.GesturesViewer {
     IHandTracker handTracker;
     RecognitionEngine recogEngine;
     FPSCounter fpsCounter = new FPSCounter();
+
+    SensorDataAnalyzer dataAnalyzer = new SensorDataAnalyzer(DepthWidth, DepthHeight);
 
     public MainWindow() {
       InitializeComponent();
@@ -97,10 +102,11 @@ namespace HandInput.GesturesViewer {
     void Window_Loaded(object sender, RoutedEventArgs e) {
       this.Activate();
       try {
-        //listen to any status change for Kinects
+        // listen to any status change for Kinects
         KinectSensor.KinectSensors.StatusChanged += Kinects_StatusChanged;
 
-        //loop through all the Kinects attached to this PC, and start the first that is connected without an error.
+        // loop through all the Kinects attached to this PC, and start the first that is connected 
+        // without an error.
         foreach (KinectSensor kinect in KinectSensor.KinectSensors) {
           if (kinect.Status == KinectStatus.Connected) {
             kinectSensor = kinect;
@@ -143,10 +149,9 @@ namespace HandInput.GesturesViewer {
 
       nuiCamera = new BindableNUICamera(kinectSensor);
 
-      elevationSlider.DataContext = nuiCamera;
-
       kinectDisplay.DataContext = colorManager;
       maskDispay.DataContext = debugDisplayManager;
+      depthDisplay.DataContext = depthManager;
     }
 
     void StartTracking() {
@@ -158,7 +163,7 @@ namespace HandInput.GesturesViewer {
 
     void HandTrackingTask(CancellationToken token) {
       Log.Debug("Start tracking");
-      handTracker = new SimpleSkeletonHandTracker(DepthWidth, DepthHeight, 
+      handTracker = new SimpleSkeletonHandTracker(DepthWidth, DepthHeight,
                                                   kinectSensor.CoordinateMapper);
       recogEngine = new RecognitionEngine(ModelFile);
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
@@ -167,8 +172,8 @@ namespace HandInput.GesturesViewer {
         int gestureIndex = recogEngine.Update(result);
         Dispatcher.Invoke(DispatcherPriority.Normal, new Action<TrackingResult>(UpdateDisplay),
           result);
-        if (gestureIndex >= 1 && gestureIndex <=2)
-          Dispatcher.Invoke(DispatcherPriority.Normal, new Action<String>(SetStatus), 
+        if (gestureIndex >= 1 && gestureIndex <= 2)
+          Dispatcher.Invoke(DispatcherPriority.Normal, new Action<String>(SetStatus),
               Gestures[gestureIndex]);
         fpsCounter.LogFPS();
       }
@@ -199,7 +204,7 @@ namespace HandInput.GesturesViewer {
         }
       }
       if (displayDebug) {
-        if (displayOption == DisplayOption.DEPTH && result.SmoothedDepth != null) 
+        if (displayOption == DisplayOption.DEPTH && result.SmoothedDepth != null)
           debugDisplayManager.UpdateBitmap(result.SmoothedDepth.Bytes);
         if (displayOption == DisplayOption.COLOR && result.Color != null)
           debugDisplayManager.UpdateBitmap(result.Color.Bytes);
@@ -237,7 +242,7 @@ namespace HandInput.GesturesViewer {
       using (var df = e.OpenDepthImageFrame())
       using (var sf = e.OpenSkeletonFrame()) {
         try {
-          if (recorder != null && sf != null && df !=null && cf != null) {
+          if (recorder != null && sf != null && df != null && cf != null) {
             recorder.Record(sf, df, cf);
           }
         } catch (ObjectDisposedException) { }
@@ -247,7 +252,7 @@ namespace HandInput.GesturesViewer {
 
         if (df != null) {
           depthFrameNumber = df.FrameNumber;
-          debugDisplayManager.UpdatePixelData(df);
+          depthManager.Update(df);
         }
 
         if (sf != null) {
@@ -255,9 +260,13 @@ namespace HandInput.GesturesViewer {
           if (buffer.Count <= 1)
             buffer.Add(new KinectDataPacket {
               ColorData = colorManager.PixelData,
-              DepthData = debugDisplayManager.DepthPixelData,
+              DepthData = depthManager.PixelData,
               Skeleton = SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons())
             });
+        }
+
+        if (df != null && cf != null) {
+          dataAnalyzer.Update(depthManager.PixelData, colorManager.PixelData); 
         }
       }
     }

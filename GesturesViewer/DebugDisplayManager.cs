@@ -35,6 +35,11 @@ namespace HandInput.GesturesViewer {
       BitmapMask = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
     }
 
+    /// <summary>
+    /// Updates the depth frame pixel data. Each pixel contains both the player and the depth
+    /// information.
+    /// </summary>
+    /// <param name="frame"></param>
     public void UpdatePixelData(ReplayDepthImageFrame frame) {
       if (DepthPixelData == null)
         DepthPixelData = new short[frame.PixelDataLength];

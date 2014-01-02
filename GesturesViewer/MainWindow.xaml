@@ -5,7 +5,7 @@
         Loaded="Window_Loaded"
         Closing="Window_Closing"        
         WindowState="Normal"    
-        Title="Gestures Viewer" Height="700" Width="1000" MinHeight="700" MinWidth="1000" MaxHeight="700" MaxWidth="1000" KeyDown="Window_KeyDown">
+        Title="Gestures Viewer" MinHeight="700" MinWidth="1000" MaxHeight="700" MaxWidth="2000" KeyDown="Window_KeyDown">
     <Window.Resources>
         <Style TargetType="{x:Type TextBlock}">
             <Setter Property="FontFamily" Value="Segoe UI"/>
@@ -46,13 +46,19 @@
             </Rectangle.Fill>
         </Rectangle>
         <Viewbox Margin="5" Grid.RowSpan="6">
-            <Grid Width="640" Height="480" ClipToBounds="True">
-                <Image x:Name="kinectDisplay" Source="{Binding Bitmap}"/>
-                <Image x:Name="maskDispay" Source="{Binding BitmapMask}"/>
-                <Canvas x:Name="kinectCanvas"/>
-                <Canvas x:Name="gesturesCanvas"/>
-                <Rectangle Stroke="Black" StrokeThickness="1"/>
-            </Grid>
+            <StackPanel Orientation="Horizontal">
+                <Grid Width="320" Height="240" ClipToBounds="True">
+                    <Image x:Name="kinectDisplay" Source="{Binding Bitmap}"/>
+                    <Image x:Name="maskDispay" Source="{Binding BitmapMask}"/>
+                    <Canvas x:Name="kinectCanvas"/>
+                    <Canvas x:Name="gesturesCanvas"/>
+                    <Rectangle Stroke="Black" StrokeThickness="1"/>
+                </Grid>
+                <Grid Width="320" Height="240" ClipToBounds="True">
+                    <Image x:Name="depthDisplay" Source="{Binding Bitmap}"/>
+                    <Rectangle Stroke="Black" StrokeThickness="1"/>
+                </Grid>
+            </StackPanel>
         </Viewbox>
         <TextBlock Text="COMMANDS" Grid.Column="1" Margin="4"/>
         <Grid Margin="10" Grid.Column="1" Grid.Row="1">
@@ -106,7 +112,6 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Slider Minimum="{Binding ElevationMinimum}" Maximum="{Binding ElevationMaximum}" Value="{Binding ElevationAngle, Mode=TwoWay}" x:Name="elevationSlider" Orientation="Vertical" Grid.RowSpan="6"/>
         <Slider Minimum="0" 
                 Value="{Binding ElevationAngle, Mode=TwoWay}" x:Name="frameSlider"
                 Grid.Row="6" Margin="5" ValueChanged="frameSlider_ValueChanged"/>

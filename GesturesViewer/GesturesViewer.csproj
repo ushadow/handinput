@@ -104,9 +104,9 @@
     <Reference Include="Common.Logging">
       <HintPath>..\packages\Common.Logging.2.1.2\lib\net40\Common.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="Emgu.CV, Version=2.9.0.1922, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=AMD64">
+    <Reference Include="Emgu.CV, Version=2.4.9.1847, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\program-files\Emgu\emgucv-windows-universal-gpu 2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.CV.dll</HintPath>
+      <HintPath>..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.CV.dll</HintPath>
     </Reference>
     <Reference Include="Emgu.CV.GPU, Version=2.9.0.1922, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
@@ -147,6 +147,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DebugDisplayManager.cs" />
+    <Compile Include="DepthStreamManager.cs" />
     <Compile Include="MainWindow.Replay.cs" />
     <Compile Include="TrainingManager.cs" />
     <Page Include="MainWindow.xaml">
