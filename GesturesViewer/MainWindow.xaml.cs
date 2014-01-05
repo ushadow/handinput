@@ -191,8 +191,8 @@ namespace HandInput.GesturesViewer {
 
     void UpdateDisplay(TrackingResult result) {
       gesturesCanvas.Children.Clear();
-      if (result.BoundingBox.IsSome) {
-        VisualUtil.DrawRectangle(gesturesCanvas, result.BoundingBox.Value, Brushes.Red);
+      if (result.DepthBoundingBox.IsSome) {
+        VisualUtil.DrawRectangle(gesturesCanvas, result.DepthBoundingBox.Value, Brushes.Red);
       }
       if (handTracker != null) {
         if (handTracker is SalienceHandTracker)
@@ -206,8 +206,8 @@ namespace HandInput.GesturesViewer {
       if (displayDebug) {
         if (displayOption == DisplayOption.DEPTH && result.SmoothedDepth != null)
           debugDisplayManager.UpdateBitmap(result.SmoothedDepth.Bytes);
-        if (displayOption == DisplayOption.COLOR && result.Color != null)
-          debugDisplayManager.UpdateBitmap(result.Color.Bytes);
+        if (displayOption == DisplayOption.COLOR && result.ColorImage != null)
+          debugDisplayManager.UpdateBitmap(result.ColorImage.Bytes);
       }
     }
 

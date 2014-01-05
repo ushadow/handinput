@@ -79,6 +79,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Microsoft.Kinect.Toolkit\bin\Release\Microsoft.Kinect.Toolkit.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Kinect.Toolkit.FaceTracking">
+      <HintPath>..\..\Microsoft.Kinect.Toolkit.FaceTracking\bin\Release\Microsoft.Kinect.Toolkit.FaceTracking.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -96,6 +99,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FaceTracker.cs" />
     <Compile Include="SimpleSkeletonHandTracker.cs" />
     <Compile Include="SkeletonHandTracker.cs" />
     <Compile Include="HandInputEngine.cs" />
