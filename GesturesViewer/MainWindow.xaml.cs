@@ -56,8 +56,6 @@ namespace HandInput.GesturesViewer {
     KinectRecorder recorder;
     KinectAllFramesReplay replay;
 
-    BindableNUICamera nuiCamera;
-
     int depthFrameNumber;
     BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
     CancellationTokenSource cancellationTokenSource;
@@ -128,6 +126,11 @@ namespace HandInput.GesturesViewer {
       if (kinectSensor == null)
         return;
 
+      Log.InfoFormat("Color stream nominal focal length in pixel = {0}", 
+          kinectSensor.ColorStream.NominalFocalLengthInPixels);
+      Log.InfoFormat("Depth stream nominal focal length in pixel = {0}",
+          kinectSensor.DepthStream.NominalFocalLengthInPixels);
+
       audioManager = new AudioStreamManager(kinectSensor.AudioSource);
       audioBeamAngle.DataContext = audioManager;
 
@@ -146,8 +149,6 @@ namespace HandInput.GesturesViewer {
       kinectSensor.AllFramesReady += kinectRuntime_AllFrameReady;
       skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor, kinectCanvas);
       kinectSensor.Start();
-
-      nuiCamera = new BindableNUICamera(kinectSensor);
 
       kinectDisplay.DataContext = colorManager;
       maskDispay.DataContext = debugDisplayManager;

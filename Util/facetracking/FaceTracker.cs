@@ -74,44 +74,6 @@ namespace Microsoft.Kinect.Toolkit.FaceTracking {
 
     private CameraConfig videoCameraConfig;
 
-    static FaceTracker() {
-      try {
-        NameValueCollection appSettings = ConfigurationManager.AppSettings;
-        string logFileName = appSettings[TraceLogFileName];
-        if (!string.IsNullOrEmpty(logFileName)) {
-          foreach (TraceListener tl in Trace.Listeners) {
-            var defaultListener = tl as DefaultTraceListener;
-            if (defaultListener != null) {
-              defaultListener.LogFileName = logFileName;
-              break;
-            }
-          }
-
-          DateTime cur = DateTime.Now;
-          Trace.WriteLine(
-              string.Format(
-                  CultureInfo.InvariantCulture, "---------------------------------------------------------------------------"));
-          Trace.WriteLine(
-              string.Format(
-                  CultureInfo.InvariantCulture,
-                  "Starting Trace. Time={0} {1}, Machine={2}, Processor={3}, OS={4}",
-                  cur.ToShortDateString(),
-                  cur.ToLongTimeString(),
-                  Environment.MachineName,
-                  Environment.Is64BitProcess ? "64bit" : "32bit",
-                  Environment.OSVersion));
-          Trace.WriteLine(
-              string.Format(
-                  CultureInfo.InvariantCulture, "---------------------------------------------------------------------------"));
-        }
-      } catch (Exception ex) {
-        Trace.WriteLine(
-            string.Format(CultureInfo.InvariantCulture, "Failed to set logfile for logging trace output. Exception={0}", ex));
-
-        throw;
-      }
-    }
-
     /// <summary>
     /// Initializes a new instance of the FaceTracker class from a reference of the Kinect device.
     /// <param name="sensor">Reference to kinect sensor instance</param>

@@ -95,6 +95,13 @@
     <Compile Include="CoordinateConverter.cs" />
     <Compile Include="DepthUtil.cs" />
     <Compile Include="FaceModel.cs" />
+    <Compile Include="facetracking\EnumIndexableCollection.cs" />
+    <Compile Include="facetracking\FaceModel.cs" />
+    <Compile Include="facetracking\FaceTracker.cs" />
+    <Compile Include="facetracking\FaceTrackFrame.cs" />
+    <Compile Include="facetracking\FtInterop.cs" />
+    <Compile Include="facetracking\Image.cs" />
+    <Compile Include="facetracking\Utils.cs" />
     <Compile Include="FPSCounter.cs" />
     <Compile Include="GeometryUtil.cs" />
     <Compile Include="ImageUtil.cs" />
