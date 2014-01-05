@@ -8,8 +8,10 @@ using System.Drawing;
 
 namespace HandInput.Util {
   public class SkinDetector : ISkinDetector {
-    public static readonly StructuringElementEx Rect6 = new StructuringElementEx(5, 5, 3, 3,
-        Emgu.CV.CvEnum.CV_ELEMENT_SHAPE.CV_SHAPE_RECT);
+    static readonly StructuringElementEx Rect6 = new StructuringElementEx(5, 5, 3, 3,
+        CV_ELEMENT_SHAPE.CV_SHAPE_RECT);
+    static readonly StructuringElementEx StrucElem3 = new StructuringElementEx(3, 3, 2, 2,
+        CV_ELEMENT_SHAPE.CV_SHAPE_RECT);
 
     public Image<Gray, Byte> SkinImage { get; private set; }
 
@@ -89,10 +91,18 @@ namespace HandInput.Util {
         }
 
       skinMask.ROI = roi;
+      CvInvoke.cvAnd(SkinImage.Ptr, skinMask.Ptr, SkinImage.Ptr, IntPtr.Zero);
       CvInvoke.cvMorphologyEx(skinMask.Ptr, skinMask.Ptr, IntPtr.Zero, Rect6.Ptr, 
                               CV_MORPH_OP.CV_MOP_OPEN, 1);
-      CvInvoke.cvAnd(SkinImage.Ptr, skinMask.Ptr, SkinImage.Ptr, IntPtr.Zero);
       return skinMask;
+    }
+
+    public Rectangle Smooth(Rectangle roi) {
+      SkinImage.ROI = roi;
+      CvInvoke.cvMorphologyEx(SkinImage.Ptr, SkinImage.Ptr, IntPtr.Zero, StrucElem3, 
+          CV_MORPH_OP.CV_MOP_CLOSE, 1);
+      SkinImage.ROI = Rectangle.Empty;
+      return roi;
     }
   }
 }

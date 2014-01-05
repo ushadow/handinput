@@ -35,22 +35,22 @@ namespace HandInput.Engine {
     public Image<Gray, Byte> HandMask { get; private set; }
 
     int width, height;
-    ColorDepthMapper mapper;
+    CoordinateConverter mapper;
     PlayerDetector playerDetector;
     MCvConnectedComp connectedComp = new MCvConnectedComp();
     MCvBox2D shiftedRect = new MCvBox2D();
     SkinDetector skinDetector;
 
     public SimpleSkeletonHandTracker(int width, int height, Byte[] kinectParams) {
-      Init(width, height);
-      mapper = new ColorDepthMapper(kinectParams, Parameters.ColorImageFormat,
+      mapper = new CoordinateConverter(kinectParams, Parameters.ColorImageFormat,
                                     Parameters.DepthImageFormat);
+      Init(width, height);
     }
 
     public SimpleSkeletonHandTracker(int width, int height, CoordinateMapper coordMapper) {
-      Init(width, height);
-      mapper = new ColorDepthMapper(coordMapper, Parameters.ColorImageFormat,
+      mapper = new CoordinateConverter(coordMapper, Parameters.ColorImageFormat,
                                     Parameters.DepthImageFormat);
+      Init(width, height);
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ namespace HandInput.Engine {
         z = rightHandJoint.Position.Z;
         InitialHandRect = ComputeInitialRect(rightHandDepthPos, z);
 
-        playerDetector.UpdateMasks(depthFrame, cf, mapper, InitialHandRect, true, true);
+        playerDetector.UpdateMasks(depthFrame, cf, skeleton, InitialHandRect, true, true);
         var depthImage = playerDetector.DepthImage;
         CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5, 0, 0);
         FindBestBoundingBox(InitialHandRect);
@@ -76,7 +76,9 @@ namespace HandInput.Engine {
         var relPos = SkeletonUtil.RelativePosToShoulder(HandRect, SmoothedDepth.Data, width, 
             height, skeleton, mapper);
         return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth, 
-                                  new Some<Rectangle>(HandRect), playerDetector.Skin);
+                                  new Some<Rectangle>(HandRect), playerDetector.Skin,
+                                  new Some<Rectangle>(mapper.MapDepthRectToColorRect(HandRect,
+                                    depthFrame, width)));
       }
       return new TrackingResult();
     }
@@ -84,7 +86,7 @@ namespace HandInput.Engine {
     void Init(int width, int height) {
       this.width = width;
       this.height = height;
-      playerDetector = new PlayerDetector(width, height);
+      playerDetector = new PlayerDetector(width, height, mapper);
       SmoothedDepth = new Image<Gray, byte>(width, height);
       skinDetector = new SkinDetector(width, height);
     }

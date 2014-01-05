@@ -38,7 +38,7 @@ namespace HandInput.Util {
       UpdateBgrImage(src, dst, width, height, drawing.Rectangle.Empty);
     }
 
-    public static void UpdateBgrImage(byte[] src, Byte[, ,] dst, int width, int height, 
+    public static void UpdateBgrImage(byte[] src, Byte[, ,] dst, int width, int height,
                                       drawing.Rectangle roi) {
       var roiHeight = height;
       var roiWidth = width;
@@ -180,8 +180,42 @@ namespace HandInput.Util {
       }
     }
 
-    public static void AlignColorImage(Image<Gray, Byte> colorImg, Image<Gray, Byte> alignedImg,
-        short[] depthFrame, ColorDepthMapper mapper) {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="depthImg"></param>
+    /// <param name="colorImg">The aligned color image has the same ROI as the depth image.</param>
+    /// <param name="depthFrame"></param>
+    /// <param name="mapper"></param>
+    public static void AlignImageDepthToColor(Image<Gray, Byte> depthImg,
+        Image<Gray, Byte> colorImg, short[] depthFrame, CoordinateConverter mapper) {
+      var width = colorImg.Width;
+      var height = colorImg.Height;
+
+      CvInvoke.cvZero(colorImg.Ptr);
+      var depthData = depthImg.Data;
+      var colorData = colorImg.Data;
+      var roiWidth = width;
+      var roidHeight = height;
+      var roi = depthImg.ROI;
+      if (!roi.IsEmpty) {
+        roiWidth = roi.Width;
+        roidHeight = roi.Height;
+      }
+      for (int r = roi.Top; r < roi.Top + roidHeight; r++)
+        for (int c = roi.Left; c < roi.Left + roiWidth; c++) {
+          var depthPixel = depthFrame[r * width + c];
+          var depth = DepthUtil.RawToDepth(depthPixel);
+          var cp = mapper.MapDepthPointToColorPoint(c, r, depth);
+          if (cp.X >= 0 && cp.X < width && cp.Y >= 0 && cp.Y < height)
+            colorData[cp.Y, cp.X, 0] = depthData[r, c, 0];
+        }
+      CvInvoke.cvMorphologyEx(colorImg.Ptr, colorImg.Ptr, IntPtr.Zero, IntPtr.Zero,
+                              CV_MORPH_OP.CV_MOP_CLOSE, 1);
+    }
+
+    public static void AlignImageColorToDepth(Image<Gray, Byte> colorImg,
+        Image<Gray, Byte> alignedImg, short[] depthFrame, CoordinateConverter mapper) {
       var width = alignedImg.Width;
       var height = alignedImg.Height;
 
@@ -209,6 +243,14 @@ namespace HandInput.Util {
       alignedImg.ROI = drawing.Rectangle.Empty;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="orig"></param>
+    /// <param name="mask">mask.Length = orig.Length * 4</param>
+    /// <param name="width"></param>
+    /// <param name="rect"></param>
+    /// <param name="transparent"></param>
     public static void CreateMask(byte[] orig, byte[] mask, int width, drawing.Rectangle rect,
                                   bool transparent) {
       Array.Clear(mask, 0, mask.Length);
@@ -217,7 +259,7 @@ namespace HandInput.Util {
       for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++) {
           var index = y * width + x;
-          if (rect.Contains(x, y)) {
+          if (rect.IsEmpty || rect.Contains(x, y)) {
             byte value = orig[index];
             if (value != 0) {
               mask[index * 4 + a] = 255;

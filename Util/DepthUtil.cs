@@ -34,7 +34,7 @@ namespace HandInput.Util {
     }
 
     /// <summary>
-    /// 
+    /// length in depth image / length in world = focal length / distance in world
     /// </summary>
     /// <param name="renderWidth">in pixel</param>
     /// <param name="lengthWorld">in m</param>

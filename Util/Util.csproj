@@ -92,8 +92,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Background.cs" />
-    <Compile Include="ColorDepthMapper.cs" />
+    <Compile Include="CoordinateConverter.cs" />
     <Compile Include="DepthUtil.cs" />
+    <Compile Include="FaceModel.cs" />
     <Compile Include="FPSCounter.cs" />
     <Compile Include="GeometryUtil.cs" />
     <Compile Include="ImageUtil.cs" />

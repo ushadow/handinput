@@ -7,25 +7,26 @@ using System.IO;
 using System.Collections.ObjectModel;
 
 using Microsoft.Kinect;
+using System.Drawing;
 
 namespace HandInput.Util {
   /// <summary>
   /// Maps points between color, depth and skeleton coordinates.
   /// </summary>
-  public class ColorDepthMapper {
+  public class CoordinateConverter {
     
     CoordinateMapper mapper;
     ColorImageFormat cif;
     DepthImageFormat dif;
 
-    public ColorDepthMapper(IEnumerable<byte> kinectParams, ColorImageFormat cif, 
+    public CoordinateConverter(IEnumerable<byte> kinectParams, ColorImageFormat cif, 
                             DepthImageFormat dif) {
       mapper = new CoordinateMapper(kinectParams);
       this.cif = cif;
       this.dif = dif;
     }
 
-    public ColorDepthMapper(CoordinateMapper mapper, ColorImageFormat cif, DepthImageFormat dif) {
+    public CoordinateConverter(CoordinateMapper mapper, ColorImageFormat cif, DepthImageFormat dif) {
       this.mapper = mapper;
       this.cif = cif;
       this.dif = dif;
@@ -67,6 +68,15 @@ namespace HandInput.Util {
       };
 
       return MapDepthPointToSkeletonPoint(depthPoint);
+    }
+
+    public Rectangle MapDepthRectToColorRect(Rectangle depthRect, short[] depthPixel, int width) {
+      int depth = DepthUtil.RawToDepth(depthPixel[depthRect.Y * width + depthRect.X]);
+      var cpUpperLeft = MapDepthPointToColorPoint(depthRect.X, depthRect.Y, depth);
+      depth = DepthUtil.RawToDepth(depthPixel[depthRect.Bottom * width + depthRect.Right]);
+      var cpBottomRight = MapDepthPointToColorPoint(depthRect.Right, depthRect.Bottom, depth);
+      return new Rectangle(cpUpperLeft.X, cpUpperLeft.Y, cpBottomRight.X - cpUpperLeft.X,
+          cpBottomRight.Y - cpUpperLeft.Y);
     }
   }
 }

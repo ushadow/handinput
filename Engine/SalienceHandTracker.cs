@@ -23,12 +23,12 @@ using handinput;
 namespace HandInput.Engine {
   public class SalienceHandTracker : IHandTracker {
     public static readonly float HandWidth = 0.095f; // m
-    private static readonly int NumBin = 256;
-    private static readonly int DefaultZDist = 1; // m
-    private readonly ILog Log = LogManager.GetCurrentClassLogger();
-    private static readonly StructuringElementEx StructuringElement = new StructuringElementEx(3, 3, 1, 1,
+    static readonly int NumBin = 256;
+    static readonly int DefaultZDist = 1; // m
+    readonly ILog Log = LogManager.GetCurrentClassLogger();
+    static readonly StructuringElementEx StructuringElement = new StructuringElementEx(3, 3, 1, 1,
        Emgu.CV.CvEnum.CV_ELEMENT_SHAPE.CV_SHAPE_RECT);
-    private static readonly int CamShiftIter = 2;
+    static readonly int CamShiftIter = 2;
 
     public Image<Gray, Single> SaliencyProb { get; private set; }
     public Image<Gray, Byte> TempMask { get; private set; }
@@ -39,6 +39,11 @@ namespace HandInput.Engine {
     public Image<Gray, Byte> Diff0 { get; private set; }
     public Image<Gray, Byte> DiffMask1 { get; private set; }
     public Image<Gray, Byte> DiffMask0 { get; private set; }
+    public Image<Gray, Byte> SkinImage {
+      get {
+        return playerDetector.Skin;
+      }
+    }
 
     float[] diffCumulativeDist, depthCumulativeDist;
     PlayerDetector playerDetector;
@@ -48,7 +53,7 @@ namespace HandInput.Engine {
     IntPtr contourPtr = new IntPtr();
     MCvConnectedComp connectedComp = new MCvConnectedComp();
     MCvBox2D shiftedBox = new MCvBox2D();
-    ColorDepthMapper mapper;
+    CoordinateConverter mapper;
     MHandTracker handTracker;
 
     /// <summary>
@@ -58,15 +63,15 @@ namespace HandInput.Engine {
     /// <param name="height"></param>
     /// <param name="kinectParamsBinary">Kinect parameters in binary.</param>
     public SalienceHandTracker(int width, int height, Byte[] kinectParams) {
-      Init(width, height);
-      mapper = new ColorDepthMapper(kinectParams, Parameters.ColorImageFormat, 
+      mapper = new CoordinateConverter(kinectParams, Parameters.ColorImageFormat,
                                     Parameters.DepthImageFormat);
+      Init(width, height);
     }
 
     public SalienceHandTracker(int width, int height, CoordinateMapper mapper) {
-      Init(width, height);
-      this.mapper = new ColorDepthMapper(mapper, Parameters.ColorImageFormat,
+      this.mapper = new CoordinateConverter(mapper, Parameters.ColorImageFormat,
                                          Parameters.DepthImageFormat);
+      Init(width, height);
     }
 
     /// <summary>
@@ -78,7 +83,7 @@ namespace HandInput.Engine {
     /// relative to the image.</param>
     /// <returns>The position of the best bounding box relative to the shoulder joint in skeleton 
     /// coordinates if the bounding box is valid. Otherwise returns None.</returns>
-    public TrackingResult Update(short[] depthFrame, byte[] colorPixelData, Skeleton skeleton) {
+    public TrackingResult Update(short[] depthFrame, byte[] colorFrame, Skeleton skeleton) {
       t++;
 
       Option<Vector3D> relPos = new None<Vector3D>();
@@ -86,13 +91,11 @@ namespace HandInput.Engine {
       if (skeleton == null || depthFrame == null)
         return new TrackingResult();
 
-      playerDetector.UpdateMasks(depthFrame, colorPixelData, mapper);
+      playerDetector.FilterPlayerContourSkin(depthFrame, colorFrame, skeleton);
       var depthImage = playerDetector.DepthImage;
-      // Medin smoothing cannot be in place.
+      // Median smoothing cannot be in place.
       CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5,
                         0, 0);
-      handTracker.Update(SmoothedDepth.Ptr, TemporalSmoothed.Ptr);
-      CvInvoke.cvConvertScale(TemporalSmoothed.Ptr, SmoothedDepth.Ptr, 255, 0);
 
       if (t > 1) {
         CvInvoke.cvAbsDiff(SmoothedDepth.Ptr, Diff0.Ptr, Diff0.Ptr);
@@ -114,26 +117,30 @@ namespace HandInput.Engine {
           var diffData = Diff0.Data;
           var depthData = SmoothedDepth.Data;
           var probData = SaliencyProb.Data;
-          var skinMaskData = playerDetector.AlignedSkinMask.Data;
+          var skinMaskData = playerDetector.DepthSkinMask.Data;
           var playerMaskData = playerDetector.PlayerMask.Data;
           for (int i = 0; i < DiffMask1.Height; i++)
             for (int j = 0; j < DiffMask1.Width; j++) {
               if (diffMaskData[i, j, 0] > 0) {
                 var diffBin = diffData[i, j, 0];
                 var depthBin = depthData[i, j, 0];
-                probData[i, j, 0] = diffCumulativeDist[diffBin] * depthCumulativeDist[depthBin] *
-                  (playerMaskData[i, j, 0] == 255 ? 1 : 0) * (skinMaskData[i, j, 0] == 255 ? 1 : 0);
+                probData[i, j, 0] = diffCumulativeDist[diffBin] * depthCumulativeDist[depthBin];
               }
             }
           var skeHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
           PrevBoundingBox = FindBestBoundingBox(skeHandJoint);
           if (PrevBoundingBox.IsSome && PrevBoundingBox.Value.Width > 0)
-            relPos = new Some<Vector3D>(SkeletonUtil.RelativePosToShoulder(PrevBoundingBox.Value, 
+            relPos = new Some<Vector3D>(SkeletonUtil.RelativePosToShoulder(PrevBoundingBox.Value,
                 SmoothedDepth.Data, width, height, skeleton, mapper));
         }
       }
       SmoothedDepth.CopyTo(Diff0);
-      return new TrackingResult(relPos, SmoothedDepth, PrevBoundingBox);
+      Option<Rectangle> colorBoundingBox = new None<Rectangle>();
+      if (PrevBoundingBox.IsSome) {
+        var colorBox = playerDetector.SmoothSkin(PrevBoundingBox.Value, depthFrame);
+        colorBoundingBox = new Some<Rectangle>(colorBox);
+      }
+      return new TrackingResult(relPos, SmoothedDepth, PrevBoundingBox, SkinImage, colorBoundingBox);
     }
 
     void Init(int width, int height) {
@@ -153,7 +160,7 @@ namespace HandInput.Engine {
 
       diffCumulativeDist = new float[NumBin];
       depthCumulativeDist = new float[NumBin];
-      playerDetector = new PlayerDetector(width, height);
+      playerDetector = new PlayerDetector(width, height, mapper);
       PrevBoundingBox = new None<Rectangle>();
     }
 

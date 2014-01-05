@@ -20,20 +20,23 @@ namespace HandInput.Engine {
     public Option<Vector3D> RelPos { get; private set; }
     public Image<Gray, Byte> SmoothedDepth { get; private set; }
     // Can be null.
-    public Image<Gray, Byte> Color { get; private set; }
-    public Option<Rectangle> BoundingBox { get; private set; }
+    public Image<Gray, Byte> ColorImage { get; private set; }
+    public Option<Rectangle> DepthBoundingBox { get; private set; }
+    public Option<Rectangle> ColorBoundingBox { get; private set; }
 
     public TrackingResult() {
       RelPos = new None<Vector3D>();
-      BoundingBox = new None<Rectangle>();
+      DepthBoundingBox = new None<Rectangle>();
     }
 
     public TrackingResult(Option<Vector3D> relPos, Image<Gray, Byte> smoothedDepth,
-        Option<Rectangle> box, Image<Gray, Byte> skin = null) {
+        Option<Rectangle> depthBox, Image<Gray, Byte> skin = null, 
+        Option<Rectangle> colorBox = null) {
       RelPos = relPos;
       SmoothedDepth = smoothedDepth;
-      BoundingBox = box;
-      Color = skin;
+      DepthBoundingBox = depthBox;
+      ColorImage = skin;
+      ColorBoundingBox = colorBox;
     }
   }
 }

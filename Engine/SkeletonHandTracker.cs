@@ -68,7 +68,7 @@ namespace HandInput.Engine {
     private Image<Gray, Byte> alignedImg, playerMask;
     private IntPtr storage = CvInvoke.cvCreateMemStorage(0);
     private IntPtr contourPtr = new IntPtr();
-    private ColorDepthMapper mapper;
+    private CoordinateConverter mapper;
     private SkinDetector skinDetetor;
 
     public SkeletonHandTracker(int width, int height, byte[] kinectParams) {
@@ -79,7 +79,7 @@ namespace HandInput.Engine {
       alignedImg = new Image<Gray, Byte>(width, height);
       HandImage = new Image<Gray, Byte>(width, height);
 
-      mapper = new ColorDepthMapper(kinectParams, Parameters.ColorImageFormat,
+      mapper = new CoordinateConverter(kinectParams, Parameters.ColorImageFormat,
                                     Parameters.DepthImageFormat);
       skinDetetor = new SkinDetector(width, height);
       HandBox = new MCvBox2D();

@@ -7,6 +7,7 @@ using System.Windows.Media.Media3D;
 
 using Microsoft.Kinect;
 using System.Drawing;
+using Emgu.CV.Structure;
 
 namespace HandInput.Util {
   /// <summary>
@@ -40,6 +41,21 @@ namespace HandInput.Util {
 
     public static Joint GetJoint(Skeleton s, JointType jointType) {
       return s.Joints.Where<Joint>(x => x.JointType.Equals(jointType)).First();
+    }
+
+    /// <summary>
+    /// Computes the head circle in the depth image.
+    /// </summary>
+    /// <param name="skeleton"></param>
+    /// <param name="mapper"></param>
+    /// <returns></returns>
+    public static FaceModel GetFaceModel(Skeleton skeleton, CoordinateConverter mapper) {
+      var headJointPos = GetJoint(skeleton, JointType.Head).Position;
+      var shoulderCenterJoint = GetJoint(skeleton, JointType.ShoulderCenter);
+      var headDepthPt = mapper.MapSkeletonPointToDepthPoint(headJointPos);
+      var shoulderDepthPt = mapper.MapSkeletonPointToDepthPoint(shoulderCenterJoint.Position);
+      var radius = Math.Abs(shoulderDepthPt.Y - headDepthPt.Y) / 2;
+      return new FaceModel(new Point(headDepthPt.X, headDepthPt.Y), radius, headJointPos.Z);
     }
 
     /// <summary>
@@ -87,7 +103,7 @@ namespace HandInput.Util {
     }
 
     public static Vector3D RelativePosToShoulder(Rectangle rect, byte[, ,] depthData, int width,
-      int height, Skeleton skeleton, ColorDepthMapper mapper) {
+      int height, Skeleton skeleton, CoordinateConverter mapper) {
       var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);
 
       var aveDepth = 0.0;

@@ -36,21 +36,21 @@ namespace HandInput.Engine {
     MHarrisBuffer buffer = new MHarrisBuffer();
     bool initialized = false;
     Image<Gray, Byte> smallGray;
-    ColorDepthMapper mapper;
+    CoordinateConverter mapper;
     PlayerDetector playerDetector;
     MCvConnectedComp connectedComp = new MCvConnectedComp();
     MCvBox2D shiftedRect = new MCvBox2D();
 
     public StipHandTracker(int width, int height, Byte[] kinectParams) {
-      Init(width, height);
-      mapper = new ColorDepthMapper(kinectParams, Parameters.ColorImageFormat,
+      mapper = new CoordinateConverter(kinectParams, Parameters.ColorImageFormat,
                                     Parameters.DepthImageFormat);
+      Init(width, height);
     }
 
     public StipHandTracker(int width, int height, CoordinateMapper coordMapper) {
-      Init(width, height);
-      mapper = new ColorDepthMapper(coordMapper, Parameters.ColorImageFormat,
+      mapper = new CoordinateConverter(coordMapper, Parameters.ColorImageFormat,
                                     Parameters.DepthImageFormat);
+      Init(width, height);
     }
 
     public TrackingResult Update(short[] depthFrame, byte[] cf, Skeleton skeleton) {
@@ -79,7 +79,7 @@ namespace HandInput.Engine {
 
       HandRect = ComputeInitialRect(z);
 
-      playerDetector.FilterPlayer(depthFrame, cf, mapper);
+      playerDetector.FilterPlayer(depthFrame, cf, skeleton);
       var depthImage = playerDetector.DepthImage;
       CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5, 0, 0);
 
@@ -92,7 +92,7 @@ namespace HandInput.Engine {
     void Init(int width, int height) {
       this.width = width;
       this.height = height;
-      playerDetector = new PlayerDetector(width, height);
+      playerDetector = new PlayerDetector(width, height, mapper);
       imageStorage = new byte[height, width, 3];
       Gray = new Image<Gray, byte>(width, height);
       smallGray = new Image<Gray, byte>(width / ImageScale, height / ImageScale);

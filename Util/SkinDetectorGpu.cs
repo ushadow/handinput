@@ -63,5 +63,9 @@ namespace HandInput.Util {
     public Image<Gray, Byte> DetectSkin(byte[] image, Rectangle roi) {
       return DetectSkin(image);
     }
+
+    public Rectangle Smooth(Rectangle roi) {
+      return roi;
+    }
   }
 }

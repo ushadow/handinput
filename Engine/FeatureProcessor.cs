@@ -44,9 +44,9 @@ namespace HandInput.Engine {
     /// <returns>An option of newly created Single array.</returns>
     public Option<Single[]> Compute(TrackingResult result) {
       Single[] feature = null;
-      if (result.RelPos.IsSome && result.BoundingBox.IsSome) {
+      if (result.RelPos.IsSome && result.DepthBoundingBox.IsSome) {
         var pos = result.RelPos.Value;
-        var ptr = ComputeFeature(pos, result.SmoothedDepth, result.BoundingBox.Value);
+        var ptr = ComputeFeature(pos, result.SmoothedDepth, result.DepthBoundingBox.Value);
         if (!ptr.Equals(IntPtr.Zero)) {
           feature = new Single[FeatureLength];
           Marshal.Copy(ptr, feature, 0, FeatureLength);
