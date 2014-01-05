@@ -94,7 +94,6 @@
     <Compile Include="Background.cs" />
     <Compile Include="CoordinateConverter.cs" />
     <Compile Include="DepthUtil.cs" />
-    <Compile Include="FaceModel.cs" />
     <Compile Include="facetracking\EnumIndexableCollection.cs" />
     <Compile Include="facetracking\FaceModel.cs" />
     <Compile Include="facetracking\FaceTracker.cs" />

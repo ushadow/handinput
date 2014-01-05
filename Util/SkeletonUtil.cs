@@ -49,14 +49,14 @@ namespace HandInput.Util {
     /// <param name="skeleton"></param>
     /// <param name="mapper"></param>
     /// <returns></returns>
-    public static FaceModel GetFaceModel(Skeleton skeleton, CoordinateConverter mapper) {
-      var headJointPos = GetJoint(skeleton, JointType.Head).Position;
-      var shoulderCenterJoint = GetJoint(skeleton, JointType.ShoulderCenter);
-      var headDepthPt = mapper.MapSkeletonPointToDepthPoint(headJointPos);
-      var shoulderDepthPt = mapper.MapSkeletonPointToDepthPoint(shoulderCenterJoint.Position);
-      var radius = Math.Abs(shoulderDepthPt.Y - headDepthPt.Y) / 2;
-      return new FaceModel(new Point(headDepthPt.X, headDepthPt.Y), radius, headJointPos.Z);
-    }
+    //public static FaceModel GetFaceModel(Skeleton skeleton, CoordinateConverter mapper) {
+    //  var headJointPos = GetJoint(skeleton, JointType.Head).Position;
+    //  var shoulderCenterJoint = GetJoint(skeleton, JointType.ShoulderCenter);
+    //  var headDepthPt = mapper.MapSkeletonPointToDepthPoint(headJointPos);
+    //  var shoulderDepthPt = mapper.MapSkeletonPointToDepthPoint(shoulderCenterJoint.Position);
+    //  var radius = Math.Abs(shoulderDepthPt.Y - headDepthPt.Y) / 2;
+    //  return new FaceModel(new Point(headDepthPt.X, headDepthPt.Y), radius, headJointPos.Z);
+    //}
 
     /// <summary>
     /// Average squared distance between the corresponding tracked joints of two skeletons.
