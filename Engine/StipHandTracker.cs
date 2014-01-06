@@ -42,14 +42,14 @@ namespace HandInput.Engine {
     MCvBox2D shiftedRect = new MCvBox2D();
 
     public StipHandTracker(int width, int height, Byte[] kinectParams) {
-      mapper = new CoordinateConverter(kinectParams, Parameters.ColorImageFormat,
-                                    Parameters.DepthImageFormat);
+      mapper = new CoordinateConverter(kinectParams, HandInputParams.ColorImageFormat,
+                                    HandInputParams.DepthImageFormat);
       Init(width, height);
     }
 
     public StipHandTracker(int width, int height, CoordinateMapper coordMapper) {
-      mapper = new CoordinateConverter(coordMapper, Parameters.ColorImageFormat,
-                                    Parameters.DepthImageFormat);
+      mapper = new CoordinateConverter(coordMapper, HandInputParams.ColorImageFormat,
+                                    HandInputParams.DepthImageFormat);
       Init(width, height);
     }
 
@@ -108,15 +108,15 @@ namespace HandInput.Engine {
 
     void ConvertDepthImage(short[] depthFrame) {
       var data = Gray.Data;
-      var scale = (float)255 / Parameters.MaxDepth;
+      var scale = (float)255 / HandInputParams.MaxDepth;
       for (int r = 0; r < height; r++)
         for (int c = 0; c < width; c++) {
           var index = r * width + c;
           var pixel = depthFrame[index];
           var depth = DepthUtil.RawToDepth(pixel);
-          depth = (depth < Parameters.MinDepth || depth > Parameters.MaxDepth) ?
-                  Parameters.MaxDepth : depth;
-          data[r, c, 0] = (byte)((Parameters.MaxDepth - depth) * scale);
+          depth = (depth < HandInputParams.MinDepth || depth > HandInputParams.MaxDepth) ?
+                  HandInputParams.MaxDepth : depth;
+          data[r, c, 0] = (byte)((HandInputParams.MaxDepth - depth) * scale);
         }
       CvInvoke.cvResize(Gray.Ptr, smallGray.Ptr, INTER.CV_INTER_LINEAR);
     }

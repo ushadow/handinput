@@ -63,14 +63,14 @@ namespace HandInput.Engine {
     /// <param name="height"></param>
     /// <param name="kinectParamsBinary">Kinect parameters in binary.</param>
     public SalienceHandTracker(int width, int height, Byte[] kinectParams) {
-      mapper = new CoordinateConverter(kinectParams, Parameters.ColorImageFormat,
-                                    Parameters.DepthImageFormat);
+      mapper = new CoordinateConverter(kinectParams, HandInputParams.ColorImageFormat,
+                                    HandInputParams.DepthImageFormat);
       Init(width, height);
     }
 
     public SalienceHandTracker(int width, int height, CoordinateMapper mapper) {
-      this.mapper = new CoordinateConverter(mapper, Parameters.ColorImageFormat,
-                                         Parameters.DepthImageFormat);
+      this.mapper = new CoordinateConverter(mapper, HandInputParams.ColorImageFormat,
+                                         HandInputParams.DepthImageFormat);
       Init(width, height);
     }
 

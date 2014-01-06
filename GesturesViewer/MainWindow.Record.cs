@@ -4,6 +4,7 @@ using Kinect.Toolbox.Record;
 using Microsoft.Win32;
 
 using Microsoft.Kinect;
+using HandInput.Util;
 
 namespace HandInput.GesturesViewer {
   partial class MainWindow {
@@ -26,7 +27,8 @@ namespace HandInput.GesturesViewer {
     void DirectRecord(string targetFileName) {
       Stream recordStream = File.Create(targetFileName);
       recorder = new KinectRecorder(KinectRecordOptions.Skeletons | KinectRecordOptions.Color |
-          KinectRecordOptions.Depth, kinectSensor, recordStream);
+          KinectRecordOptions.Depth, kinectSensor.CoordinateMapper,
+          HandInputParams.ColorFocalLength, HandInputParams.DepthFocalLength, recordStream);
     }
 
     void StopRecord() {

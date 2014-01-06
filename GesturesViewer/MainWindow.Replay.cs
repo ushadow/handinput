@@ -6,15 +6,17 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using System.IO;
+using System.Configuration;
 
 using Kinect.Toolbox.Record;
 using Kinect.Toolbox;
+
 using Microsoft.Kinect;
+using Microsoft.Win32;
+using kinect = Microsoft.Kinect.Toolkit.FaceTracking;
 
 using HandInput.Engine;
 using HandInput.Util;
-using Microsoft.Win32;
-using System.Configuration;
 
 // Replay related interactions.
 namespace HandInput.GesturesViewer {
@@ -50,8 +52,14 @@ namespace HandInput.GesturesViewer {
       frameSlider.Maximum = replay.FrameCount;
       frameSlider.Value = 0;
 
-      handTracker = new SimpleSkeletonHandTracker(DepthWidth, DepthHeight, replay.KinectParams);
+      handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth, 
+          HandInputParams.DepthHeight, replay.KinectParams);
       recogEngine = new RecognitionEngine(ModelFile);
+      faceTracker = new kinect.FaceTracker(HandInputParams.ColorImageFormat,
+          HandInputParams.ColorWidth, HandInputParams.ColorHeight,
+          replay.ColorNominalFocalLengthInPixels, HandInputParams.DepthImageFormat,
+          HandInputParams.DepthWidth, HandInputParams.DepthHeight, 
+          replay.DepthNominalFocalLengthInPixels, new CoordinateMapper(replay.KinectParams));
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
       timer.Tick += new EventHandler(OnTimerTick);
@@ -80,11 +88,11 @@ namespace HandInput.GesturesViewer {
         ReplaySkeletonFrame sf) {
       if (df != null)
         statusTextBox.Text = df.FrameNumber.ToString();
-      debugDisplayManager.UpdatePixelData(df);
       colorManager.Update(cf, !displayDebug);
+      depthManager.Update(df);
       UpdateSkeletonDisplay(sf);
       if (handTracker != null && recogEngine != null) {
-        var result = handTracker.Update(debugDisplayManager.DepthPixelData, colorManager.PixelData,
+        var result = handTracker.Update(depthManager.PixelData, colorManager.PixelData,
             SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
         recogEngine.Update(result, true);
         fpsCounter.LogFPS();
@@ -111,7 +119,7 @@ namespace HandInput.GesturesViewer {
       frameSlider.Value += SampleRate;
     }
 
-    void StopReply() {
+    void StopReplay() {
       if (timer != null && timer.IsEnabled)
         timer.Stop();
 

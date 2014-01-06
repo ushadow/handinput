@@ -42,14 +42,14 @@ namespace HandInput.Engine {
     SkinDetector skinDetector;
 
     public SimpleSkeletonHandTracker(int width, int height, Byte[] kinectParams) {
-      mapper = new CoordinateConverter(kinectParams, Parameters.ColorImageFormat,
-                                    Parameters.DepthImageFormat);
+      mapper = new CoordinateConverter(kinectParams, HandInputParams.ColorImageFormat,
+                                    HandInputParams.DepthImageFormat);
       Init(width, height);
     }
 
     public SimpleSkeletonHandTracker(int width, int height, CoordinateMapper coordMapper) {
-      mapper = new CoordinateConverter(coordMapper, Parameters.ColorImageFormat,
-                                    Parameters.DepthImageFormat);
+      mapper = new CoordinateConverter(coordMapper, HandInputParams.ColorImageFormat,
+                                    HandInputParams.DepthImageFormat);
       Init(width, height);
     }
 

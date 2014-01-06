@@ -20,7 +20,7 @@ namespace HandInput.GesturesViewer {
 
   public class TrainingManager : INotifyPropertyChanged {
     static readonly int GestureWaitTime = 3000; //ms
-    static readonly int StartWaitTime = 6000;
+    static readonly int StartWaitTime = 8000;
     static readonly int NumRepitions = 3;
     static readonly int StartRepCount = 1;
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
@@ -39,7 +39,7 @@ namespace HandInput.GesturesViewer {
 
     String[] gestures;
     String status;
-    Timer timer = new Timer(StartWaitTime);
+    Timer timer = new Timer(1000);
     Int32 counter = 0, repCounter = StartRepCount;
     Boolean started = false;
 
@@ -67,11 +67,12 @@ namespace HandInput.GesturesViewer {
     private void OnTimeEvent(object source, ElapsedEventArgs e) {
       if (!started) {
         started = true;
-        timer.Interval = GestureWaitTime;
+        timer.Interval = StartWaitTime;
         TrainingEvent(this, new TrainingEventArgs(TrainingEventType.Start));
         return;
       }
-
+      
+      timer.Interval = GestureWaitTime;
       if (counter < gestures.Count()) {
         var gesture = gestures[counter];
         Status = String.Format("{0} #{1}", gesture, repCounter);

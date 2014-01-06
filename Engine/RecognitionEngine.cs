@@ -18,7 +18,7 @@ namespace HandInput.Engine {
 
     public RecognitionEngine(String modelFile) {
       this.modelFile = modelFile;
-      processor = new MProcessor(Parameters.FeatureImageWidth, Parameters.FeatureImageWidth,
+      processor = new MProcessor(HandInputParams.FeatureImageWidth, HandInputParams.FeatureImageWidth,
                                  modelFile);
     }
 

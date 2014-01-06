@@ -28,8 +28,8 @@ namespace HandInput.Engine {
     public int DescriptorLength { get; private set; }
     public bool Visualize { get; set; }
 
-    MFeatureProcessor featureProcessor = new MFeatureProcessor(Parameters.FeatureImageWidth,
-        Parameters.FeatureImageWidth);
+    MFeatureProcessor featureProcessor = new MFeatureProcessor(HandInputParams.FeatureImageWidth,
+        HandInputParams.FeatureImageWidth);
 
     public FeatureProcessor() {
       DescriptorLength = featureProcessor.HOGLength();

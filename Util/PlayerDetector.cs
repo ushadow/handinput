@@ -41,7 +41,7 @@ namespace HandInput.Util {
     CoordinateConverter mapper;
 
     public static int ToWorldDepth(double depth) {
-      return (int)(Parameters.MaxDepth - depth * Parameters.MaxDepth / 255);
+      return (int)(HandInputParams.MaxDepth - depth * HandInputParams.MaxDepth / 255);
     }
 
     public PlayerDetector(int width, int height, CoordinateConverter mapper) {
@@ -174,7 +174,7 @@ namespace HandInput.Util {
       CvInvoke.cvZero(DepthImage.Ptr);
       var data = DepthImage.Data;
 
-      var scale = (float)255 / Parameters.MaxDepth;
+      var scale = (float)255 / HandInputParams.MaxDepth;
 
       var roiWidth = width;
       var roiHeight = height;
@@ -188,7 +188,7 @@ namespace HandInput.Util {
           short pixel = depthFrame[index];
           var depth = DepthUtil.RawToDepth(pixel);
           if (IsFilteredPixel(playerMask, skinMask, c, r, depth))
-            data[r, c, 0] = (byte)(Math.Max(0, Parameters.MaxDepth - depth) * scale);
+            data[r, c, 0] = (byte)(Math.Max(0, HandInputParams.MaxDepth - depth) * scale);
         }
     }
 
@@ -196,14 +196,14 @@ namespace HandInput.Util {
       CvInvoke.cvZero(DepthImage.Ptr);
       var data = DepthImage.Data;
 
-      var scale = (float)255 / Parameters.MaxDepth;
+      var scale = (float)255 / HandInputParams.MaxDepth;
       for (int r = 0; r < height; r++)
         for (int c = 0; c < width; c++) {
           var index = r * width + c;
           if (IsPlayerPixel(contour, skinMask, c, r)) {
             short pixel = depthFrame[index];
             var depth = DepthUtil.RawToDepth(pixel);
-            data[r, c, 0] = (byte)(Math.Max(0, Parameters.MaxDepth - depth) * scale);
+            data[r, c, 0] = (byte)(Math.Max(0, HandInputParams.MaxDepth - depth) * scale);
           }
         }
     }
@@ -211,7 +211,7 @@ namespace HandInput.Util {
     bool IsFilteredPixel(Byte[, ,] playerMask, Byte[, ,] skinMask, int x, int y, int depth) {
       return (skinMask == null || skinMask[y, x, 0] > 0) &&
              (playerMask == null || playerMask[y, x, 0] > 0) &&
-             depth > Parameters.MinDepth;
+             depth > HandInputParams.MinDepth;
     }
 
     bool IsPlayerPixel(Seq<Point> contour, Byte[, ,] skinMask, int x, int y) {

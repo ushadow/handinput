@@ -103,11 +103,11 @@
     <Compile Include="facetracking\Utils.cs" />
     <Compile Include="FPSCounter.cs" />
     <Compile Include="GeometryUtil.cs" />
+    <Compile Include="HandInputParams.cs" />
     <Compile Include="ImageUtil.cs" />
     <Compile Include="ISkinDetector.cs" />
     <Compile Include="Option.cs" />
     <Compile Include="ParallelProcessor.cs" />
-    <Compile Include="Parameters.cs" />
     <Compile Include="PlayerDetector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SensorDataAnalyzer.cs" />

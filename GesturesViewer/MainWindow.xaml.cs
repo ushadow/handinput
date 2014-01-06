@@ -1,33 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
-using System.IO;
 using System.Windows.Input;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Windows.Media;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Configuration;
+using System.Windows.Threading;
 using drawing = System.Drawing;
 
 using Microsoft.Kinect;
-using Microsoft.Win32;
+using kinect = Microsoft.Kinect.Toolkit.FaceTracking;
 
 using Kinect.Toolbox;
 using Kinect.Toolbox.Record;
-using Kinect.Toolbox.Voice;
 
 using Common.Logging;
 
 using HandInput.Engine;
 using HandInput.Util;
 
-using handinput;
-using System.Configuration;
-using System.Windows.Threading;
-using Emgu.CV;
-using Emgu.CV.Structure;
 
 namespace HandInput.GesturesViewer {
   /// <summary>
@@ -37,12 +30,12 @@ namespace HandInput.GesturesViewer {
     enum DisplayOption { DEPTH, COLOR };
 
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
-    static readonly int DepthWidth = 640, DepthHeight = 480;
     static readonly String ModelFile = ConfigurationManager.AppSettings["model_file"];
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
     readonly DepthStreamManager depthManager = new DepthStreamManager();
-    readonly DebugDisplayManager debugDisplayManager = new DebugDisplayManager(DepthWidth, DepthHeight);
+    readonly DebugDisplayManager debugDisplayManager = new DebugDisplayManager(
+        HandInputParams.DepthWidth, HandInputParams.DepthHeight);
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
 
@@ -63,7 +56,7 @@ namespace HandInput.GesturesViewer {
     RecognitionEngine recogEngine;
     FPSCounter fpsCounter = new FPSCounter();
 
-    SensorDataAnalyzer dataAnalyzer = new SensorDataAnalyzer(DepthWidth, DepthHeight);
+    kinect.FaceTracker faceTracker;
 
     public MainWindow() {
       InitializeComponent();
@@ -103,6 +96,11 @@ namespace HandInput.GesturesViewer {
         // listen to any status change for Kinects
         KinectSensor.KinectSensors.StatusChanged += Kinects_StatusChanged;
 
+        if (KinectSensor.KinectSensors.Count == 0) {
+          MessageBox.Show("No Kinect found");
+          return;
+        }
+
         // loop through all the Kinects attached to this PC, and start the first that is connected 
         // without an error.
         foreach (KinectSensor kinect in KinectSensor.KinectSensors) {
@@ -112,10 +110,7 @@ namespace HandInput.GesturesViewer {
           }
         }
 
-        if (KinectSensor.KinectSensors.Count == 0)
-          MessageBox.Show("No Kinect found");
-        else
-          Initialize();
+        Initialize();
 
       } catch (Exception ex) {
         MessageBox.Show(ex.Message);
@@ -134,9 +129,9 @@ namespace HandInput.GesturesViewer {
       audioManager = new AudioStreamManager(kinectSensor.AudioSource);
       audioBeamAngle.DataContext = audioManager;
 
-      kinectSensor.ColorStream.Enable(Parameters.ColorImageFormat);
+      kinectSensor.ColorStream.Enable(HandInputParams.ColorImageFormat);
 
-      kinectSensor.DepthStream.Enable(Parameters.DepthImageFormat);
+      kinectSensor.DepthStream.Enable(HandInputParams.DepthImageFormat);
 
       kinectSensor.SkeletonStream.Enable(new TransformSmoothParameters {
         Smoothing = 0.5f,
@@ -153,19 +148,23 @@ namespace HandInput.GesturesViewer {
       kinectDisplay.DataContext = colorManager;
       maskDispay.DataContext = debugDisplayManager;
       depthDisplay.DataContext = depthManager;
+
+      HandInputParams.ColorFocalLength = kinectSensor.ColorStream.NominalFocalLengthInPixels;
+      HandInputParams.DepthFocalLength = kinectSensor.DepthStream.NominalFocalLengthInPixels;
+      //faceTracker = new kinect.FaceTracker(kinectSensor);
     }
 
     void StartTracking() {
       cancellationTokenSource = new CancellationTokenSource();
-      StopReply();
+      StopReplay();
       var token = cancellationTokenSource.Token;
       Task.Factory.StartNew(() => HandTrackingTask(token), token);
     }
 
     void HandTrackingTask(CancellationToken token) {
       Log.Debug("Start tracking");
-      handTracker = new SimpleSkeletonHandTracker(DepthWidth, DepthHeight,
-                                                  kinectSensor.CoordinateMapper);
+      handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth, 
+          HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
       recogEngine = new RecognitionEngine(ModelFile);
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
         var data = buffer.Take();
@@ -193,7 +192,8 @@ namespace HandInput.GesturesViewer {
     void UpdateDisplay(TrackingResult result) {
       gesturesCanvas.Children.Clear();
       if (result.DepthBoundingBox.IsSome) {
-        VisualUtil.DrawRectangle(gesturesCanvas, result.DepthBoundingBox.Value, Brushes.Red);
+        VisualUtil.DrawRectangle(gesturesCanvas, result.DepthBoundingBox.Value, Brushes.Red,
+            (float) gesturesCanvas.ActualWidth / HandInputParams.ColorWidth);
       }
       if (handTracker != null) {
         if (handTracker is SalienceHandTracker)
@@ -214,7 +214,8 @@ namespace HandInput.GesturesViewer {
 
     void UpdateSimpleHandTrackerDisplay() {
       SimpleSkeletonHandTracker ssht = (SimpleSkeletonHandTracker)handTracker;
-      VisualUtil.DrawRectangle(gesturesCanvas, ssht.InitialHandRect, Brushes.Green);
+      VisualUtil.DrawRectangle(gesturesCanvas, ssht.InitialHandRect, Brushes.Green,
+          (float)gesturesCanvas.ActualWidth / HandInputParams.ColorWidth);
     }
 
     void UpdateStipHandTrackerDisplay() {
@@ -264,10 +265,6 @@ namespace HandInput.GesturesViewer {
               DepthData = depthManager.PixelData,
               Skeleton = SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons())
             });
-        }
-
-        if (df != null && cf != null) {
-          dataAnalyzer.Update(depthManager.PixelData, colorManager.PixelData); 
         }
       }
     }

@@ -79,8 +79,8 @@ namespace HandInput.Engine {
       alignedImg = new Image<Gray, Byte>(width, height);
       HandImage = new Image<Gray, Byte>(width, height);
 
-      mapper = new CoordinateConverter(kinectParams, Parameters.ColorImageFormat,
-                                    Parameters.DepthImageFormat);
+      mapper = new CoordinateConverter(kinectParams, HandInputParams.ColorImageFormat,
+                                    HandInputParams.DepthImageFormat);
       skinDetetor = new SkinDetector(width, height);
       HandBox = new MCvBox2D();
       HandCandidates = new List<Rectangle>();
