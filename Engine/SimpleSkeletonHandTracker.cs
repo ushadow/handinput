@@ -68,7 +68,7 @@ namespace HandInput.Engine {
         z = rightHandJoint.Position.Z;
         InitialHandRect = ComputeInitialRect(rightHandDepthPos, z);
 
-        playerDetector.UpdateMasks(depthFrame, cf, skeleton, InitialHandRect, true, true);
+        playerDetector.UpdateMasks(depthFrame, cf, InitialHandRect, true, true);
         var depthImage = playerDetector.DepthImage;
         CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5, 0, 0);
         FindBestBoundingBox(InitialHandRect);
@@ -76,9 +76,9 @@ namespace HandInput.Engine {
         var relPos = SkeletonUtil.RelativePosToShoulder(HandRect, SmoothedDepth.Data, width, 
             height, skeleton, mapper);
         return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth, 
-                                  new Some<Rectangle>(HandRect), playerDetector.Skin,
+                                  new Some<Rectangle>(HandRect), playerDetector.SkinImage,
                                   new Some<Rectangle>(mapper.MapDepthRectToColorRect(HandRect,
-                                    depthFrame, width)));
+                                    depthFrame, width, height)));
       }
       return new TrackingResult();
     }

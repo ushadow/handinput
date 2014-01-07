@@ -70,13 +70,27 @@ namespace HandInput.Util {
       return MapDepthPointToSkeletonPoint(depthPoint);
     }
 
-    public Rectangle MapDepthRectToColorRect(Rectangle depthRect, short[] depthPixel, int width) {
-      int depth = DepthUtil.RawToDepth(depthPixel[depthRect.Y * width + depthRect.X]);
+    public Rectangle MapDepthRectToColorRect(Rectangle depthRect, short[] depthPixel, int width, 
+        int height) {
+      var y = Clip(depthRect.Top, 0, height);
+      var x = Clip(depthRect.Left, 0, width);
+      int depth = DepthUtil.RawToDepth(depthPixel[y * width + x]);
       var cpUpperLeft = MapDepthPointToColorPoint(depthRect.X, depthRect.Y, depth);
-      depth = DepthUtil.RawToDepth(depthPixel[depthRect.Bottom * width + depthRect.Right]);
+
+      y = Clip(depthRect.Bottom, 0, height);
+      x = Clip(depthRect.Right, 0, width);
+      depth = DepthUtil.RawToDepth(depthPixel[y * width + x]);
       var cpBottomRight = MapDepthPointToColorPoint(depthRect.Right, depthRect.Bottom, depth);
       return new Rectangle(cpUpperLeft.X, cpUpperLeft.Y, cpBottomRight.X - cpUpperLeft.X,
           cpBottomRight.Y - cpUpperLeft.Y);
+    }
+
+    private int Clip(int v, int min, int max) {
+      if (v < min)
+        return min;
+      if (v > max)
+        return max;
+      return v;
     }
   }
 }

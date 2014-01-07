@@ -10,13 +10,13 @@ using Microsoft.Kinect;
 
 namespace HandInput.Util {
   public class FaceModel {
-    static readonly float FaceDistanceThresh = 50f; // in mm.
+    static readonly float FaceDistanceThresh = 100f; // in mm.
     /// <summary>
     /// Head center in the depth image.
     /// </summary>
-    DepthImagePoint center;
+    public DepthImagePoint Center { get; private set; }
 
-    float radius;
+    public float Radius { get; private set; }
 
     /// <summary>
     /// 
@@ -24,8 +24,8 @@ namespace HandInput.Util {
     /// <param name="center">Head center in the depth image.</param>
     /// <param name="radius">Head radius in the depth image.</param>
     public FaceModel(DepthImagePoint center, float radius) {
-      this.center = center;
-      this.radius = radius;
+      this.Center = center;
+      this.Radius = radius;
     }
 
     /// <summary>
@@ -36,8 +36,8 @@ namespace HandInput.Util {
     /// <param name="distance">Distance in mm.</param>
     /// <returns></returns>
     public bool IsPartOfFace(int x, int y, float distance) {
-      var d2 = (x - center.X) * (x - center.X) + (y - center.Y) * (y - center.Y);
-      return d2 < radius * radius && Math.Abs(distance - center.Depth) < FaceDistanceThresh;
+      var d2 = (x - Center.X) * (x - Center.X) + (y - Center.Y) * (y - Center.Y);
+      return d2 < Radius * Radius && Math.Abs(distance - Center.Depth) < FaceDistanceThresh;
     }
   }
 }

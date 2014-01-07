@@ -79,7 +79,7 @@ namespace HandInput.Engine {
 
       HandRect = ComputeInitialRect(z);
 
-      playerDetector.FilterPlayer(depthFrame, cf, skeleton);
+      playerDetector.FilterPlayer(depthFrame, cf);
       var depthImage = playerDetector.DepthImage;
       CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5, 0, 0);
 

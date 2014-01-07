@@ -41,9 +41,10 @@ namespace HandInput.Engine {
     public Image<Gray, Byte> DiffMask0 { get; private set; }
     public Image<Gray, Byte> SkinImage {
       get {
-        return playerDetector.Skin;
+        return playerDetector.SkinImage;
       }
     }
+    public FaceModel FaceModel { get; private set; }
 
     float[] diffCumulativeDist, depthCumulativeDist;
     PlayerDetector playerDetector;
@@ -91,7 +92,7 @@ namespace HandInput.Engine {
       if (skeleton == null || depthFrame == null)
         return new TrackingResult();
 
-      playerDetector.FilterPlayerContourSkin(depthFrame, colorFrame, skeleton);
+      playerDetector.FilterPlayerContourSkin(depthFrame, colorFrame);
       var depthImage = playerDetector.DepthImage;
       // Median smoothing cannot be in place.
       CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5,
@@ -127,8 +128,7 @@ namespace HandInput.Engine {
                 probData[i, j, 0] = diffCumulativeDist[diffBin] * depthCumulativeDist[depthBin];
               }
             }
-          var skeHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
-          PrevBoundingBox = FindBestBoundingBox(skeHandJoint);
+          PrevBoundingBox = FindBestBoundingBox(depthFrame, skeleton);
           if (PrevBoundingBox.IsSome && PrevBoundingBox.Value.Width > 0)
             relPos = new Some<Vector3D>(SkeletonUtil.RelativePosToShoulder(PrevBoundingBox.Value,
                 SmoothedDepth.Data, width, height, skeleton, mapper));
@@ -196,7 +196,7 @@ namespace HandInput.Engine {
     /// If no bounding box is found, returns the last bounding box.
     /// </summary>
     /// <returns></returns>
-    Option<Rectangle> FindBestBoundingBox(Joint hand) {
+    Option<Rectangle> FindBestBoundingBox(short[] depthFrame, Skeleton skeleton) {
       CvInvoke.cvConvert(SaliencyProb.Ptr, TempMask.Ptr);
       // Non-zero pixels are treated as 1s. Source image content is modifield.
       CvInvoke.cvFindContours(TempMask.Ptr, storage, ref contourPtr, StructSize.MCvContour,
@@ -208,16 +208,23 @@ namespace HandInput.Engine {
       Option<Rectangle> bestBoundingBox = PrevBoundingBox;
 
       float z = DefaultZDist;
+      var hand = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
       if (hand != null)
         z = hand.Position.Z;
       double perimThresh = DepthUtil.GetDepthImageLength(width, HandWidth, z) * 2;
 
+      FaceModel = SkeletonUtil.GetFaceModel(skeleton, mapper);
+      
       for (; contour != null && contour.Ptr.ToInt32() != 0; contour = contour.HNext) {
         var perim = CvInvoke.cvContourPerimeter(contour.Ptr);
         if (perim > perimThresh) {
           var rect = contour.BoundingRectangle;
           var score = ContourScore(rect);
-          if (score > bestScore) {
+          var center = rect.Center();
+          int x = (int)center.X;
+          int y = (int)center.Y;
+          var depth = DepthUtil.RawToDepth(depthFrame[y * width + x]);
+          if (!FaceModel.IsPartOfFace(x, y, depth) && score > bestScore) {
             bestScore = score;
             bestContour = contour;
           }
@@ -287,15 +294,12 @@ namespace HandInput.Engine {
 
     private float ContourScore(Rectangle rect) {
       float sum = 0;
-      float depthSum = 0;
       int count = 0;
       var data = SaliencyProb.Data;
-      var depthData = SmoothedDepth.Data;
       for (int y = rect.Top; y < rect.Top + rect.Height; y++)
         for (int x = rect.Left; x < rect.Left + rect.Width; x++) {
           if (y >= 0 && y < height && x >= 0 && x < width) {
             sum += data[y, x, 0];
-            depthSum += depthData[y, x, 0];
             count++;
           }
         }

@@ -39,14 +39,12 @@ namespace HandInput.Util {
     /// <param name="strokeThickness"></param>
     /// <param name="diameter"></param>
     /// <returns></returns>
-    public static Ellipse DrawPoint(Canvas canvas, Point point, Brush s, int strokeThickness,
-                                    int diameter) {
+    public static Ellipse DrawCircle(Canvas canvas, Point point, Brush s, int strokeThickness,
+                                     int diameter, bool fill = true) {
       var planeBoundary = new Ellipse();
-      // Describes the brush's color using RGB values. 
-      // Each value has a range of 0-255.
 
-
-      planeBoundary.Fill = s;
+      if (fill)
+        planeBoundary.Fill = s;
       planeBoundary.StrokeThickness = strokeThickness;
       planeBoundary.Stroke = s;
 
