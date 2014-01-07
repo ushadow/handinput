@@ -144,7 +144,8 @@ namespace HandInput.Util {
       return new drawing.PointF(point.X, size.Height - point.Y);
     }
 
-    public static void CreateMask(Single[, ,] orig, Byte[] mask, int width, bool transparent = true) {
+    public static void CreateMask(Single[, ,] orig, Byte[] mask, int width, 
+        bool transparent = true) {
       var height = orig.Length / width;
 
       Array.Clear(mask, 0, mask.Length);

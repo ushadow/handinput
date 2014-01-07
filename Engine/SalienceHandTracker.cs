@@ -29,10 +29,11 @@ namespace HandInput.Engine {
     static readonly StructuringElementEx StructuringElement = new StructuringElementEx(3, 3, 1, 1,
        Emgu.CV.CvEnum.CV_ELEMENT_SHAPE.CV_SHAPE_RECT);
     static readonly int CamShiftIter = 2;
+    static readonly int NumTrackedHands = 2;
 
     public Image<Gray, Single> SaliencyProb { get; private set; }
     public Image<Gray, Byte> TempMask { get; private set; }
-    public Option<Rectangle> PrevBoundingBox { get; private set; }
+    public List<Rectangle> PrevBoundingBoxes { get; private set; }
     // Smoothed player depth image.
     public Image<Gray, Byte> SmoothedDepth { get; private set; }
     public Image<Gray, Single> TemporalSmoothed { get; private set; }
@@ -56,6 +57,7 @@ namespace HandInput.Engine {
     MCvBox2D shiftedBox = new MCvBox2D();
     CoordinateConverter mapper;
     MHandTracker handTracker;
+    Image<Gray, Byte> prevSmoothedDepth;
 
     /// <summary>
     /// Creates a detector based on salience.
@@ -99,7 +101,7 @@ namespace HandInput.Engine {
                         0, 0);
 
       if (t > 1) {
-        CvInvoke.cvAbsDiff(SmoothedDepth.Ptr, Diff0.Ptr, Diff0.Ptr);
+        CvInvoke.cvAbsDiff(SmoothedDepth.Ptr, prevSmoothedDepth.Ptr, Diff0.Ptr);
         //CvInvoke.cvErode(Diff0.Ptr, Diff0.Ptr, StructuringElement.Ptr, 1);
         DiffMask0.CopyTo(DiffMask1);
         CvInvoke.cvThreshold(Diff0.Ptr, DiffMask0.Ptr, 2, 255, THRESH.CV_THRESH_BINARY);
@@ -118,8 +120,6 @@ namespace HandInput.Engine {
           var diffData = Diff0.Data;
           var depthData = SmoothedDepth.Data;
           var probData = SaliencyProb.Data;
-          var skinMaskData = playerDetector.DepthSkinMask.Data;
-          var playerMaskData = playerDetector.PlayerMask.Data;
           for (int i = 0; i < DiffMask1.Height; i++)
             for (int j = 0; j < DiffMask1.Width; j++) {
               if (diffMaskData[i, j, 0] > 0) {
@@ -128,19 +128,19 @@ namespace HandInput.Engine {
                 probData[i, j, 0] = diffCumulativeDist[diffBin] * depthCumulativeDist[depthBin];
               }
             }
-          PrevBoundingBox = FindBestBoundingBox(depthFrame, skeleton);
-          if (PrevBoundingBox.IsSome && PrevBoundingBox.Value.Width > 0)
-            relPos = new Some<Vector3D>(SkeletonUtil.RelativePosToShoulder(PrevBoundingBox.Value,
+          PrevBoundingBoxes = FindBestBoundingBox(depthFrame, skeleton);
+          if (PrevBoundingBoxes.LastOrDefault().Width > 0)
+            relPos = new Some<Vector3D>(SkeletonUtil.RelativePosToShoulder(PrevBoundingBoxes.Last(),
                 SmoothedDepth.Data, width, height, skeleton, mapper));
         }
       }
-      SmoothedDepth.CopyTo(Diff0);
-      Option<Rectangle> colorBoundingBox = new None<Rectangle>();
-      if (PrevBoundingBox.IsSome) {
-        var colorBox = playerDetector.SmoothSkin(PrevBoundingBox.Value, depthFrame);
-        colorBoundingBox = new Some<Rectangle>(colorBox);
+      SmoothedDepth.CopyTo(prevSmoothedDepth);
+      List<Rectangle> colorBBs = new List<Rectangle>();
+      foreach (var bb in PrevBoundingBoxes) {
+        var colorBox = playerDetector.SmoothSkin(bb, depthFrame);
+        colorBBs.Add(colorBox);
       }
-      return new TrackingResult(relPos, SmoothedDepth, PrevBoundingBox, SkinImage, colorBoundingBox);
+      return new TrackingResult(relPos, SmoothedDepth, PrevBoundingBoxes, SkinImage, colorBBs);
     }
 
     void Init(int width, int height) {
@@ -155,13 +155,14 @@ namespace HandInput.Engine {
       SaliencyProb = new Image<Gray, Single>(width, height);
       Diff0 = new Image<Gray, Byte>(width, height);
       SmoothedDepth = new Image<Gray, Byte>(width, height);
+      prevSmoothedDepth = new Image<Gray, Byte>(width, height);
       TempMask = new Image<Gray, Byte>(width, height);
       TemporalSmoothed = new Image<Gray, Single>(width, height);
 
       diffCumulativeDist = new float[NumBin];
       depthCumulativeDist = new float[NumBin];
       playerDetector = new PlayerDetector(width, height, mapper);
-      PrevBoundingBox = new None<Rectangle>();
+      PrevBoundingBoxes = new List<Rectangle>();
     }
 
     /// <summary>
@@ -196,16 +197,15 @@ namespace HandInput.Engine {
     /// If no bounding box is found, returns the last bounding box.
     /// </summary>
     /// <returns></returns>
-    Option<Rectangle> FindBestBoundingBox(short[] depthFrame, Skeleton skeleton) {
+    List<Rectangle> FindBestBoundingBox(short[] depthFrame, Skeleton skeleton) {
       CvInvoke.cvConvert(SaliencyProb.Ptr, TempMask.Ptr);
       // Non-zero pixels are treated as 1s. Source image content is modifield.
       CvInvoke.cvFindContours(TempMask.Ptr, storage, ref contourPtr, StructSize.MCvContour,
         RETR_TYPE.CV_RETR_EXTERNAL, CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE, new Point(0, 0));
       var contour = new Seq<Point>(contourPtr, null);
 
-      float bestScore = 0;
-      Seq<Point> bestContour = null;
-      Option<Rectangle> bestBoundingBox = PrevBoundingBox;
+      SortedList<float, Seq<Point>> bestContours = new SortedList<float, Seq<Point>>();
+      List<Rectangle> bestBoundingBoxes = PrevBoundingBoxes;
 
       float z = DefaultZDist;
       var hand = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
@@ -214,7 +214,7 @@ namespace HandInput.Engine {
       double perimThresh = DepthUtil.GetDepthImageLength(width, HandWidth, z) * 2;
 
       FaceModel = SkeletonUtil.GetFaceModel(skeleton, mapper);
-      
+
       for (; contour != null && contour.Ptr.ToInt32() != 0; contour = contour.HNext) {
         var perim = CvInvoke.cvContourPerimeter(contour.Ptr);
         if (perim > perimThresh) {
@@ -224,46 +224,52 @@ namespace HandInput.Engine {
           int x = (int)center.X;
           int y = (int)center.Y;
           var depth = DepthUtil.RawToDepth(depthFrame[y * width + x]);
-          if (!FaceModel.IsPartOfFace(x, y, depth) && score > bestScore) {
-            bestScore = score;
-            bestContour = contour;
+          if (!FaceModel.IsPartOfFace(x, y, depth) &&
+              (bestContours.Count < NumTrackedHands || score > bestContours.ElementAt(0).Key)) {
+            bestContours.Add(score, contour);
+            if (bestContours.Count > NumTrackedHands)
+              bestContours.RemoveAt(0);
           }
         }
       }
 
-      if (bestContour != null) {
-        var rect = bestContour.BoundingRectangle;
-        CvInvoke.cvCamShift(SmoothedDepth.Ptr, rect, new MCvTermCriteria(CamShiftIter),
-            out connectedComp, out shiftedBox);
-        bestBoundingBox = new Some<Rectangle>(shiftedBox.MinAreaRect());
-      }
-
-      if (bestBoundingBox.IsSome && bestBoundingBox.Value.Width > 0) {
+      if (bestContours.Count > 0) {
+        bestBoundingBoxes.Clear();
         SmoothedDepth.CopyTo(TempMask);
-        TempMask.ROI = bestBoundingBox.Value;
-        CvInvoke.cvFindContours(TempMask.Ptr, storage, ref contourPtr, StructSize.MCvContour,
-            RETR_TYPE.CV_RETR_EXTERNAL, CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE,
-            new Point(0, 0));
-        contour = new Seq<Point>(contourPtr, null);
+        foreach (var c in bestContours.Values) {
+          var rect = c.BoundingRectangle;
+          CvInvoke.cvCamShift(SmoothedDepth.Ptr, rect, new MCvTermCriteria(CamShiftIter),
+              out connectedComp, out shiftedBox);
+          var bestBoundingBox = shiftedBox.MinAreaRect();
+          bestBoundingBoxes.Add(bestBoundingBox);
+          if (bestBoundingBox.Width > 0) {
+            TempMask.ROI = bestBoundingBox;
+            CvInvoke.cvFindContours(TempMask.Ptr, storage, ref contourPtr, StructSize.MCvContour,
+                RETR_TYPE.CV_RETR_EXTERNAL, CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE,
+                new Point(0, 0));
+            contour = new Seq<Point>(contourPtr, null);
 
-        Seq<Point> largestContour = null;
-        var maxPerim = perimThresh;
-        for (; contour != null && contour.Ptr.ToInt32() != 0; contour = contour.HNext) {
-          var perim = CvInvoke.cvContourPerimeter(contour.Ptr);
-          if (perim > maxPerim) {
-            maxPerim = perim;
-            largestContour = contour;
+            Seq<Point> largestContour = null;
+            var maxPerim = perimThresh;
+            for (; contour != null && contour.Ptr.ToInt32() != 0; contour = contour.HNext) {
+              var perim = CvInvoke.cvContourPerimeter(contour.Ptr);
+              if (perim > maxPerim) {
+                maxPerim = perim;
+                largestContour = contour;
+              }
+            }
+
+            CvInvoke.cvZero(TempMask.Ptr);
+            if (largestContour != null)
+              TempMask.Draw(largestContour, new Gray(255), -1);
+            FilterImage(SmoothedDepth, TempMask);
+            TempMask.ROI = Rectangle.Empty;
           }
-        }
 
-        CvInvoke.cvZero(TempMask.Ptr);
-        if (largestContour != null)
-          TempMask.Draw(largestContour, new Gray(255), -1);
-        FilterImage(SmoothedDepth, TempMask);
-        TempMask.ROI = new Rectangle(0, 0, width, height);
+        }
       }
 
-      return bestBoundingBox;
+      return bestBoundingBoxes;
     }
 
     private void FilterImage(Image<Gray, Byte> image, Image<Gray, Byte> mask) {

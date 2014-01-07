@@ -24,12 +24,12 @@ namespace HandInput.Engine {
 
     public int Update(TrackingResult result, bool visualize = false) {
       int gesture = 0;
-      if (result.RelPos.IsSome && result.DepthBoundingBox.IsSome) {
+      if (result.RelPos.IsSome && result.DepthBoundingBoxes.Count > 0) {
         var pos = result.RelPos.Value;
         var image = result.SmoothedDepth;
         var skin = result.ColorImage;
-        image.ROI = result.DepthBoundingBox.Value;
-        skin.ROI = result.DepthBoundingBox.Value;
+        image.ROI = result.DepthBoundingBoxes.Last();
+        skin.ROI = result.DepthBoundingBoxes.Last();
         gesture = processor.Update((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr, 
                                     skin.Ptr, visualize);
         image.ROI = Rectangle.Empty;

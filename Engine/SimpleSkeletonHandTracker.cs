@@ -75,10 +75,12 @@ namespace HandInput.Engine {
 
         var relPos = SkeletonUtil.RelativePosToShoulder(HandRect, SmoothedDepth.Data, width, 
             height, skeleton, mapper);
+        var depthBBs = new List<Rectangle>();
+        depthBBs.Add(HandRect);
+        var colorBBS = new List<Rectangle>();
+        colorBBS.Add(mapper.MapDepthRectToColorRect(HandRect, depthFrame, width, height));
         return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth, 
-                                  new Some<Rectangle>(HandRect), playerDetector.SkinImage,
-                                  new Some<Rectangle>(mapper.MapDepthRectToColorRect(HandRect,
-                                    depthFrame, width, height)));
+                                  depthBBs, playerDetector.SkinImage, colorBBS);
       }
       return new TrackingResult();
     }

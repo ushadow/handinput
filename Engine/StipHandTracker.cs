@@ -85,8 +85,9 @@ namespace HandInput.Engine {
 
       FindBestBoundingBox(HandRect);
 
-      return new TrackingResult(new None<Vector3D>(), SmoothedDepth, 
-                                new Some<Rectangle>(HandRect));
+      var depthBBs = new List<Rectangle>();
+      depthBBs.Add(HandRect);
+      return new TrackingResult(new None<Vector3D>(), SmoothedDepth, depthBBs);
     }
 
     void Init(int width, int height) {
