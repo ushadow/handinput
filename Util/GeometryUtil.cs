@@ -38,13 +38,19 @@ namespace HandInput.Util {
     }
 
     public static Point Midpoint(Point p1, Point p2) {
-      return new Point(p1.X + (p2.X - p1.X) / 2,
-                       p1.Y + (p2.Y - p1.Y) / 2);
+      return new Point((p1.X + p2.X) / 2, (p1.Y + p2.Y) / 2);
     }
 
     public static PointF Midpoint(PointF p1, PointF p2) {
-      return new PointF(p1.X + (p2.X - p1.X) / 2,
-                       p1.Y + (p2.Y - p1.Y) / 2);
+      return new PointF((p1.X + p2.X) / 2, (p1.Y + p2.Y) / 2);
+    }
+
+    public static DepthImagePoint Midpoint(DepthImagePoint p1, DepthImagePoint p2) {
+      return new DepthImagePoint {
+        X = (p1.X + p2.X) / 2,
+        Y = (p1.Y + p2.Y) / 2,
+        Depth = (p1.Depth + p2.Depth) / 2
+      };
     }
 
     public static double Distance2(double x1, double y1, double x2, double y2) {

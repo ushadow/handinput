@@ -55,11 +55,6 @@ namespace HandInput.GesturesViewer {
       handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth, 
           HandInputParams.DepthHeight, replay.KinectParams);
       recogEngine = new RecognitionEngine(ModelFile);
-      faceTracker = new kinect.FaceTracker(HandInputParams.ColorImageFormat,
-          HandInputParams.ColorWidth, HandInputParams.ColorHeight,
-          replay.ColorNominalFocalLengthInPixels, HandInputParams.DepthImageFormat,
-          HandInputParams.DepthWidth, HandInputParams.DepthHeight, 
-          replay.DepthNominalFocalLengthInPixels, new CoordinateMapper(replay.KinectParams));
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
       timer.Tick += new EventHandler(OnTimerTick);

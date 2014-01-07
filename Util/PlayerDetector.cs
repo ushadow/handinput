@@ -131,13 +131,17 @@ namespace HandInput.Util {
       CvInvoke.cvZero(PlayerMask.Ptr);
       var data = PlayerMask.Data;
 
+      FaceModel face = SkeletonUtil.GetFaceModel(skeleton, mapper);
       for (int r = 0; r < height; r++)
         for (int c = 0; c < width; c++) {
           var index = r * width + c;
           short pixel = depthFrame[index];
-          int playerIndex = DepthUtil.RawToPlayerIndex(pixel);
-          if (playerIndex > 0)
-            data[r, c, 0] = 255;
+          int depth = DepthUtil.RawToDepth(pixel);
+          if (face.IsPartOfFace(c, r, depth)) {
+            int playerIndex = DepthUtil.RawToPlayerIndex(pixel);
+            if (playerIndex > 0)
+              data[r, c, 0] = 255;
+          }
         }
 
       CvInvoke.cvMorphologyEx(PlayerMask.Ptr, PlayerMask.Ptr,

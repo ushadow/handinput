@@ -109,23 +109,6 @@ namespace Microsoft.Kinect.Toolkit.FaceTracking {
       this.Initialize(newColorCameraConfig, newDepthCameraConfig, IntPtr.Zero, IntPtr.Zero, this.DepthToColorCallback);
     }
 
-    public FaceTracker(ColorImageFormat colorFormat, int colorFrameWidth, int colorFrameHeight, 
-        float colorFocalLength, DepthImageFormat depthFormat, int depthFrameWidth, 
-        int depthFrameHeight, float depthFocalLength, CoordinateMapper mapper) {
-      this.operationMode = OperationMode.Kinect;
-      this.coordinateMapper = mapper;
-      this.initializationColorImageFormat = colorFormat;
-      this.initializationDepthImageFormat = depthFormat;
-
-      var newColorCameraConfig = new CameraConfig(
-          (uint)colorFrameWidth, (uint)colorFrameHeight, colorFocalLength,
-          FaceTrackingImageFormat.FTIMAGEFORMAT_UINT8_B8G8R8X8);
-      var newDepthCameraConfig = new CameraConfig(
-          (uint)depthFrameWidth, (uint)depthFrameHeight, depthFocalLength,
-          FaceTrackingImageFormat.FTIMAGEFORMAT_UINT16_D13P3);
-      this.Initialize(newColorCameraConfig, newDepthCameraConfig, IntPtr.Zero, IntPtr.Zero, 
-          this.DepthToColorCallback);
-     }
     /// <summary>
     /// Finalizes an instance of the FaceTracker class
     /// </summary>
