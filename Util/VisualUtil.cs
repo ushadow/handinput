@@ -58,6 +58,14 @@ namespace HandInput.Util {
       return planeBoundary;
     }
 
+    /// <summary>
+    /// Creates a new rectangle on canvas.
+    /// </summary>
+    /// <param name="canvas"></param>
+    /// <param name="topLeft"></param>
+    /// <param name="size"></param>
+    /// <param name="s"></param>
+    /// <returns></returns>
     public static Rectangle DrawRectangle(Canvas canvas, Point topLeft, Size size, Brush s) {
       var rect = new Rectangle();
       rect.Stroke = s;

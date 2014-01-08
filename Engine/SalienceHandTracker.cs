@@ -133,6 +133,7 @@ namespace HandInput.Engine {
       List<Rectangle> colorBBs = new List<Rectangle>();
       foreach (var bb in PrevBoundingBoxes) {
         var colorBox = mapper.MapDepthRectToColorRect(bb, depthFrame, width, height);
+        playerDetector.SmoothSkin(colorBox);
         colorBBs.Add(colorBox);
       }
       return new TrackingResult(relPos, SmoothedDepth, PrevBoundingBoxes, playerDetector.SkinImage,
@@ -201,7 +202,7 @@ namespace HandInput.Engine {
       var contour = new Seq<Point>(contourPtr, null);
 
       SortedList<float, Seq<Point>> bestContours = new SortedList<float, Seq<Point>>();
-      List<Rectangle> bestBoundingBoxes = PrevBoundingBoxes;
+      List<Rectangle> bestBoundingBoxes = new List<Rectangle>();
 
       float z = DefaultZDist;
       var hand = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
@@ -230,7 +231,6 @@ namespace HandInput.Engine {
       }
 
       if (bestContours.Count > 0) {
-        bestBoundingBoxes.Clear();
         SmoothedDepth.CopyTo(TempMask);
         foreach (var c in bestContours.Values) {
           var rect = c.BoundingRectangle;

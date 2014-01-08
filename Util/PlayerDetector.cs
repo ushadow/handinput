@@ -80,6 +80,10 @@ namespace HandInput.Util {
       UpdatePlayerDepthImage(depthFrame, contour, DepthSkinMask.Data);
     }
 
+    public void SmoothSkin(Rectangle roi) {
+      skinDetector.Smooth(roi);
+    }
+
     /// <summary>
     /// Updates the player and skin masks without fitering out the player and the skin region.
     /// </summary>
