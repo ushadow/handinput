@@ -40,11 +40,6 @@ namespace HandInput.Engine {
     public Image<Gray, Byte> Diff0 { get; private set; }
     public Image<Gray, Byte> DiffMask1 { get; private set; }
     public Image<Gray, Byte> DiffMask0 { get; private set; }
-    public Image<Gray, Byte> SkinImage {
-      get {
-        return playerDetector.SkinImage;
-      }
-    }
     public FaceModel FaceModel { get; private set; }
 
     float[] diffCumulativeDist, depthCumulativeDist;
@@ -137,10 +132,11 @@ namespace HandInput.Engine {
       SmoothedDepth.CopyTo(prevSmoothedDepth);
       List<Rectangle> colorBBs = new List<Rectangle>();
       foreach (var bb in PrevBoundingBoxes) {
-        var colorBox = playerDetector.SmoothSkin(bb, depthFrame);
+        var colorBox = mapper.MapDepthRectToColorRect(bb, depthFrame, width, height);
         colorBBs.Add(colorBox);
       }
-      return new TrackingResult(relPos, SmoothedDepth, PrevBoundingBoxes, SkinImage, colorBBs);
+      return new TrackingResult(relPos, SmoothedDepth, PrevBoundingBoxes, playerDetector.SkinImage,
+                                colorBBs);
     }
 
     void Init(int width, int height) {

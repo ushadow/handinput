@@ -18,7 +18,7 @@ namespace HandInput.Engine {
     /// X axis is rightward, Y axis is upward, Z axis is away from the camera.
     /// </summary>
     public Option<Vector3D> RelPos { get; private set; }
-    public Image<Gray, Byte> SmoothedDepth { get; private set; }
+    public Image<Gray, Byte> DepthImage { get; private set; }
     // Can be null.
     public Image<Gray, Byte> ColorImage { get; private set; }
     public List<Rectangle> DepthBoundingBoxes { get; private set; }
@@ -33,9 +33,12 @@ namespace HandInput.Engine {
         List<Rectangle> depthBox, Image<Gray, Byte> skin = null, 
         List<Rectangle> colorBox = null) {
       RelPos = relPos;
-      SmoothedDepth = smoothedDepth;
+      DepthImage = smoothedDepth;
       DepthBoundingBoxes = depthBox;
       ColorImage = skin;
+
+      if (colorBox == null)
+        colorBox = new List<Rectangle>();
       ColorBoundingBoxes = colorBox;
     }
   }

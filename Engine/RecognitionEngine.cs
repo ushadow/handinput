@@ -26,7 +26,7 @@ namespace HandInput.Engine {
       int gesture = 0;
       if (result.RelPos.IsSome && result.DepthBoundingBoxes.Count > 0) {
         var pos = result.RelPos.Value;
-        var image = result.SmoothedDepth;
+        var image = result.DepthImage;
         var skin = result.ColorImage;
         image.ROI = result.DepthBoundingBoxes.Last();
         skin.ROI = result.DepthBoundingBoxes.Last();

@@ -10,7 +10,6 @@ private:
   static const int kLengthFeatures = 34; // lenngth of feature vector
   static const int kSizeNeighb = 125; // mask of 5x5x5 (vectorized)
 
-  CvMat* normvec;
   CvMat JetFilter;
 
   std::vector<double> SpatialMaskSeparable;

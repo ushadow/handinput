@@ -3,10 +3,9 @@
 #include "harrisbuffer_rt.h"
 #include "cvutil.h"
 
-HarrisBufferRt::HarrisBufferRt(double tau2):kparam(5e-4),sig2(8.0),tau2_(tau2),delay(0),SignificantPointThresh(1E-9),Border(5),patchsizefactor(9.0) {
+HarrisBufferRt::HarrisBufferRt(double tau2) : kparam(5e-4), sig2(8.0), tau2_(tau2), delay(0),
+      SignificantPointThresh(1E-9),Border(5),patchsizefactor(9.0) {
   iFrame=0;
-
-  normvec=NULL;
 
   tmp=NULL;
   tmp1=NULL;
@@ -39,10 +38,7 @@ HarrisBufferRt::HarrisBufferRt(double tau2):kparam(5e-4),sig2(8.0),tau2_(tau2),d
   descriptortype="of";
 }
 
-HarrisBufferRt::~HarrisBufferRt(void)
-{ 
-  if(normvec) cvReleaseMat(&normvec);
-
+HarrisBufferRt::~HarrisBufferRt(void) { 
   if(tmp)		cvReleaseImage(&tmp);
   if(tmp1)	cvReleaseImage(&tmp1);
   if(tmp2)	cvReleaseImage(&tmp2);
@@ -80,8 +76,7 @@ HarrisBufferRt::~HarrisBufferRt(void)
   if(opticalFlowNextFrame8u) cvReleaseImage(&opticalFlowNextFrame8u);
 }
 
-bool HarrisBufferRt::Init(IplImage* firstfrm,std::string fname)
-{
+bool HarrisBufferRt::Init(IplImage* firstfrm,std::string fname) {
   SpatialMaskSeparable=CVUtil::GaussianMask1D(sig2);
 
   TemporalMask1.push_back(1.0 / 3);
@@ -143,49 +138,6 @@ bool HarrisBufferRt::Init(IplImage* firstfrm,std::string fname)
   Lt = cvCreateImage(cvGetSize(firstfrm),IMGTYPE ,1);
   Lx = cvCreateImage(cvGetSize(firstfrm),IMGTYPE ,1);
   Ly = cvCreateImage(cvGetSize(firstfrm),IMGTYPE ,1);
-
-  //Initilizing normalization vector for JET features
-  normvec= cvCreateMat(kLengthFeatures, 1, CV_64F );
-  double sx1=sqrt(sig2);
-  double st1=sqrt(tau2_);
-  double sx2=sx1*sx1, sx3=sx1*sx2, sx4=sx1*sx3;
-  double st2=st1*st1, st3=st1*st2, st4=st1*st3;
-  double* data=(double*) normvec->data.ptr;
-
-  data[0]= sx1;
-  data[1]= sx1;
-  data[2]= st1;
-  data[3]= sx2;
-  data[4]= sx2;
-  data[5]= sx2;
-  data[6]= sx1*st1;
-  data[7]= sx1*st1;
-  data[8]= st2;
-  data[9]= sx3;
-  data[10]= sx3;
-  data[11]= sx3;
-  data[12]= sx3;
-  data[13]= sx2*st1;
-  data[14]= sx2*st1;
-  data[15]= sx2*st1;
-  data[16]= sx1*st2;
-  data[17]= sx1*st2;
-  data[18]= st3;
-  data[19]= sx4;
-  data[20]= sx4;
-  data[21]= sx4;
-  data[22]= sx4;
-  data[23]= sx4;
-  data[24]= sx3*st1;
-  data[25]= sx3*st1;
-  data[26]= sx3*st1;
-  data[27]= sx3*st1;
-  data[28]= sx2*st2;
-  data[29]= sx2*st2;
-  data[30]= sx2*st2;
-  data[31]= sx1*st3;
-  data[32]= sx1*st3;
-  data[33]= st4;
 
   return true;
 }
@@ -312,8 +264,7 @@ IplImage* HarrisBufferRt::getHBufferImage(int type) {
   return vis;
 }
 
-void HarrisBufferRt::WriteFeatures(InterestPoint &ip)
-{
+void HarrisBufferRt::WriteFeatures(InterestPoint &ip) {
   assert(ip.features);
   double *data=(double*)ip.features->data.ptr;
   FeatureFile<<ip.x<<"\t"<<ip.y<<"\t"<<ip.t<<"\t"<<ip.val<<"\t";

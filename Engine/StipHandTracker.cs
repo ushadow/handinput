@@ -56,7 +56,7 @@ namespace HandInput.Engine {
     public TrackingResult Update(short[] depthFrame, byte[] cf, Skeleton skeleton) {
       InterestPoints.Clear();
 
-      ConvertDepthImage(depthFrame);
+      ConvertColorImage(cf);
       if (!initialized) {
         buffer.Init(smallGray.Ptr);
         initialized = true;
@@ -87,7 +87,9 @@ namespace HandInput.Engine {
 
       var depthBBs = new List<Rectangle>();
       depthBBs.Add(HandRect);
-      return new TrackingResult(new None<Vector3D>(), SmoothedDepth, depthBBs);
+      var colorBBs = new List<Rectangle>();
+      colorBBs.Add(HandRect);
+      return new TrackingResult(new None<Vector3D>(), SmoothedDepth, depthBBs, null, colorBBs);
     }
 
     void Init(int width, int height) {

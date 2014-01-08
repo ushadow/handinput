@@ -46,7 +46,7 @@ namespace HandInput.Engine {
       Single[] feature = null;
       if (result.RelPos.IsSome && result.DepthBoundingBoxes.Count > 0) {
         var pos = result.RelPos.Value;
-        var ptr = ComputeFeature(pos, result.SmoothedDepth, result.DepthBoundingBoxes.Last());
+        var ptr = ComputeFeature(pos, result.DepthImage, result.DepthBoundingBoxes.Last());
         if (!ptr.Equals(IntPtr.Zero)) {
           feature = new Single[FeatureLength];
           Marshal.Copy(ptr, feature, 0, FeatureLength);
