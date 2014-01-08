@@ -8,10 +8,10 @@ using System.Threading;
 using System.Windows.Media;
 using System.Configuration;
 using System.Windows.Threading;
+using System.Linq;
 using drawing = System.Drawing;
 
 using Microsoft.Kinect;
-using kinect = Microsoft.Kinect.Toolkit.FaceTracking;
 
 using Kinect.Toolbox;
 using Kinect.Toolbox.Record;
@@ -55,8 +55,6 @@ namespace HandInput.GesturesViewer {
     IHandTracker handTracker;
     RecognitionEngine recogEngine;
     FPSCounter fpsCounter = new FPSCounter();
-
-    kinect.FaceTracker faceTracker;
 
     public MainWindow() {
       InitializeComponent();
@@ -191,8 +189,8 @@ namespace HandInput.GesturesViewer {
 
     void UpdateDisplay(TrackingResult result) {
       gesturesCanvas.Children.Clear();
-      if (result.DepthBoundingBox.IsSome) {
-        VisualUtil.DrawRectangle(gesturesCanvas, result.DepthBoundingBox.Value, Brushes.Red,
+      if (result.DepthBoundingBoxes.Count > 0) {
+        VisualUtil.DrawRectangle(gesturesCanvas, result.DepthBoundingBoxes.Last(), Brushes.Red,
             (float) gesturesCanvas.ActualWidth / HandInputParams.ColorWidth);
       }
       if (handTracker != null) {
@@ -205,8 +203,8 @@ namespace HandInput.GesturesViewer {
         }
       }
       if (displayDebug) {
-        if (displayOption == DisplayOption.DEPTH && result.SmoothedDepth != null)
-          debugDisplayManager.UpdateBitmap(result.SmoothedDepth.Bytes);
+        if (displayOption == DisplayOption.DEPTH && result.DepthImage != null)
+          debugDisplayManager.UpdateBitmap(result.DepthImage.Bytes);
         if (displayOption == DisplayOption.COLOR && result.ColorImage != null)
           debugDisplayManager.UpdateBitmap(result.ColorImage.Bytes);
       }
@@ -221,15 +219,15 @@ namespace HandInput.GesturesViewer {
     void UpdateStipHandTrackerDisplay() {
       StipHandTracker sht = (StipHandTracker)handTracker;
       foreach (drawing.Point p in sht.InterestPoints) {
-        VisualUtil.DrawPoint(gesturesCanvas, new Point(p.X, p.Y), Brushes.Red, 1, 5);
+        VisualUtil.DrawCircle(gesturesCanvas, new Point(p.X, p.Y), Brushes.Red, 1, 5);
       }
     }
 
     void UpdateSalienceHandTrackerDisplay() {
       SalienceHandTracker sht = (SalienceHandTracker)handTracker;
-      var bb = sht.PrevBoundingBox;
-      if (bb.IsSome && bb.Value.Width > 0) {
-        VisualUtil.DrawRectangle(gesturesCanvas, bb.Value, Brushes.Red);
+      var bb = sht.PrevBoundingBoxes;
+      if (bb.Count > 0) {
+        VisualUtil.DrawRectangle(gesturesCanvas, bb.Last(), Brushes.Red);
       }
       var converted = sht.TemporalSmoothed.ConvertScale<Byte>(255, 0);
       debugDisplayManager.UpdateBitmap(converted.Bytes);
