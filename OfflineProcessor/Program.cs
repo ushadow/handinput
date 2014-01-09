@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.IO;
@@ -12,36 +10,56 @@ using NDesk.Options;
 
 using HandInput.Util;
 using HandInput.Engine;
+using Kinect.Toolbox.Record;
+using chairgest = Aramis.Packages.KinectSDK.Services.Recorder;
 
 namespace HandInput.OfflineProcessor {
   class Program {
-    private static readonly ILog Log = LogManager.GetCurrentClassLogger();
+    static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
-    private static readonly String KinectPattern = "KinectData_*.bin";
-    private static readonly String GTPattern = "{0}DataGTD_*.txt";
-    private static readonly String KinectRegex = @"KinectData_(\d+).bin";
-    private static readonly String GTRegex = @"{0}DataGTD_(\d+).txt";
-    private static readonly String PidRegex = @"PID-0*([1-9]+\d*)$";
-    private static readonly String IndexRegex = @"(\d+)-?(\d+)?";
-    private static readonly String Ext = "csv";
+    static readonly String KinectPattern = "KinectData_*.bin";
+    static readonly String GTPattern = "{0}DataGTD_*.txt";
+    static readonly String KinectRegex = @"KinectData_(\d+).bin";
+    static readonly String GTRegex = @"{0}DataGTD_(\d+).txt";
+    static readonly String PidRegex = @"PID-0*([1-9]+\d*)$";
+    static readonly String IndexRegex = @"(\d+)-?(\d+)?";
+    static readonly String Ext = "csv";
 
-    private static readonly Int32 StartPid = 1, NumPids = 50;
-    private static readonly Int32 StartBatch = 1, NumBatches = 30;
+    static readonly Int32 StartPid = 1, NumPids = 50;
+    static readonly Int32 StartBatch = 1, NumBatches = 30;
+
+    static readonly Dictionary<String, Type> Replayers = new Dictionary<String, Type>() {
+      {"chairgest", typeof(chairgest.KinectReplay)}, {"standing", typeof(KinectAllFramesReplay)}
+    };
+
+    static readonly Dictionary<String, Type> HandTrackers = new Dictionary<String,Type> {
+      {"salience", typeof(SalienceHandTracker)}, {"simple", typeof(SimpleSkeletonHandTracker)}
+    };
+
+    static readonly Dictionary<String, Type> FeatureProcessors = new Dictionary<String, Type> {
+      {"hog", typeof(HogFeatureProcessor)}, {"simple", typeof(FeatureProcessor)}
+    };
 
     /// <summary>
     /// Default options.
     /// </summary>
-    private static int nSession = 4;
-    private static int sampleRate = 1;
-    private static String type = "fe";
-    private static String sessionToProcess = null;
-    private static String featureType = "kinectxsens";
-    private static String gtSensor = "Kinect";
+    static int nSession = 4;
+    static float sampleRate = 1;
+    static String type = "fe";
+    static String sessionToProcess = null;
+    static String gtSensor = "Kinect";
+    static String dataName = "chairgest";
+    static String handTrackerName = "salience";
+    static String featureProcessorName = "simple";
 
-    private static ParallelProcessor pp = new ParallelProcessor();
-    private static Object readLock = new Object();
-    private static Object writeLock = new Object();
-    private static IEnumerable<Int32> pidList, batchList;
+    static ParallelProcessor pp = new ParallelProcessor();
+    static Object readLock = new Object();
+    static Object writeLock = new Object();
+    static IEnumerable<Int32> pidList, batchList;
+
+    static Type replayerType;
+    static Type handTrackerType;
+    static Type featureProcessorType;
 
     public static void Main(string[] args) {
       String inputFolder = null;
@@ -63,11 +81,19 @@ namespace HandInput.OfflineProcessor {
         { "s=", "{SESSION} name to be processed", v => sessionToProcess = v },
         { "ns=", "{NUMBER OF SESSIONS} to be processed. Default is 4.", 
             v => nSession = Int32.Parse(v) },
-        { "f=", "{FEATURE TYPE} to process", v => featureType = v},
         { "gs=", String.Format("{{SENSOR}} for ground truth. Default is {0}.", gtSensor), 
             v => gtSensor = v},
         { "sample=", String.Format("{{SAMPLE RATE}}. Default is {0}.", sampleRate), 
-            v => sampleRate = Int32.Parse(v) }
+            v => sampleRate = Single.Parse(v) },
+        { "data=", String.Format("{{DATA TYPE}}: {0}. Default is {1}.", 
+                                 ToString(Replayers.Keys), dataName),
+            v => dataName = v },
+        { "tracker=", String.Format("{{HAND TRACKER TYPE}}: {0}. Default is {1}.", 
+                                    ToString(HandTrackers.Keys), handTrackerName),
+            v => handTrackerName = v },
+        { "processor=", String.Format("{{FEATURE PROCESSOR TYPE}}: {0}. Default is {1}.", 
+                                      ToString(FeatureProcessors.Keys), featureProcessorName),
+            v => featureProcessorName = v }
       };
 
       try {
@@ -82,6 +108,8 @@ namespace HandInput.OfflineProcessor {
         return;
       }
 
+      ValidateOptions();
+
       var stopWatch = new Stopwatch();
       stopWatch.Start();
       ProcessPids(inputFolder, outputFolder);
@@ -91,7 +119,33 @@ namespace HandInput.OfflineProcessor {
       Log.InfoFormat("Run tinme = {0}", elapsedTime);
     }
 
-    private static IEnumerable<Int32> ParseIndex(String index) {
+    static void ValidateOptions() {
+      var found = Replayers.TryGetValue(dataName, out replayerType);
+      if (!found) {
+        ErrorExit("Invalid data type name.");
+      }
+
+      found = HandTrackers.TryGetValue(handTrackerName, out handTrackerType);
+      if (!found) {
+        ErrorExit("Invalid hand tracker name.");
+      }
+
+      found = FeatureProcessors.TryGetValue(featureProcessorName, out featureProcessorType);
+      if (!found) {
+        ErrorExit("Invalid feature processor name.");
+      }
+    }
+
+    static String ToString(IEnumerable<String> collection) {
+      return String.Join(",", collection);
+    }
+
+    static void ErrorExit(String message) {
+      Console.Error.WriteLine(message);
+      Environment.Exit(-1);
+    }
+
+    static IEnumerable<Int32> ParseIndex(String index) {
       var match = Regex.Match(index, IndexRegex);
 
       if (match.Success) {
@@ -176,7 +230,7 @@ namespace HandInput.OfflineProcessor {
             } else {
               var outFile = Path.Combine(outputSessionFolder, Path.ChangeExtension(name, Ext));
               OfflineProcessor proc = new OfflineProcessor(inFile, outFile, readLock, writeLock,
-                typeof(SimpleSkeletonHandTracker), typeof(FeatureProcessor), sampleRate);
+                  replayerType, handTrackerType, featureProcessorType, sampleRate, gtSensor);
               try {
                 pp.Spawn(proc.Process);
               } catch (Exception ex) {

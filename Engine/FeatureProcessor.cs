@@ -1,74 +1,62 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics;
-using System.Windows.Media.Media3D;
+using System.Text;
+using System.Threading.Tasks;
 using System.Drawing;
-
-using Microsoft.Kinect;
-
 using HandInput.Util;
 
-using Common.Logging;
-
-using Emgu.CV.GPU;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
 
-using handinput;
-using System.Runtime.InteropServices;
+using Common.Logging;
 
 namespace HandInput.Engine {
-  public class FeatureProcessor {
+  public class FeatureProcessor : IFeatureProcessor {
+    static readonly int FeatureImageWidth = 64;
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
-    public int FeatureLength { get; private set; }
-    public int DescriptorLength { get; private set; }
-    public bool Visualize { get; set; }
-
-    MFeatureProcessor featureProcessor = new MFeatureProcessor(HandInputParams.FeatureImageWidth,
-        HandInputParams.FeatureImageWidth);
-
-    public FeatureProcessor() {
-      DescriptorLength = featureProcessor.HOGLength();
-      FeatureLength = 3 * 3 + DescriptorLength;
-      Visualize = false;
+    public int MotionFeatureLength {
+      get {
+        return 3;
+      }
     }
 
+    public int DescriptorLength {
+      get {
+        return FeatureImageWidth * FeatureImageWidth * 2;
+      }
+    }
+
+    Image<Gray, Single> floatImage = new Image<Gray, Single>(FeatureImageWidth, FeatureImageWidth);
+
     /// <summary>
-    /// Computes the feature vector from the tracking result.
+    /// Creates a new feature array.
     /// </summary>
     /// <param name="result"></param>
-    /// <returns>An option of newly created Single array.</returns>
-    public Option<Single[]> Compute(TrackingResult result) {
-      Single[] feature = null;
-      if (result.RelPos.IsSome && result.DepthBoundingBoxes.Count > 0) {
-        var pos = result.RelPos.Value;
-        var ptr = ComputeFeature(pos, result.DepthImage, result.DepthBoundingBoxes.Last());
-        if (!ptr.Equals(IntPtr.Zero)) {
-          feature = new Single[FeatureLength];
-          Marshal.Copy(ptr, feature, 0, FeatureLength);
-          return new Some<Single[]>(feature);
-        }
+    /// <returns></returns>
+    public Option<Array> Compute(TrackingResult result) {
+      if (result.RelPos.IsSome) {
+        var feature = new float[MotionFeatureLength + DescriptorLength];
+        var relPos = result.RelPos.Value;
+        feature[0] = (float)relPos.X;
+        feature[1] = (float)relPos.Y;
+        feature[2] = (float)relPos.Z;
+        AddImageFeature(result.ColorImage, result.ColorBoundingBoxes.Last(), feature, 
+                        MotionFeatureLength);
+        AddImageFeature(result.DepthImage, result.DepthBoundingBoxes.Last(), feature,
+                        MotionFeatureLength + FeatureImageWidth * FeatureImageWidth);
+        return new Some<Array>(feature);
       }
-      return new None<Single[]>();
+      return new None<Array>();
     }
 
-    /// <summary>
-    /// Computes raw feature including both the motion features and the descriptor.
-    /// </summary>
-    /// <param name="pos"></param>
-    /// <param name="image"></param>
-    /// <param name="bb"></param>
-    /// <returns>A pointer to a Single array.</returns>
-    IntPtr ComputeFeature(Vector3D pos, Image<Gray, Byte> image, Rectangle bb) {
+    void AddImageFeature(Image<Gray, Byte> image, Rectangle bb, float[] dst, int dstIndex) {
       image.ROI = bb;
-      var ptr = featureProcessor.Compute((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr,
-                                          Visualize);
+      floatImage.ConvertFrom(image);
       image.ROI = Rectangle.Empty;
-      return ptr;
+      System.Buffer.BlockCopy(floatImage.Bytes, 0, dst, dstIndex * 4, floatImage.Bytes.Length);
     }
   }
 }

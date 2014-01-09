@@ -93,6 +93,7 @@
   <ItemGroup>
     <Compile Include="Background.cs" />
     <Compile Include="CoordinateConverter.cs" />
+    <Compile Include="DataBuffer.cs" />
     <Compile Include="DepthUtil.cs" />
     <Compile Include="FaceModel.cs" />
     <Compile Include="facetracking\EnumIndexableCollection.cs" />

@@ -12,29 +12,33 @@ using HandInput.Engine;
 using HandInput.Util;
 
 using Common.Logging;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace HandInput.OfflineProcessor {
   class OfflineProcessor {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
-    String inputFile, outputFile;
+    String inputFile, outputFile, gtSensor;
     Object readLock, writeLock;
-    KinectAllFramesReplay replayer;
-    Type featureProcessorType, handTrackerType;
-    IList<Single[]> featureList = new List<Single[]>();
+    dynamic replayer;
+    Type replayerType, featureProcessorType, handTrackerType;
+    IList<Array> featureList = new List<Array>();
     IList<Int32> frameList = new List<Int32>();
-    int sampleRate;
-    FeatureProcessor featureProcessor;
+    float sampleRate;
+    IFeatureProcessor featureProcessor;
 
     public OfflineProcessor(String inputFile, String outputFile, Object readLock,
-      Object writeLock, Type handTrackerType, Type featureProcessorType, int sampleRate) {
+      Object writeLock, Type replayerType, Type handTrackerType, Type featureProcessorType,
+      float sampleRate, String gtSensor) {
       this.inputFile = inputFile;
       this.outputFile = outputFile;
       this.readLock = readLock;
       this.writeLock = writeLock;
       this.handTrackerType = handTrackerType;
       this.featureProcessorType = featureProcessorType;
+      this.replayerType = replayerType;
       this.sampleRate = sampleRate;
+      this.gtSensor = gtSensor;
     }
 
     public void Process() {
@@ -49,22 +53,24 @@ namespace HandInput.OfflineProcessor {
       }
     }
 
-    private void ProcessFeature() {
+    void ProcessFeature() {
       IHandTracker handTracker = null;
       Int16[] depthPixelData = null;
       Byte[] colorPixelData = null;
 
       Log.DebugFormat("Start processing {0}...", inputFile);
-      for (int i = 0; i < replayer.FrameCount; i += sampleRate) {
-        var allFrames = replayer.FrameAt(i);
-        var depthFrame = allFrames.DepthImageFrame;
-        var colorFrame = allFrames.ColorImageFrame;
+      for (float i = 0; i < replayer.GetFramesCount(); i += sampleRate) {
+        int index = (int)Math.Round(i);
+        var skeletonFrame = replayer.GetSkeletonFrame(index);
+        var depthFrame = replayer.GetDepthFrame(index);
+        var colorFrame = replayer.GetColorFrame(index);
 
-        if (handTracker == null)
+        if (handTracker == null) {
           handTracker = (IHandTracker)Activator.CreateInstance(handTrackerType, new Object[] {
-            depthFrame.Width, depthFrame.Height, replayer.KinectParams});
+            depthFrame.Width, depthFrame.Height, GetKinectParams()});
+        }
         if (featureProcessor == null)
-          featureProcessor = (FeatureProcessor)Activator.CreateInstance(
+          featureProcessor = (IFeatureProcessor)Activator.CreateInstance(
               featureProcessorType);
         if (depthPixelData == null)
           depthPixelData = new Int16[depthFrame.PixelDataLength];
@@ -73,27 +79,31 @@ namespace HandInput.OfflineProcessor {
 
         depthFrame.CopyPixelDataTo(depthPixelData);
         colorFrame.CopyPixelDataTo(colorPixelData);
-        var skeleton = SkeletonUtil.FirstTrackedSkeleton(allFrames.SkeletonFrame.Skeletons);
+        var skeleton = SkeletonUtil.FirstTrackedSkeleton(skeletonFrame.Skeletons);
         var result = handTracker.Update(depthPixelData, colorPixelData, skeleton);
-        var feature = featureProcessor.Compute(result);
+        Option<Array> feature = featureProcessor.Compute(result);
         if (feature.IsSome) {
-          frameList.Add(allFrames.FrameNumber);
+          if (replayerType == typeof(KinectAllFramesReplay))
+            frameList.Add(depthFrame.FrameNumber);
+          else
+            frameList.Add(index);
           featureList.Add(feature.Value);
         }
       }
       Log.DebugFormat("Finished processing {0}.", inputFile);
     }
 
-    private void ReadFile() {
+    void ReadFile() {
       Log.DebugFormat("Reading file {0}...", inputFile);
       var recordStream = File.OpenRead(inputFile);
-      replayer = new KinectAllFramesReplay(recordStream);
+      replayer = Activator.CreateInstance(replayerType, new Object[] { recordStream });
     }
 
-    private void WriteToFile() {
+    void WriteToFile() {
       using (var file = new StreamWriter(File.Create(outputFile))) {
-        file.WriteLine("# frame_id, feature_length, {0}, descriptor_length, {1}, sample_rate, {2}", 
-            featureProcessor.FeatureLength, featureProcessor.DescriptorLength, sampleRate);
+        file.WriteLine("# frame_id, motion_feature_len, {0}, descriptor_len, {1}, " +
+            "sample_rate, {2}, gt_sensor, {3}", featureProcessor.MotionFeatureLength,
+            featureProcessor.DescriptorLength, sampleRate, gtSensor);
         for (int i = 0; i < frameList.Count; i++) {
           file.Write("{0},", frameList.ElementAt(i));
           Write(file, featureList.ElementAt(i));
@@ -102,11 +112,21 @@ namespace HandInput.OfflineProcessor {
       }
     }
 
-    private void Write(StreamWriter sw, Vector3D v) {
+    Byte[] GetKinectParams() {
+      if (replayerType == typeof(KinectAllFramesReplay))
+        return replayer.GetKinectParams();
+      var bf = new BinaryFormatter();
+      var stream = new MemoryStream(Properties.Resources.ColorToDepthRelationalParameters);
+      IEnumerable<byte> kinectParams = bf.Deserialize(stream) as IEnumerable<byte>;
+      stream.Close();
+      return kinectParams.ToArray<byte>();
+    }
+
+    void Write(StreamWriter sw, Vector3D v) {
       sw.Write("{0},{1},{2},", v.X, v.Y, v.Z);
     }
 
-    private void Write(StreamWriter sw, Array array) {
+    void Write(StreamWriter sw, Array array) {
       foreach (var e in array) {
         sw.Write("{0},", e);
       }
