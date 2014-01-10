@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 using Microsoft.Kinect;
 using System.Collections.ObjectModel;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace HandInput.Util {
   // Common parameters used by all modules.
@@ -24,5 +26,13 @@ namespace HandInput.Util {
     public static int FeatureImageWidth = 64;
     public static float ColorFocalLength = 531.15f;
     public static float DepthFocalLength = 571.26f;
+
+    public static byte[] GetKinectParams(byte[] bytes) {
+      var bf = new BinaryFormatter();
+      var stream = new MemoryStream(bytes);
+      IEnumerable<byte> kinectParams = bf.Deserialize(stream) as IEnumerable<byte>;
+      stream.Close();
+      return kinectParams.ToArray<byte>();
+    }
   }
 }

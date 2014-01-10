@@ -61,6 +61,7 @@ namespace HandInput.OfflineProcessor {
       Log.DebugFormat("Start processing {0}...", inputFile);
       for (float i = 0; i < replayer.GetFramesCount(); i += sampleRate) {
         int index = (int)Math.Round(i);
+        Log.DebugFormat("file: {0}, index: {1}", inputFile, index);
         var skeletonFrame = replayer.GetSkeletonFrame(index);
         var depthFrame = replayer.GetDepthFrame(index);
         var colorFrame = replayer.GetColorFrame(index);
@@ -112,14 +113,10 @@ namespace HandInput.OfflineProcessor {
       }
     }
 
-    Byte[] GetKinectParams() {
+    byte[] GetKinectParams() {
       if (replayerType == typeof(KinectAllFramesReplay))
         return replayer.GetKinectParams();
-      var bf = new BinaryFormatter();
-      var stream = new MemoryStream(Properties.Resources.ColorToDepthRelationalParameters);
-      IEnumerable<byte> kinectParams = bf.Deserialize(stream) as IEnumerable<byte>;
-      stream.Close();
-      return kinectParams.ToArray<byte>();
+      return HandInputParams.GetKinectParams(Properties.Resources.ColorToDepthRelationalParameters); 
     }
 
     void Write(StreamWriter sw, Vector3D v) {
