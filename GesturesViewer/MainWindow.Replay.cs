@@ -49,11 +49,11 @@ namespace HandInput.GesturesViewer {
     void Replay(Stream recordStream) {
       CancelTracking();
       replay = new KinectAllFramesReplay(recordStream);
-      frameSlider.Maximum = replay.FrameCount;
+      frameSlider.Maximum = replay.GetFramesCount();
       frameSlider.Value = 0;
 
       handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth, 
-          HandInputParams.DepthHeight, replay.KinectParams);
+          HandInputParams.DepthHeight, replay.GetKinectParams());
       recogEngine = new RecognitionEngine(ModelFile);
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));

@@ -2,7 +2,7 @@
  include headers or project specific include files that are used frequently, but
  are changed infrequently
 */
-
+#pragma once
 #define _HAS_ITERATOR_DEBUGGING 0
 
 #ifdef PROCESSOR_EXPORTS 
