@@ -70,7 +70,7 @@
     </Reference>
     <Reference Include="Microsoft.Kinect, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="NDesk.Options">
-      <HintPath>..\..\ChairGest_DataVisualizer\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
+      <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
