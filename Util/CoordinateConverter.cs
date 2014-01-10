@@ -72,20 +72,27 @@ namespace HandInput.Util {
 
     public Rectangle MapDepthRectToColorRect(Rectangle depthRect, short[] depthPixel, int width, 
         int height) {
-      var y = Clip(depthRect.Top, 0, height);
-      var x = Clip(depthRect.Left, 0, width);
+      var y = Clip(depthRect.Top, 0, height - 1);
+      var x = Clip(depthRect.Left, 0, width - 1);
       int depth = DepthUtil.RawToDepth(depthPixel[y * width + x]);
       var cpUpperLeft = MapDepthPointToColorPoint(depthRect.X, depthRect.Y, depth);
 
-      y = Clip(depthRect.Bottom, 0, height);
-      x = Clip(depthRect.Right, 0, width);
+      y = Clip(depthRect.Bottom, 0, height - 1);
+      x = Clip(depthRect.Right, 0, width - 1);
       depth = DepthUtil.RawToDepth(depthPixel[y * width + x]);
       var cpBottomRight = MapDepthPointToColorPoint(depthRect.Right, depthRect.Bottom, depth);
       return new Rectangle(cpUpperLeft.X, cpUpperLeft.Y, cpBottomRight.X - cpUpperLeft.X,
           cpBottomRight.Y - cpUpperLeft.Y);
     }
 
-    private int Clip(int v, int min, int max) {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="v"></param>
+    /// <param name="min"></param>
+    /// <param name="max">Maximum value v can take.</param>
+    /// <returns></returns>
+    int Clip(int v, int min, int max) {
       if (v < min)
         return min;
       if (v > max)

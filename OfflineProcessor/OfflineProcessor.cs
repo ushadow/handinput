@@ -61,6 +61,7 @@ namespace HandInput.OfflineProcessor {
       Log.DebugFormat("Start processing {0}...", inputFile);
       for (float i = 0; i < replayer.GetFramesCount(); i += sampleRate) {
         int index = (int)Math.Round(i);
+        Log.DebugFormat("file: {0}, index: {1}", inputFile, index);
         var skeletonFrame = replayer.GetSkeletonFrame(index);
         var depthFrame = replayer.GetDepthFrame(index);
         var colorFrame = replayer.GetColorFrame(index);
