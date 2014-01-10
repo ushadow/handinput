@@ -189,6 +189,12 @@ namespace HandInput.Util {
         }
     }
 
+    /// <summary>
+    /// Updates player depth image using the player contour.
+    /// </summary>
+    /// <param name="depthFrame"></param>
+    /// <param name="contour"></param>
+    /// <param name="skinMask"></param>
     void UpdatePlayerDepthImage(short[] depthFrame, Seq<Point> contour, Byte[, ,] skinMask) {
       CvInvoke.cvZero(DepthImage.Ptr);
       var data = DepthImage.Data;
@@ -197,9 +203,9 @@ namespace HandInput.Util {
       for (int r = 0; r < height; r++)
         for (int c = 0; c < width; c++) {
           var index = r * width + c;
-          if (IsPlayerPixel(contour, skinMask, c, r)) {
-            short pixel = depthFrame[index];
-            var depth = DepthUtil.RawToDepth(pixel);
+          short pixel = depthFrame[index];
+          var depth = DepthUtil.RawToDepth(pixel);
+          if (IsPlayerPixel(contour, skinMask, c, r, depth)) {
             data[r, c, 0] = (byte)(Math.Max(0, HandInputParams.MaxDepth - depth) * scale);
           }
         }
@@ -211,8 +217,10 @@ namespace HandInput.Util {
              depth > HandInputParams.MinDepth;
     }
 
-    bool IsPlayerPixel(Seq<Point> contour, Byte[, ,] skinMask, int x, int y) {
-      return contour.InContour(new Point(x, y)) >= 0 && (skinMask == null || skinMask[y, x, 0] > 0);
+    bool IsPlayerPixel(Seq<Point> contour, Byte[, ,] skinMask, int x, int y, int depth) {
+      return contour.InContour(new Point(x, y)) >= 0 &&
+             (skinMask == null || skinMask[y, x, 0] > 0) &&
+             depth > HandInputParams.MinDepth;
     }
 
     private Rectangle FindBoundingBox() {
