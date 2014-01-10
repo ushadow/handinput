@@ -14,8 +14,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Util", "Util\Util.csproj", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GpuProcessor", "GpuProcessor\GpuProcessor.vcxproj", "{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineTest", "EngineTest\EngineTest.csproj", "{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcessorTest", "ProcessorTest\ProcessorTest.vcxproj", "{4D9FDFB5-986A-4139-823C-F4EE0ED481A2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Processor", "Processor\Processor.vcxproj", "{2DBE5776-DA79-425D-A462-3600E8760FDB}"
@@ -30,7 +28,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect.Toolbox", "..\kinect
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect.Toolbox.Voice", "..\kinect_toolbox\Kinect.Toolbox.Voice\Kinect.Toolbox.Voice.csproj", "{09DAE56B-715F-4069-BB66-A110D876A772}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilTest", "UtilTest\UtilTest.csproj", "{359A2541-2F84-40BB-A673-041460AB09A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "UtilTest\Test.csproj", "{359A2541-2F84-40BB-A673-041460AB09A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,19 +100,6 @@ Global
 		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|x64.Build.0 = Release|x64
 		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|x86.ActiveCfg = Release|Win32
 		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|x86.Build.0 = Release|Win32
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Debug|x64.ActiveCfg = Debug|x64
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Release|Win32.ActiveCfg = Release|Any CPU
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Release|x64.ActiveCfg = Release|x64
-		{4E8F34FB-6FB6-4DED-AF21-8360F4053EF6}.Release|x86.ActiveCfg = Release|Any CPU
 		{4D9FDFB5-986A-4139-823C-F4EE0ED481A2}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{4D9FDFB5-986A-4139-823C-F4EE0ED481A2}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{4D9FDFB5-986A-4139-823C-F4EE0ED481A2}.Debug|Mixed Platforms.Build.0 = Debug|Win32

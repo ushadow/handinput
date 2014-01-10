@@ -6,8 +6,8 @@
     <ProjectGuid>{359A2541-2F84-40BB-A673-041460AB09A2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HandInput.UtilTest</RootNamespace>
-    <AssemblyName>HandInput.UtilTest</AssemblyName>
+    <RootNamespace>HandInput.Test</RootNamespace>
+    <AssemblyName>HandInput.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>

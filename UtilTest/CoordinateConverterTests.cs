@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Kinect;
 using HandInput.Util;
 
-namespace HandInput.UtilTest {
+namespace HandInput.Test {
   [TestClass]
   public class CoordinateConverterTests {
     CoordinateConverter converter;
