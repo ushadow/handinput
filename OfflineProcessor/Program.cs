@@ -51,6 +51,7 @@ namespace HandInput.OfflineProcessor {
     static String dataName = "chairgest";
     static String handTrackerName = "salience";
     static String featureProcessorName = "simple";
+    static bool keep = false;
 
     static ParallelProcessor pp = new ParallelProcessor();
     static Object readLock = new Object();
@@ -93,7 +94,8 @@ namespace HandInput.OfflineProcessor {
             v => handTrackerName = v },
         { "processor=", String.Format("{{FEATURE PROCESSOR TYPE}}: {0}. Default is {1}.", 
                                       ToString(FeatureProcessors.Keys), featureProcessorName),
-            v => featureProcessorName = v }
+            v => featureProcessorName = v },
+        { "k|keep", "keep the exisiting processed file if present.", v => keep = v != null }
       };
 
       try {
@@ -229,6 +231,10 @@ namespace HandInput.OfflineProcessor {
               File.Copy(inFile, outputFile, true);
             } else {
               var outFile = Path.Combine(outputSessionFolder, Path.ChangeExtension(name, Ext));
+
+              if (File.Exists(outFile) && keep)
+                continue;
+
               OfflineProcessor proc = new OfflineProcessor(inFile, outFile, readLock, writeLock,
                   replayerType, handTrackerType, featureProcessorType, sampleRate, gtSensor);
               try {
