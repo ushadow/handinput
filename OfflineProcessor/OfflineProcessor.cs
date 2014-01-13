@@ -90,10 +90,12 @@ namespace HandInput.OfflineProcessor {
         var result = handTracker.Update(depthPixelData, colorPixelData, skeleton);
         Option<Array> feature = featureProcessor.Compute(result);
         if (feature.IsSome) {
-          if (replayerType == typeof(KinectAllFramesReplay))
+          if (replayerType == typeof(KinectAllFramesReplay)) {
             frameList.Add(depthFrame.FrameNumber);
-          else
-            frameList.Add(index);
+          } else {
+            int curIndex = (int) Math.Round(i - sampleRate * (bufferSize - 1));
+            frameList.Add(curIndex);
+          }
           featureList.Add(feature.Value);
         }
       }

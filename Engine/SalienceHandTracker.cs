@@ -287,7 +287,7 @@ namespace HandInput.Engine {
       Point[] minLoc, maxLoc;
       TempMask.MinMax(out min, out max, out minLoc, out maxLoc);
       if (max != null && max.Count() > 0 && max[0] > 0) {
-        Log.DebugFormat("Max = {0}, x = {1}, y{2}", max[0], maxLoc[0].X, maxLoc[0].Y);
+        Log.DebugFormat("Max = {0}, x = {1}, y = {2}", max[0], maxLoc[0].X, maxLoc[0].Y);
         CvInvoke.cvFloodFill(TempMask, maxLoc[0], new MCvScalar(255), new MCvScalar(Diff),
             new MCvScalar(Diff), out connectedComp, CONNECTIVITY.FOUR_CONNECTED,
             FLOODFILL_FLAG.DEFAULT, IntPtr.Zero);
