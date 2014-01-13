@@ -23,7 +23,7 @@ using handinput;
 namespace HandInput.Engine {
   public class SalienceHandTracker : IHandTracker {
     public static readonly float HandWidth = 0.095f; // m
-    static readonly int Diff = HandWidth * 1000 * 255 / HandInputParams.MaxDepth;
+    static readonly double Diff = HandWidth * 1000 * 255 / HandInputParams.MaxDepth;
     static readonly int NumBin = 256;
     static readonly int DefaultZDist = 1; // m
     readonly ILog Log = LogManager.GetCurrentClassLogger();
@@ -247,7 +247,7 @@ namespace HandInput.Engine {
               out connectedComp, out shiftedBox);
           var bestBoundingBox = shiftedBox.MinAreaRect();
           bestBoundingBoxes.Add(bestBoundingBox);
-          FloodFill(TrackedDepthFrame, shiftedBox.center)
+          //FloodFill(TrackedDepthFrame, bestBoundingBox);
           //if (bestBoundingBox.Width > 0) {
           //  TempMask.ROI = bestBoundingBox;
           //  CvInvoke.cvFindContours(TempMask.Ptr, storage, ref contourPtr, StructSize.MCvContour,
@@ -278,14 +278,23 @@ namespace HandInput.Engine {
       return bestBoundingBoxes;
     }
 
-    void FloodFill(Image<Gray, Byte> image, Rectangle roi, Point seedPoint) {
+    void FloodFill(Image<Gray, Byte> image, Rectangle roi) {
       image.ROI = roi;
-      TempMask.ROI = image.ROI;
-      TempMask.SetZero();
-      CvInvoke.cvFloodFill(image, seedPoint, new MCvScalar(255), new MCvScalar(Diff), 
-          new MCvScalar(Diff), out connectedComp, CONNECTIVITY.EIGHT_CONNECTED, 
-          FLOODFILL_FLAG.MASK_ONLY, TempMask.Ptr);
-      FilterImage(image, TempMask);
+      TempMask.ROI = roi;
+      image.CopyTo(TempMask);
+
+      double[] min, max;
+      Point[] minLoc, maxLoc;
+      TempMask.MinMax(out min, out max, out minLoc, out maxLoc);
+      if (max != null && max.Count() > 0 && max[0] > 0) {
+        Log.DebugFormat("Max = {0}, x = {1}, y{2}", max[0], maxLoc[0].X, maxLoc[0].Y);
+        CvInvoke.cvFloodFill(TempMask, maxLoc[0], new MCvScalar(255), new MCvScalar(Diff),
+            new MCvScalar(Diff), out connectedComp, CONNECTIVITY.FOUR_CONNECTED,
+            FLOODFILL_FLAG.DEFAULT, IntPtr.Zero);
+        FilterImage(image, TempMask);
+      }
+      image.ROI = Rectangle.Empty;
+      TempMask.ROI = Rectangle.Empty;
     }
 
     void FilterImage(Image<Gray, Byte> image, Image<Gray, Byte> mask) {
