@@ -52,6 +52,7 @@ namespace HandInput.OfflineProcessor {
     static String handTrackerName = "salience";
     static String featureProcessorName = "simple";
     static bool keep = false;
+    static int bufferSize = 1;
 
     static ParallelProcessor pp = new ParallelProcessor();
     static Object readLock = new Object();
@@ -80,22 +81,24 @@ namespace HandInput.OfflineProcessor {
             " Default is all.", v => batchList = ParseIndex(v) },
         { "h|help", "show this message and exit", v => showHelp = v != null },
         { "s=", "{SESSION} name to be processed", v => sessionToProcess = v },
-        { "ns=", "{NUMBER OF SESSIONS} to be processed. Default is 4.", 
+        { "ns=", "{NUMBER OF SESSIONS} to be processed. [4]", 
             v => nSession = Int32.Parse(v) },
-        { "gs=", String.Format("{{SENSOR}} for ground truth. Default is {0}.", gtSensor), 
+        { "gs=", String.Format("{{SENSOR}} for ground truth. [{0}]", gtSensor), 
             v => gtSensor = v},
-        { "sample=", String.Format("{{SAMPLE RATE}}. Default is {0}.", sampleRate), 
+        { "sample=", String.Format("{{SAMPLE RATE}}. [{0}]", sampleRate), 
             v => sampleRate = Single.Parse(v) },
-        { "data=", String.Format("{{DATA TYPE}}: {0}. Default is {1}.", 
+        { "data=", String.Format("{{DATA TYPE}}: {0}. [{1}]", 
                                  ToString(Replayers.Keys), dataName),
             v => dataName = v },
-        { "tracker=", String.Format("{{HAND TRACKER TYPE}}: {0}. Default is {1}.", 
+        { "tracker=", String.Format("{{HAND TRACKER TYPE}}: {0}. [{1}]", 
                                     ToString(HandTrackers.Keys), handTrackerName),
             v => handTrackerName = v },
-        { "processor=", String.Format("{{FEATURE PROCESSOR TYPE}}: {0}. Default is {1}.", 
+        { "processor=", String.Format("{{FEATURE PROCESSOR TYPE}}: {0}. [{1}]", 
                                       ToString(FeatureProcessors.Keys), featureProcessorName),
             v => featureProcessorName = v },
-        { "k|keep", "keep the exisiting processed file if present.", v => keep = v != null }
+        { "k|keep", "keep the exisiting processed file if present.", v => keep = v != null },
+        { "buffer=", String.Format("{{BUFFER SIZE}}. [{0}]", bufferSize),
+            v => bufferSize = Int32.Parse(v) }
       };
 
       try {
@@ -236,7 +239,8 @@ namespace HandInput.OfflineProcessor {
                 continue;
 
               OfflineProcessor proc = new OfflineProcessor(inFile, outFile, readLock, writeLock,
-                  replayerType, handTrackerType, featureProcessorType, sampleRate, gtSensor);
+                  replayerType, handTrackerType, featureProcessorType, sampleRate, gtSensor,
+                  bufferSize);
               try {
                 pp.Spawn(proc.Process);
               } catch (Exception ex) {

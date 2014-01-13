@@ -23,6 +23,7 @@ using handinput;
 namespace HandInput.Engine {
   public class SalienceHandTracker : IHandTracker {
     public static readonly float HandWidth = 0.095f; // m
+    static readonly int Diff = HandWidth * 1000 * 255 / HandInputParams.MaxDepth;
     static readonly int NumBin = 256;
     static readonly int DefaultZDist = 1; // m
     readonly ILog Log = LogManager.GetCurrentClassLogger();
@@ -35,7 +36,7 @@ namespace HandInput.Engine {
     public Image<Gray, Byte> TempMask { get; private set; }
     public List<Rectangle> PrevBoundingBoxes { get; private set; }
     // Smoothed player depth image.
-    public Image<Gray, Byte> SmoothedDepth { get; private set; }
+    public Image<Gray, Byte> TrackedDepthFrame { get; private set; }
     public Image<Gray, Single> TemporalSmoothed { get; private set; }
     public Image<Gray, Byte> Diff0 { get; private set; }
     public Image<Gray, Byte> DiffMask1 { get; private set; }
@@ -52,7 +53,8 @@ namespace HandInput.Engine {
     MCvBox2D shiftedBox = new MCvBox2D();
     CoordinateConverter mapper;
     MHandTracker handTracker;
-    Image<Gray, Byte> prevSmoothedDepth;
+    Image<Gray, Byte> prevSmoothedDepth, smoothedDepth;
+    int bufferSize;
 
     /// <summary>
     /// Creates a detector based on salience.
@@ -60,16 +62,16 @@ namespace HandInput.Engine {
     /// <param name="width"></param>
     /// <param name="height"></param>
     /// <param name="kinectParamsBinary">Kinect parameters in binary.</param>
-    public SalienceHandTracker(int width, int height, Byte[] kinectParams) {
+    public SalienceHandTracker(int width, int height, Byte[] kinectParams, int bufferSize = 1) {
       mapper = new CoordinateConverter(kinectParams, HandInputParams.ColorImageFormat,
                                     HandInputParams.DepthImageFormat);
-      Init(width, height);
+      Init(width, height, bufferSize);
     }
 
-    public SalienceHandTracker(int width, int height, CoordinateMapper mapper) {
+    public SalienceHandTracker(int width, int height, CoordinateMapper mapper, int bufferSize = 1) {
       this.mapper = new CoordinateConverter(mapper, HandInputParams.ColorImageFormat,
                                          HandInputParams.DepthImageFormat);
-      Init(width, height);
+      Init(width, height, bufferSize);
     }
 
     /// <summary>
@@ -91,12 +93,13 @@ namespace HandInput.Engine {
 
       playerDetector.FilterPlayerContourSkin(depthFrame, colorFrame);
       var depthImage = playerDetector.DepthImage;
+      smoothedDepth.CopyTo(prevSmoothedDepth);
       // Median smoothing cannot be in place.
-      CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5,
+      CvInvoke.cvSmooth(depthImage.Ptr, smoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5,
                         0, 0);
 
       if (t > 1) {
-        CvInvoke.cvAbsDiff(SmoothedDepth.Ptr, prevSmoothedDepth.Ptr, Diff0.Ptr);
+        CvInvoke.cvAbsDiff(smoothedDepth.Ptr, prevSmoothedDepth.Ptr, Diff0.Ptr);
         //CvInvoke.cvErode(Diff0.Ptr, Diff0.Ptr, StructuringElement.Ptr, 1);
         DiffMask0.CopyTo(DiffMask1);
         CvInvoke.cvThreshold(Diff0.Ptr, DiffMask0.Ptr, 2, 255, THRESH.CV_THRESH_BINARY);
@@ -104,16 +107,18 @@ namespace HandInput.Engine {
         if (t > 2) {
           // Makes diffMask1 the motion mask at t - 1.
           CvInvoke.cvAnd(DiffMask0.Ptr, DiffMask1.Ptr, DiffMask1.Ptr, IntPtr.Zero);
-          // Makes diffMask1 the motion mask at t - 0. 
-          CvInvoke.cvXor(DiffMask0.Ptr, DiffMask1.Ptr, DiffMask1.Ptr, IntPtr.Zero);
+          if (bufferSize <= 1) {
+            // Makes diffMask1 the motion mask at t - 0. 
+            CvInvoke.cvXor(DiffMask0.Ptr, DiffMask1.Ptr, DiffMask1.Ptr, IntPtr.Zero);
+          }
           CvInvoke.cvMorphologyEx(DiffMask1.Ptr, DiffMask1.Ptr, IntPtr.Zero, IntPtr.Zero,
                                   CV_MORPH_OP.CV_MOP_OPEN, 1);
           ComputeCumulativeDist(Diff0, diffCumulativeDist);
-          ComputeCumulativeDist(SmoothedDepth, depthCumulativeDist);
+          ComputeCumulativeDist(TrackedDepthFrame, depthCumulativeDist);
           CvInvoke.cvZero(SaliencyProb);
           var diffMaskData = DiffMask1.Data;
           var diffData = Diff0.Data;
-          var depthData = SmoothedDepth.Data;
+          var depthData = TrackedDepthFrame.Data;
           var probData = SaliencyProb.Data;
           for (int i = 0; i < DiffMask1.Height; i++)
             for (int j = 0; j < DiffMask1.Width; j++) {
@@ -126,23 +131,23 @@ namespace HandInput.Engine {
           PrevBoundingBoxes = FindBestBoundingBox(depthFrame, skeleton);
           if (PrevBoundingBoxes.LastOrDefault().Width > 0)
             relPos = new Some<Vector3D>(SkeletonUtil.RelativePosToShoulder(PrevBoundingBoxes.Last(),
-                SmoothedDepth.Data, width, height, skeleton, mapper));
+                TrackedDepthFrame.Data, width, height, skeleton, mapper));
         }
       }
-      SmoothedDepth.CopyTo(prevSmoothedDepth);
       List<Rectangle> colorBBs = new List<Rectangle>();
       foreach (var bb in PrevBoundingBoxes) {
         var colorBox = mapper.MapDepthRectToColorRect(bb, depthFrame, width, height);
         playerDetector.SmoothSkin(colorBox);
         colorBBs.Add(colorBox);
       }
-      return new TrackingResult(relPos, SmoothedDepth, PrevBoundingBoxes, playerDetector.SkinImage,
+      return new TrackingResult(relPos, TrackedDepthFrame, PrevBoundingBoxes, playerDetector.SkinImage,
                                 colorBBs);
     }
 
-    void Init(int width, int height) {
+    void Init(int width, int height, int bufferSize) {
       this.width = width;
       this.height = height;
+      this.bufferSize = bufferSize;
 
       handTracker = new MHandTracker(width, height);
 
@@ -151,15 +156,20 @@ namespace HandInput.Engine {
       DiffMask1 = new Image<Gray, Byte>(width, height);
       SaliencyProb = new Image<Gray, Single>(width, height);
       Diff0 = new Image<Gray, Byte>(width, height);
-      SmoothedDepth = new Image<Gray, Byte>(width, height);
+      smoothedDepth = new Image<Gray, Byte>(width, height);
       prevSmoothedDepth = new Image<Gray, Byte>(width, height);
       TempMask = new Image<Gray, Byte>(width, height);
       TemporalSmoothed = new Image<Gray, Single>(width, height);
 
       diffCumulativeDist = new float[NumBin];
       depthCumulativeDist = new float[NumBin];
-      playerDetector = new PlayerDetector(width, height, mapper);
+      playerDetector = new PlayerDetector(width, height, mapper, bufferSize);
       PrevBoundingBoxes = new List<Rectangle>();
+
+      if (bufferSize <= 1)
+        TrackedDepthFrame = smoothedDepth;
+      else
+        TrackedDepthFrame = prevSmoothedDepth;
     }
 
     /// <summary>
@@ -231,36 +241,36 @@ namespace HandInput.Engine {
       }
 
       if (bestContours.Count > 0) {
-        SmoothedDepth.CopyTo(TempMask);
         foreach (var c in bestContours.Values) {
           var rect = c.BoundingRectangle;
-          CvInvoke.cvCamShift(SmoothedDepth.Ptr, rect, new MCvTermCriteria(CamShiftIter),
+          CvInvoke.cvCamShift(TrackedDepthFrame.Ptr, rect, new MCvTermCriteria(CamShiftIter),
               out connectedComp, out shiftedBox);
           var bestBoundingBox = shiftedBox.MinAreaRect();
           bestBoundingBoxes.Add(bestBoundingBox);
-          if (bestBoundingBox.Width > 0) {
-            TempMask.ROI = bestBoundingBox;
-            CvInvoke.cvFindContours(TempMask.Ptr, storage, ref contourPtr, StructSize.MCvContour,
-                RETR_TYPE.CV_RETR_EXTERNAL, CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE,
-                new Point(0, 0));
-            contour = new Seq<Point>(contourPtr, null);
+          FloodFill(TrackedDepthFrame, shiftedBox.center)
+          //if (bestBoundingBox.Width > 0) {
+          //  TempMask.ROI = bestBoundingBox;
+          //  CvInvoke.cvFindContours(TempMask.Ptr, storage, ref contourPtr, StructSize.MCvContour,
+          //      RETR_TYPE.CV_RETR_EXTERNAL, CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE,
+          //      new Point(0, 0));
+          //  contour = new Seq<Point>(contourPtr, null);
 
-            Seq<Point> largestContour = null;
-            var maxPerim = perimThresh;
-            for (; contour != null && contour.Ptr.ToInt32() != 0; contour = contour.HNext) {
-              var perim = CvInvoke.cvContourPerimeter(contour.Ptr);
-              if (perim > maxPerim) {
-                maxPerim = perim;
-                largestContour = contour;
-              }
-            }
+          //  Seq<Point> largestContour = null;
+          //  var maxPerim = perimThresh;
+          //  for (; contour != null && contour.Ptr.ToInt32() != 0; contour = contour.HNext) {
+          //    var perim = CvInvoke.cvContourPerimeter(contour.Ptr);
+          //    if (perim > maxPerim) {
+          //      maxPerim = perim;
+          //      largestContour = contour;
+          //    }
+          //  }
 
-            CvInvoke.cvZero(TempMask.Ptr);
-            if (largestContour != null)
-              TempMask.Draw(largestContour, new Gray(255), -1);
-            FilterImage(SmoothedDepth, TempMask);
-            TempMask.ROI = Rectangle.Empty;
-          }
+          //  CvInvoke.cvZero(TempMask.Ptr);
+          //  if (largestContour != null)
+          //    TempMask.Draw(largestContour, new Gray(255), -1);
+          //  FilterImage(TrackedDepthFrame, TempMask);
+          //  TempMask.ROI = Rectangle.Empty;
+          //}
 
         }
       }
@@ -268,7 +278,17 @@ namespace HandInput.Engine {
       return bestBoundingBoxes;
     }
 
-    private void FilterImage(Image<Gray, Byte> image, Image<Gray, Byte> mask) {
+    void FloodFill(Image<Gray, Byte> image, Rectangle roi, Point seedPoint) {
+      image.ROI = roi;
+      TempMask.ROI = image.ROI;
+      TempMask.SetZero();
+      CvInvoke.cvFloodFill(image, seedPoint, new MCvScalar(255), new MCvScalar(Diff), 
+          new MCvScalar(Diff), out connectedComp, CONNECTIVITY.EIGHT_CONNECTED, 
+          FLOODFILL_FLAG.MASK_ONLY, TempMask.Ptr);
+      FilterImage(image, TempMask);
+    }
+
+    void FilterImage(Image<Gray, Byte> image, Image<Gray, Byte> mask) {
       var data = image.Data;
       var maskData = mask.Data;
       var rect = mask.ROI;

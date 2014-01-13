@@ -13,7 +13,6 @@ namespace HandInput.Util {
   // Common parameters used by all modules.
   static public class HandInputParams {
     public static readonly int MaxDepth = 2000; // mm
-    public static readonly int MinDepth = 800; // mm
     public static readonly ColorImageFormat ColorImageFormat =
         ColorImageFormat.RgbResolution640x480Fps30;
     public static readonly DepthImageFormat DepthImageFormat =
@@ -23,6 +22,9 @@ namespace HandInput.Util {
     public static readonly int ColorWidth = 640;
     public static readonly int ColorHeight = 480;
 
+    // Kinect out of range readings: 
+    // too near: 0, too far: 0x0FFF (4095), unknown: 0x1FFF (8191) 
+    public static int MinDepth = 800; // mm
     public static int FeatureImageWidth = 64;
     public static float ColorFocalLength = 531.15f;
     public static float DepthFocalLength = 571.26f;

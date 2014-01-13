@@ -26,10 +26,11 @@ namespace HandInput.OfflineProcessor {
     IList<Int32> frameList = new List<Int32>();
     float sampleRate;
     IFeatureProcessor featureProcessor;
+    int bufferSize;
 
     public OfflineProcessor(String inputFile, String outputFile, Object readLock,
       Object writeLock, Type replayerType, Type handTrackerType, Type featureProcessorType,
-      float sampleRate, String gtSensor) {
+      float sampleRate, String gtSensor, int bufferSize) {
       this.inputFile = inputFile;
       this.outputFile = outputFile;
       this.readLock = readLock;
@@ -39,6 +40,7 @@ namespace HandInput.OfflineProcessor {
       this.replayerType = replayerType;
       this.sampleRate = sampleRate;
       this.gtSensor = gtSensor;
+      this.bufferSize = bufferSize;
     }
 
     public void Process() {
@@ -72,7 +74,7 @@ namespace HandInput.OfflineProcessor {
 
         if (handTracker == null) {
           handTracker = (IHandTracker)Activator.CreateInstance(handTrackerType, new Object[] {
-            depthFrame.Width, depthFrame.Height, GetKinectParams()});
+            depthFrame.Width, depthFrame.Height, GetKinectParams(), bufferSize});
         }
         if (featureProcessor == null)
           featureProcessor = (IFeatureProcessor)Activator.CreateInstance(
