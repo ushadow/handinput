@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using System.Drawing;
 
 namespace HandInput.Util {
   public class DataBuffer {
@@ -43,11 +44,14 @@ namespace HandInput.Util {
       Image<TColor, TDepth> copy;
       if (queue.Count >= capacity) {
         copy = (Image<TColor, TDepth>)queue.Dequeue();
-        item.CopyTo(copy);
       } else {
+        Rectangle roi = item.ROI;
+        item.ROI = Rectangle.Empty;
         copy = new Image<TColor, TDepth>(item.Width, item.Height);
-        item.CopyTo(copy);
+        item.ROI = roi;
       }
+      copy.ROI = item.ROI;
+      item.CopyTo(copy);
       queue.Enqueue(copy);
     }
 

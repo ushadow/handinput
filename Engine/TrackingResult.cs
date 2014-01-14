@@ -27,6 +27,7 @@ namespace HandInput.Engine {
     public TrackingResult() {
       RelPos = new None<Vector3D>();
       DepthBoundingBoxes = new List<Rectangle>();
+      ColorBoundingBoxes = new List<Rectangle>();
     }
 
     public TrackingResult(Option<Vector3D> relPos, Image<Gray, Byte> smoothedDepth,

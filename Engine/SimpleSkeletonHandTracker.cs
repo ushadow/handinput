@@ -39,7 +39,6 @@ namespace HandInput.Engine {
     PlayerDetector playerDetector;
     MCvConnectedComp connectedComp = new MCvConnectedComp();
     MCvBox2D shiftedRect = new MCvBox2D();
-    SkinDetector skinDetector;
 
     public SimpleSkeletonHandTracker(int width, int height, Byte[] kinectParams) {
       mapper = new CoordinateConverter(kinectParams, HandInputParams.ColorImageFormat,
@@ -90,7 +89,6 @@ namespace HandInput.Engine {
       this.height = height;
       playerDetector = new PlayerDetector(width, height, mapper);
       SmoothedDepth = new Image<Gray, byte>(width, height);
-      skinDetector = new SkinDetector(width, height);
     }
 
     /// <summary>

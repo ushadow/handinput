@@ -119,7 +119,7 @@ namespace HandInput.GesturesViewer {
       if (kinectSensor == null)
         return;
 
-      Log.InfoFormat("Color stream nominal focal length in pixel = {0}", 
+      Log.InfoFormat("Color stream nominal focal length in pixel = {0}",
           kinectSensor.ColorStream.NominalFocalLengthInPixels);
       Log.InfoFormat("Depth stream nominal focal length in pixel = {0}",
           kinectSensor.DepthStream.NominalFocalLengthInPixels);
@@ -161,7 +161,7 @@ namespace HandInput.GesturesViewer {
 
     void HandTrackingTask(CancellationToken token) {
       Log.Debug("Start tracking");
-      handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth, 
+      handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
           HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
       recogEngine = new RecognitionEngine(ModelFile);
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
@@ -188,10 +188,13 @@ namespace HandInput.GesturesViewer {
     }
 
     void UpdateDisplay(TrackingResult result) {
-      gesturesCanvas.Children.Clear();
-      if (result.DepthBoundingBoxes.Count > 0) {
-        VisualUtil.DrawRectangle(gesturesCanvas, result.DepthBoundingBoxes.Last(), Brushes.Red,
-            (float) gesturesCanvas.ActualWidth / HandInputParams.ColorWidth);
+      colorCanvas.Children.Clear();
+      depthCanvas.Children.Clear();
+      if (result.ColorBoundingBoxes.Count > 0) {
+        VisualUtil.DrawRectangle(colorCanvas, result.ColorBoundingBoxes.Last(), Brushes.Red,
+            (float)colorCanvas.ActualWidth / HandInputParams.ColorWidth);
+        VisualUtil.DrawRectangle(depthCanvas, result.DepthBoundingBoxes.Last(), Brushes.Red,
+                    (float)depthCanvas.ActualWidth / HandInputParams.DepthWidth);
       }
       if (handTracker != null) {
         if (handTracker is SalienceHandTracker)
@@ -212,14 +215,14 @@ namespace HandInput.GesturesViewer {
 
     void UpdateSimpleHandTrackerDisplay() {
       SimpleSkeletonHandTracker ssht = (SimpleSkeletonHandTracker)handTracker;
-      VisualUtil.DrawRectangle(gesturesCanvas, ssht.InitialHandRect, Brushes.Green,
-          (float)gesturesCanvas.ActualWidth / HandInputParams.ColorWidth);
+      VisualUtil.DrawRectangle(colorCanvas, ssht.InitialHandRect, Brushes.Green,
+          (float)colorCanvas.ActualWidth / HandInputParams.ColorWidth);
     }
 
     void UpdateStipHandTrackerDisplay() {
       StipHandTracker sht = (StipHandTracker)handTracker;
       foreach (drawing.Point p in sht.InterestPoints) {
-        VisualUtil.DrawCircle(gesturesCanvas, new Point(p.X, p.Y), Brushes.Red, 1, 5);
+        VisualUtil.DrawCircle(colorCanvas, new Point(p.X, p.Y), Brushes.Red, 1, 5);
       }
     }
 
@@ -227,7 +230,7 @@ namespace HandInput.GesturesViewer {
       SalienceHandTracker sht = (SalienceHandTracker)handTracker;
       var bb = sht.PrevBoundingBoxes;
       if (bb.Count > 0) {
-        VisualUtil.DrawRectangle(gesturesCanvas, bb.Last(), Brushes.Red);
+        VisualUtil.DrawRectangle(colorCanvas, bb.Last(), Brushes.Red);
       }
       var converted = sht.TemporalSmoothed.ConvertScale<Byte>(255, 0);
       debugDisplayManager.UpdateBitmap(converted.Bytes);

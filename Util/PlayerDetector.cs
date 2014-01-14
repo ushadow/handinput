@@ -120,6 +120,7 @@ namespace HandInput.Util {
 
       var colorSkinMask = skinDetector.DetectSkin(colorPixelData, roi);
       ImageUtil.AlignImageColorToDepth(colorSkinMask, DepthSkinMask, depthFrame, mapper);
+      dataBuffer.EnqueueAndCopy(skinDetector.SkinImage);
 
       UpdatePlayerMask(depthFrame);
       byte[, ,] playerMask = null;

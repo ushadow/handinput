@@ -13,6 +13,9 @@ namespace HandInput.Util {
     static readonly StructuringElementEx StrucElem3 = new StructuringElementEx(3, 3, 2, 2,
         CV_ELEMENT_SHAPE.CV_SHAPE_RECT);
 
+    /// <summary>
+    /// ROI maybe set.
+    /// </summary>
     public Image<Gray, Byte> SkinImage { get; private set; }
 
     int width, height;

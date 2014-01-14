@@ -52,7 +52,7 @@ namespace HandInput.GesturesViewer {
       frameSlider.Maximum = replay.GetFramesCount();
       frameSlider.Value = 0;
 
-      handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth, 
+      handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
           HandInputParams.DepthHeight, replay.GetKinectParams());
       recogEngine = new RecognitionEngine(ModelFile);
       timer = new DispatcherTimer();
