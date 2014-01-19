@@ -19,6 +19,9 @@ namespace HandInput.GesturesViewer {
   }
 
   public class TrainingManager : INotifyPropertyChanged {
+    public static readonly String KinectGTDPattern = "KinectDataGTD_{0}.txt";
+    public static readonly String KinectDataRegex = @"KinectData_(\d+).bin";
+
     static readonly int GestureWaitTime = 3000; //ms
     static readonly int StartWaitTime = 8000;
     static readonly int NumRepitions = 3;
@@ -71,7 +74,7 @@ namespace HandInput.GesturesViewer {
         TrainingEvent(this, new TrainingEventArgs(TrainingEventType.Start));
         return;
       }
-      
+
       timer.Interval = GestureWaitTime;
       if (counter < gestures.Count()) {
         var gesture = gestures[counter];

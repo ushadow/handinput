@@ -88,9 +88,10 @@ namespace HandInput.Util {
 
     public void SmoothSkin(Rectangle roi) {
       var skin = SkinImage;
+      var prevRoi = skin.ROI;
       skin.ROI = roi;
       CvInvoke.cvMorphologyEx(skin.Ptr, skin.Ptr, IntPtr.Zero, StrucElem3, CV_MORPH_OP.CV_MOP_CLOSE, 1);
-      skin.ROI = Rectangle.Empty;
+      skin.ROI = prevRoi;
     }
 
     /// <summary>
@@ -118,11 +119,16 @@ namespace HandInput.Util {
       if (DepthSkinMask == null)
         DepthSkinMask = new Image<Gray, Byte>(width, height);
 
+      UpdatePlayerMask(depthFrame);
+
       var colorSkinMask = skinDetector.DetectSkin(colorPixelData, roi);
       ImageUtil.AlignImageColorToDepth(colorSkinMask, DepthSkinMask, depthFrame, mapper);
+      ColorPlayerMask.ROI = roi;
+      CvInvoke.cvAnd(skinDetector.SkinImage.Ptr, ColorPlayerMask.Ptr, skinDetector.SkinImage.Ptr,
+                     IntPtr.Zero);
+      ColorPlayerMask.ROI = Rectangle.Empty;
       dataBuffer.EnqueueAndCopy(skinDetector.SkinImage);
 
-      UpdatePlayerMask(depthFrame);
       byte[, ,] playerMask = null;
       byte[, ,] skinMask = null;
       if (filterPlayer)
@@ -132,6 +138,10 @@ namespace HandInput.Util {
       UpdatePlayerDepthImage(depthFrame, playerMask, skinMask, roi);
     }
 
+    /// <summary>
+    /// Updates both depth and color player masks.
+    /// </summary>
+    /// <param name="depthFrame"></param>
     void UpdatePlayerMask(short[] depthFrame) {
       CvInvoke.cvZero(PlayerMask.Ptr);
       var data = PlayerMask.Data;

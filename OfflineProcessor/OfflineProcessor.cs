@@ -23,7 +23,7 @@ namespace HandInput.OfflineProcessor {
     dynamic replayer;
     Type replayerType, featureProcessorType, handTrackerType;
     IList<Array> featureList = new List<Array>();
-    IList<Int32> frameList = new List<Int32>();
+    List<dynamic> frameList = new List<dynamic>();
     float sampleRate;
     IFeatureProcessor featureProcessor;
     int bufferSize;
@@ -91,7 +91,7 @@ namespace HandInput.OfflineProcessor {
         Option<Array> feature = featureProcessor.Compute(result);
         if (feature.IsSome) {
           if (replayerType == typeof(KinectAllFramesReplay)) {
-            frameList.Add(depthFrame.FrameNumber);
+            frameList.Add(depthFrame.GetFrameNumber());
           } else {
             int curIndex = (int) Math.Round(i - sampleRate * (bufferSize - 1));
             frameList.Add(curIndex);

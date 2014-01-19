@@ -144,7 +144,38 @@ namespace HandInput.Util {
       return new drawing.PointF(point.X, size.Height - point.Y);
     }
 
-    public static void CreateMask(Single[, ,] orig, Byte[] mask, int width, 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="orig"></param>
+    /// <param name="mask">mask.Length = orig.Length * 4</param>
+    /// <param name="width"></param>
+    /// <param name="rect"></param>
+    /// <param name="transparent"></param>
+    public static void CreateMask(byte[] orig, byte[] mask, int width, drawing.Rectangle rect,
+                                  bool transparent) {
+      Array.Clear(mask, 0, mask.Length);
+      var height = orig.Length / width;
+      int b = 0, g = 1, r = 2, a = 3;
+      for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++) {
+          var index = y * width + x;
+          if (rect.IsEmpty || rect.Contains(x, y)) {
+            byte value = orig[index];
+            if (value != 0) {
+              mask[index * 4 + a] = 255;
+              mask[index * 4 + b] = 0;
+              mask[index * 4 + g] = 0;
+              mask[index * 4 + r] = value;
+            }
+          }
+          if (!transparent) {
+            mask[index * 4 + a] = 255;
+          }
+        }
+    }
+
+    public static void CreateMask(Single[, ,] orig, Byte[] mask, int width, drawing.Rectangle rect,
         bool transparent = true) {
       var height = orig.Length / width;
 
@@ -152,24 +183,28 @@ namespace HandInput.Util {
       int b = 0, g = 1, r = 2, a = 3;
       for (int i = 0; i < height; i++)
         for (int j = 0; j < width; j++) {
-          var value = orig[i, j, 0];
           var baseNdx = (i * width + j) * 4;
-          if (value != 0) {
-            mask[baseNdx + a] = 255;
-            mask[baseNdx + b] = 0;
-            mask[baseNdx + g] = (Byte)((1 - value) * 255);
-            mask[baseNdx + r] = (Byte)(value * 255);
-          } else if (!transparent) {
+          if (rect.IsEmpty || rect.Contains(j, i)) {
+            var value = orig[i, j, 0];
+            if (value != 0) {
+              mask[baseNdx + a] = 255;
+              mask[baseNdx + b] = 0;
+              mask[baseNdx + g] = (Byte)((1 - value) * 255);
+              mask[baseNdx + r] = (Byte)(value * 255);
+            }
+          }
+
+          if (!transparent) {
             mask[baseNdx + a] = 255;
           }
         }
     }
 
-    public static void CreateMask(byte[] orig, byte[] mask, bool transparent = true) {
+    public static void CreateMask(Byte[] orig, Byte[] mask, bool transparent = true) {
       Array.Clear(mask, 0, mask.Length);
       int b = 0, g = 1, r = 2, a = 3;
       for (int i = 0; i < orig.Length; i++) {
-        byte value = orig[i];
+        Byte value = orig[i];
         if (value != 0) {
           mask[i * 4 + a] = 255;
           mask[i * 4 + b] = value;
@@ -244,36 +279,7 @@ namespace HandInput.Util {
       alignedImg.ROI = drawing.Rectangle.Empty;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="orig"></param>
-    /// <param name="mask">mask.Length = orig.Length * 4</param>
-    /// <param name="width"></param>
-    /// <param name="rect"></param>
-    /// <param name="transparent"></param>
-    public static void CreateMask(byte[] orig, byte[] mask, int width, drawing.Rectangle rect,
-                                  bool transparent) {
-      Array.Clear(mask, 0, mask.Length);
-      var height = orig.Length / width;
-      int b = 0, g = 1, r = 2, a = 3;
-      for (int y = 0; y < height; y++)
-        for (int x = 0; x < width; x++) {
-          var index = y * width + x;
-          if (rect.IsEmpty || rect.Contains(x, y)) {
-            byte value = orig[index];
-            if (value != 0) {
-              mask[index * 4 + a] = 255;
-              mask[index * 4 + b] = 0;
-              mask[index * 4 + g] = 0;
-              mask[index * 4 + r] = value;
-            }
-          }
-          if (!transparent) {
-            mask[index * 4 + a] = 255;
-          }
-        }
-    }
+
 
     public static void CreateTransparentMask(short[, ,] orig, byte[] transparent,
         int width, int height) {

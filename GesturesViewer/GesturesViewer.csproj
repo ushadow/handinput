@@ -148,6 +148,7 @@
     </ApplicationDefinition>
     <Compile Include="DebugDisplayManager.cs" />
     <Compile Include="DepthStreamManager.cs" />
+    <Compile Include="GroundTruthData.cs" />
     <Compile Include="MainWindow.Replay.cs" />
     <Compile Include="TrainingManager.cs" />
     <Page Include="MainWindow.xaml">

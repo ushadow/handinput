@@ -33,3 +33,5 @@
 
 #include <Eigen/Dense>
 
+#include "svm.h"
+

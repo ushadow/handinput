@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Threading;
 using System.IO;
 using System.Configuration;
+using System.Text.RegularExpressions;
 
 using Kinect.Toolbox.Record;
 using Kinect.Toolbox;
@@ -23,7 +24,9 @@ namespace HandInput.GesturesViewer {
   partial class MainWindow {
     static readonly int FPS = 30;
     static readonly int SampleRate = int.Parse(ConfigurationManager.AppSettings["sample_rate"]);
+
     DispatcherTimer timer;
+    GroundTruthDataRelayer gtReplayer;
 
     void replayButton_Click(object sender, RoutedEventArgs e) {
       OpenFileDialog openFileDialog = new OpenFileDialog {
@@ -36,9 +39,20 @@ namespace HandInput.GesturesViewer {
           replay.AllFramesReady -= replay_AllFramesReady;
           replay.Stop();
         }
-        Stream recordStream = File.OpenRead(openFileDialog.FileName);
+        var fullPath = openFileDialog.FileName;
+        Stream recordStream = File.OpenRead(fullPath);
+        Stream gtStream = null;
 
-        Replay(recordStream);
+        var fileName = Path.GetFileName(fullPath);
+        var dir = Path.GetDirectoryName(fullPath);
+        var match = Regex.Match(fileName, TrainingManager.KinectDataRegex);
+        if (match.Success) {
+          var batchIndex = Int32.Parse(match.Groups[1].Value);
+          var gtFilePath = Path.Combine(dir,
+              String.Format(TrainingManager.KinectGTDPattern, batchIndex));
+          gtStream = File.OpenRead(gtFilePath);
+        }
+        Replay(recordStream, gtStream);
       }
     }
 
@@ -46,9 +60,12 @@ namespace HandInput.GesturesViewer {
     /// Starts new replay.
     /// </summary>
     /// <param name="recordStream"></param>
-    void Replay(Stream recordStream) {
+    void Replay(Stream recordStream, Stream gtStream) {
       CancelTracking();
       replay = new KinectAllFramesReplay(recordStream);
+      if (gtStream != null)
+        gtReplayer = new GroundTruthDataRelayer(gtStream);
+
       frameSlider.Maximum = replay.GetFramesCount();
       frameSlider.Value = 0;
 
@@ -72,17 +89,22 @@ namespace HandInput.GesturesViewer {
         if (frame != null) {
           ReplayFrame(frame.DepthImageFrame, frame.ColorImageFrame, frame.SkeletonFrame);
         } else {
-          timer.Stop();
-          recogEngine = null;
-          replay = null;
+          StopReplay();
         }
       }
     }
 
     void ReplayFrame(ReplayDepthImageFrame df, ReplayColorImageFrame cf,
         ReplaySkeletonFrame sf) {
-      if (df != null)
+      if (df != null) {
         statusTextBox.Text = df.FrameNumber.ToString();
+        if (gtReplayer != null) {
+          var data = gtReplayer.GetDataFrame(df.FrameNumber);
+          if (data != null) {
+            UpdateGroundTruthDisplay(data);
+          }
+        }
+      }
       colorManager.Update(cf, !displayDebug);
       depthManager.Update(df);
       UpdateSkeletonDisplay(sf);
@@ -104,16 +126,13 @@ namespace HandInput.GesturesViewer {
       }
     }
 
-    void StopPlay() {
-      if (timer != null && timer.IsEnabled) {
-        timer.Stop();
-      }
-    }
-
     void StepForward() {
       frameSlider.Value += SampleRate;
     }
 
+    /// <summary>
+    /// Stops replaying if it is on.
+    /// </summary>
     void StopReplay() {
       if (timer != null && timer.IsEnabled)
         timer.Stop();
@@ -122,6 +141,8 @@ namespace HandInput.GesturesViewer {
         replay.Dispose();
         replay = null;
       }
+
+      recogEngine = null;
     }
 
     void replay_AllFramesReady(object sender, ReplayAllFramesReadyEventArgs e) {
@@ -137,6 +158,11 @@ namespace HandInput.GesturesViewer {
 
     void replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e) {
       UpdateSkeletonDisplay(e.SkeletonFrame);
+    }
+
+    void UpdateGroundTruthDisplay(GroundTruthData data) {
+      labelPhaseVal.Content = data.PhaseLabel;
+      labelGestureVal.Content = data.GestureLabel;
     }
   }
 }

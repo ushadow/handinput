@@ -263,6 +263,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="svm.cpp" />
+    <ClCompile Include="svm_classifier.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdline.h" />
@@ -276,11 +278,11 @@
     <ClInclude Include="hmm.h" />
     <ClInclude Include="hog_descriptor.h" />
     <ClInclude Include="infengine.h" />
-    <ClInclude Include="mixgaussian.h" />
     <ClInclude Include="msharrisbuffer.h" />
     <ClInclude Include="pcheader.h" />
-    <ClInclude Include="processor.h" />
     <ClInclude Include="stbuffer.h" />
+    <ClInclude Include="svm.h" />
+    <ClInclude Include="svm_classifier.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Windows;
+using drawing = System.Drawing;
 
 using Kinect.Toolbox;
 using Kinect.Toolbox.Record;
@@ -55,11 +56,16 @@ namespace HandInput.GesturesViewer {
       UpdateBitmap(data, Bitmap);
     }
 
-    public void UpdateBitmapMask(Single[, ,] data) {
+    public void UpdateBitmapMask(Array data) {
       if (transparentFrame == null) {
         transparentFrame = new byte[width * height * 4];
       }
-      ImageUtil.CreateMask(data, transparentFrame, width, true);
+      if (data is Single[, ,]) {
+        ImageUtil.CreateMask((Single[, ,])data, transparentFrame, width, drawing.Rectangle.Empty, true);
+      } else if (data is Byte[]) {
+        ImageUtil.CreateMask((Byte[])data, transparentFrame, width, drawing.Rectangle.Empty, true);
+      }
+
       UpdateBitmap(transparentFrame, BitmapMask);
     }
 

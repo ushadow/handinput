@@ -20,6 +20,7 @@ using Common.Logging;
 
 using HandInput.Engine;
 using HandInput.Util;
+using System.Text;
 
 
 namespace HandInput.GesturesViewer {
@@ -39,6 +40,7 @@ namespace HandInput.GesturesViewer {
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
 
+    IDictionary<Key, Action> keyActions;
     KinectSensor kinectSensor;
 
     AudioStreamManager audioManager;
@@ -58,6 +60,9 @@ namespace HandInput.GesturesViewer {
 
     public MainWindow() {
       InitializeComponent();
+      keyActions = new Dictionary<Key, Action>() {
+        {Key.Space, RecordGesture}, {Key.P, TogglePlay}
+      }; 
     }
 
     void Kinects_StatusChanged(object sender, StatusChangedEventArgs e) {
@@ -65,7 +70,7 @@ namespace HandInput.GesturesViewer {
         case KinectStatus.Connected:
           if (kinectSensor == null) {
             kinectSensor = e.Sensor;
-            Initialize();
+            InitializeKinect();
           }
           break;
         case KinectStatus.Disconnected:
@@ -108,14 +113,26 @@ namespace HandInput.GesturesViewer {
           }
         }
 
-        Initialize();
+        InitializeKinect();
 
       } catch (Exception ex) {
         MessageBox.Show(ex.Message);
       }
+      labelKeys.Content = GetKeyOptionString();
     }
 
-    void Initialize() {
+    String GetKeyOptionString() {
+      StringBuilder sb = new StringBuilder();
+      foreach (var kvp in keyActions) {
+        sb.AppendFormat("{0}: {1}\t", kvp.Key, kvp.Value.Method.Name);
+      }
+      return sb.ToString();
+    }
+
+    /// <summary>
+    /// Initialize Kinect.
+    /// </summary>
+    void InitializeKinect() {
       if (kinectSensor == null)
         return;
 
@@ -149,7 +166,6 @@ namespace HandInput.GesturesViewer {
 
       HandInputParams.ColorFocalLength = kinectSensor.ColorStream.NominalFocalLengthInPixels;
       HandInputParams.DepthFocalLength = kinectSensor.DepthStream.NominalFocalLengthInPixels;
-      //faceTracker = new kinect.FaceTracker(kinectSensor);
     }
 
     void StartTracking() {
@@ -209,7 +225,7 @@ namespace HandInput.GesturesViewer {
         if (displayOption == DisplayOption.DEPTH && result.DepthImage != null)
           debugDisplayManager.UpdateBitmap(result.DepthImage.Bytes);
         if (displayOption == DisplayOption.COLOR && result.ColorImage != null)
-          debugDisplayManager.UpdateBitmap(result.ColorImage.Bytes);
+          debugDisplayManager.UpdateBitmapMask(result.ColorImage.Bytes);
       }
     }
 
@@ -315,6 +331,8 @@ namespace HandInput.GesturesViewer {
         kinectSensor.Stop();
         kinectSensor = null;
       }
+
+      StopReplay();
     }
 
     void Button_Click(object sender, RoutedEventArgs e) {
@@ -360,28 +378,41 @@ namespace HandInput.GesturesViewer {
     }
 
     void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
-      switch (e.Key) {
-        case Key.Space:
-          RecordGesture();
-          break;
-        case Key.P:
-          TogglePlay();
-          break;
-        case Key.T:
-          StartTracking();
-          break;
-        case Key.N:
-          StepForward();
-          break;
-        case Key.C:
-          displayOption = DisplayOption.COLOR;
-          break;
-        case Key.D:
-          displayOption = DisplayOption.DEPTH;
-          break;
-        default:
-          break;
+      //switch (e.Key) {
+      //  case Key.Space:
+      //    RecordGesture();
+      //    break;
+      //  case Key.P:
+      //    TogglePlay();
+      //    break;
+      //  case Key.T:
+      //    StartTracking();
+      //    break;
+      //  case Key.N:
+      //    StepForward();
+      //    break;
+      //  case Key.C:
+      //    displayOption = DisplayOption.COLOR;
+      //    break;
+      //  case Key.D:
+      //    displayOption = DisplayOption.DEPTH;
+      //    break;
+      //  default:
+      //    break;
+      //}
+      Action action;
+      var found = keyActions.TryGetValue(e.Key, out action);
+      if (found) {
+        action();
       }
+    }
+
+    void depthDisplay_MouseDown(object sender, MouseButtonEventArgs e) {
+      var p = e.GetPosition(depthDisplay);
+      var x = (int)(p.X * HandInputParams.DepthWidth / depthDisplay.ActualWidth);
+      var y = (int)(p.Y * HandInputParams.DepthHeight / depthDisplay.ActualHeight);
+      var raw = depthManager.PixelData[y * HandInputParams.DepthWidth + x];
+      Log.DebugFormat("depth = {0}", DepthUtil.RawToDepth(raw));
     }
   }
 }

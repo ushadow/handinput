@@ -40,15 +40,17 @@ namespace HandInput.Engine {
     MCvConnectedComp connectedComp = new MCvConnectedComp();
     MCvBox2D shiftedRect = new MCvBox2D();
 
-    public SimpleSkeletonHandTracker(int width, int height, Byte[] kinectParams) {
+    public SimpleSkeletonHandTracker(int width, int height, Byte[] kinectParams, 
+                                     int bufferSize = 1) {
       mapper = new CoordinateConverter(kinectParams, HandInputParams.ColorImageFormat,
-                                    HandInputParams.DepthImageFormat);
+                                       HandInputParams.DepthImageFormat);
       Init(width, height);
     }
 
-    public SimpleSkeletonHandTracker(int width, int height, CoordinateMapper coordMapper) {
+    public SimpleSkeletonHandTracker(int width, int height, CoordinateMapper coordMapper, 
+                                     int bufferSize = 1) {
       mapper = new CoordinateConverter(coordMapper, HandInputParams.ColorImageFormat,
-                                    HandInputParams.DepthImageFormat);
+                                       HandInputParams.DepthImageFormat);
       Init(width, height);
     }
 
@@ -65,6 +67,7 @@ namespace HandInput.Engine {
         var rightHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
         var rightHandDepthPos = mapper.MapSkeletonPointToDepthPoint(rightHandJoint.Position);
         z = rightHandJoint.Position.Z;
+        // Relatively rough estimate.
         InitialHandRect = ComputeInitialRect(rightHandDepthPos, z);
 
         playerDetector.UpdateMasks(depthFrame, cf, InitialHandRect, true, true);
@@ -78,6 +81,7 @@ namespace HandInput.Engine {
         depthBBs.Add(HandRect);
         var colorBBS = new List<Rectangle>();
         colorBBS.Add(mapper.MapDepthRectToColorRect(HandRect, depthFrame, width, height));
+        playerDetector.SmoothSkin(colorBBS.Last());
         return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth, 
                                   depthBBs, playerDetector.SkinImage, colorBBS);
       }

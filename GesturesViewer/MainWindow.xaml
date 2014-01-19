@@ -32,7 +32,7 @@
             <RowDefinition Height="300"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="100"/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="100"/>
             <RowDefinition Height="*" MinHeight="30"/>
         </Grid.RowDefinitions>
@@ -45,7 +45,7 @@
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
-        <Viewbox Margin="5" Grid.RowSpan="6">
+        <Viewbox Margin="5" Grid.RowSpan="4">
             <StackPanel Orientation="Horizontal">
                 <Grid Width="320" Height="240" ClipToBounds="True">
                     <Image x:Name="kinectDisplay" Source="{Binding Bitmap}"/>
@@ -55,12 +55,34 @@
                     <Rectangle Stroke="Black" StrokeThickness="1"/>
                 </Grid>
                 <Grid Width="320" Height="240" ClipToBounds="True">
-                    <Image x:Name="depthDisplay" Source="{Binding Bitmap}"/>
+                    <Image x:Name="depthDisplay" Source="{Binding Bitmap}" MouseDown="depthDisplay_MouseDown"/>
                     <Canvas x:Name="depthCanvas" />
                     <Rectangle Stroke="Black" StrokeThickness="1"/>
                 </Grid>
             </StackPanel>
         </Viewbox>
+        <GroupBox Grid.Row="4" Header="Keys">
+            <Grid>
+                <Label Content="#" Name="labelKeys"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row ="5" Header="GroundTruth">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Label Content="Phase" Name="labelPhase"/>
+                <Label Content="#" Name="labelPhaseVal" Grid.Column="1"/>
+                <Label Content="Gesture" Name="labelGesture" Grid.Row="1"/>
+                <Label Content="#" Name="labelGestureVal" Grid.Row="1" Grid.Column="1"/>
+            </Grid>
+        </GroupBox>
+
         <TextBlock Text="COMMANDS" Grid.Column="1" Margin="4"/>
         <Grid Margin="10" Grid.Column="1" Grid.Row="1">
             <Grid.RowDefinitions>
