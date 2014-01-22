@@ -153,7 +153,8 @@ namespace HandInput.GesturesViewer {
         JitterRadius = 0.05f,
         MaxDeviationRadius = 0.04f
       });
-      skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor, kinectCanvas);
+      skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor.CoordinateMapper, 
+                                                          kinectCanvas);
       kinectDisplay.DataContext = colorManager;
       maskDispay.DataContext = debugDisplayManager;
       depthDisplay.DataContext = depthManager;
@@ -301,7 +302,8 @@ namespace HandInput.GesturesViewer {
       }
 
       try {
-        skeletonDisplayManager.Draw(frame.Skeletons, seatedMode.IsChecked == true);
+        skeletonDisplayManager.Draw(frame.Skeletons, seatedMode.IsChecked == true, 
+                                    HandInputParams.ColorImageFormat);
       } catch (Exception e) {
         Log.Error(e.Message);
       }
