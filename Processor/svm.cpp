@@ -2589,12 +2589,10 @@ double svm_predict(const svm_model *model, const svm_node *x)
 	return pred_result;
 }
 
-double svm_predict_probability(
-	const svm_model *model, const svm_node *x, double *prob_estimates)
+double svm_predict_probability(const svm_model *model, const svm_node *x, double *prob_estimates)
 {
 	if ((model->param.svm_type == C_SVC || model->param.svm_type == NU_SVC) &&
-	    model->probA!=NULL && model->probB!=NULL)
-	{
+	    model->probA!=NULL && model->probB!=NULL) {
 		int i;
 		int nr_class = model->nr_class;
 		double *dec_values = Malloc(double, nr_class*(nr_class-1)/2);
@@ -2606,8 +2604,7 @@ double svm_predict_probability(
 			pairwise_prob[i]=Malloc(double,nr_class);
 		int k=0;
 		for(i=0;i<nr_class;i++)
-			for(int j=i+1;j<nr_class;j++)
-			{
+			for(int j=i+1;j<nr_class;j++) {
 				pairwise_prob[i][j]=min(max(sigmoid_predict(dec_values[k],model->probA[k],model->probB[k]),min_prob),1-min_prob);
 				pairwise_prob[j][i]=1-pairwise_prob[i][j];
 				k++;

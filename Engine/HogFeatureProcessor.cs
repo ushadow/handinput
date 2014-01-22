@@ -33,17 +33,18 @@ namespace HandInput.Engine {
     }
     public bool Visualize { get; set; }
 
-    MFeatureProcessor featureProcessor = new MFeatureProcessor(HandInputParams.FeatureImageWidth,
-        HandInputParams.FeatureImageWidth);
-
-    public HogFeatureProcessor() {
+    MFeatureProcessor featureProcessor;
+    public HogFeatureProcessor(float sampleRate = 1) {
+      featureProcessor = new MFeatureProcessor(HandInputParams.FeatureImageWidth,
+          HandInputParams.FeatureImageWidth, 
+          (int) Math.Round(HandInputParams.SmoothWSize / sampleRate));
       DescriptorLength = featureProcessor.HOGLength();
       FeatureLength = MotionFeatureLength + DescriptorLength;
       Visualize = false;
     }
 
     /// <summary>
-    /// Computes the feature vector from the tracking result.
+    /// Creates a new feature vector from the tracking result.
     /// </summary>
     /// <param name="result"></param>
     /// <returns>An option of newly created Single array.</returns>
@@ -51,7 +52,8 @@ namespace HandInput.Engine {
       Single[] feature = null;
       if (result.RelPos.IsSome && result.DepthBoundingBoxes.Count > 0) {
         var pos = result.RelPos.Value;
-        var ptr = ComputeFeature(pos, result.DepthImage, result.DepthBoundingBoxes.Last());
+        var ptr = ComputeFeature(pos, result.DepthImage, result.DepthBoundingBoxes.Last(),
+            result.ColorImage, result.ColorBoundingBoxes.Last());
         if (!ptr.Equals(IntPtr.Zero)) {
           feature = new Single[FeatureLength];
           Marshal.Copy(ptr, feature, 0, FeatureLength);
@@ -68,11 +70,14 @@ namespace HandInput.Engine {
     /// <param name="image"></param>
     /// <param name="bb"></param>
     /// <returns>A pointer to a Single array.</returns>
-    IntPtr ComputeFeature(Vector3D pos, Image<Gray, Byte> image, Rectangle bb) {
+    IntPtr ComputeFeature(Vector3D pos, Image<Gray, Byte> image, Rectangle bb,
+        Image<Gray, Byte> colorImage, Rectangle colorBB) {
       image.ROI = bb;
+      colorImage.ROI = colorBB;
       var ptr = featureProcessor.Compute((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr,
                                           Visualize);
       image.ROI = Rectangle.Empty;
+      colorImage.ROI = Rectangle.Empty;
       return ptr;
     }
   }

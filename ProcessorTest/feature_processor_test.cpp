@@ -57,14 +57,15 @@ TEST(FeatureProcessorTest, ComputeMotionFeature) {
   int image_size = 64;
   handinput::FeatureProcessor processor(image_size, image_size);
   Mat image(image_size, image_size, CV_8U, cv::Scalar(255));
-  float* feature = processor.Compute(0, 0, 0, image);
+  Mat skin;
+  float* feature = processor.Compute(0, 0, 0, image, skin);
   ASSERT_EQ(NULL, feature);
-  feature = processor.Compute(0, 0, 0, image);
+  feature = processor.Compute(0, 0, 0, image, skin);
   ASSERT_EQ(NULL, feature);
-  feature = processor.Compute(0, 0, 0, image);
+  feature = processor.Compute(0, 0, 0, image, skin);
   for (int i = 0; i < processor.FeatureLength(); i++)
     ASSERT_EQ(0, feature[i]);
-  feature = processor.Compute(1, 2, 3, image);
+  feature = processor.Compute(1, 2, 3, image, skin);
   ASSERT_EQ(1, feature[0]);
   ASSERT_EQ(2, feature[1]);
   ASSERT_EQ(3, feature[2]);
@@ -74,7 +75,7 @@ TEST(FeatureProcessorTest, ComputeMotionFeature) {
   ASSERT_EQ(1, feature[6]);
   ASSERT_EQ(2, feature[7]);
   ASSERT_EQ(3, feature[8]);
-  feature = processor.Compute(0, 0, 0, image);
+  feature = processor.Compute(0, 0, 0, image, skin);
   ASSERT_EQ(0, feature[0]);
   ASSERT_EQ(0, feature[1]);
   ASSERT_EQ(0, feature[2]);

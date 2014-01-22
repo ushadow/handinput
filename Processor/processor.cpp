@@ -7,14 +7,11 @@ namespace handinput {
     inf_engine_.reset(new InfEngine(model_file));
   }
 
-  int Processor::Update(float x, float y, float z, IplImage* image, IplImage* skin, bool visualize) 
-  {
+  std::string Processor::Update(float x, float y, float z, IplImage* image, IplImage* skin, 
+                                bool visualize) {
     cv::Mat mat(image); // Default is not copying data.
-    cv::Mat skinMat(skin);
+    cv::Mat skinMat;
     float* feature = feature_proc_->Compute(x, y, z, mat, skinMat, visualize);
-    if (feature != NULL)
-      return inf_engine_->Update(feature);
-    else 
-      return 0;
+    return inf_engine_->Update(feature);
   }
 } 

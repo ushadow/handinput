@@ -170,7 +170,7 @@
       <Optimization>Full</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(EIGEN)\;$(MATLAB)\extern\include;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\program_files\boost_1_54_0;$(EIGEN)\;$(MATLAB)\extern\include;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include;G:\workspace\json_spirit_v4.06\json_spirit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>PROCESSOR_EXPORTS;WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -181,9 +181,9 @@
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opencv_core249.lib;opencv_imgproc249.lib;opencv_highgui249.lib;opencv_video249.lib;opencv_objdetect249.lib;libmat.lib;libmx.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core249.lib;opencv_imgproc249.lib;opencv_highgui249.lib;opencv_video249.lib;opencv_objdetect249.lib;libmat.lib;libmx.lib;json_spirit_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(MATLAB)\extern\lib\win64\microsoft;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>G:\workspace\json_spirit_v4.06\x64\Release;$(MATLAB)\extern\lib\win64\microsoft;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -272,6 +272,7 @@
     <ClInclude Include="databuffer.h" />
     <ClInclude Include="feature_processor.h" />
     <ClInclude Include="gaussian.h" />
+    <ClInclude Include="gesture_result.h" />
     <ClInclude Include="hand_tracker.h" />
     <ClInclude Include="harrisbuffer.h" />
     <ClInclude Include="harrisbuffer_rt.h" />
@@ -280,6 +281,7 @@
     <ClInclude Include="infengine.h" />
     <ClInclude Include="msharrisbuffer.h" />
     <ClInclude Include="pcheader.h" />
+    <ClInclude Include="processor.h" />
     <ClInclude Include="stbuffer.h" />
     <ClInclude Include="svm.h" />
     <ClInclude Include="svm_classifier.h" />

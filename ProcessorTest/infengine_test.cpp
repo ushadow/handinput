@@ -6,6 +6,27 @@
 
 static const std::string kModelFile = "../../../data/model.mat";
 
+TEST(InfEngineTest, InitializationSVM) {
+  using std::vector;
+  using std::string;
+
+  static const std::string model = "../../../data/model_svm.mat";
+  static const int kDescriptionLen = 441;
+  static const int kNumGestures = 5;
+  static const string kGestureLabels[kNumGestures] = {"Unknown", "SwipeRight", "SwipeLeft", 
+                                                      "Point", "Rest"};
+  
+  char full[_MAX_PATH];
+  _fullpath(full, model.c_str(), _MAX_PATH);
+  handinput::InfEngine engine(full);
+
+  ASSERT_EQ(kDescriptionLen, engine.descriptor_len());
+  vector<string> gesture_labels = engine.gesture_labels();
+  for (int i = 0; i < kNumGestures; i++) {
+    ASSERT_EQ(kGestureLabels[i], gesture_labels[i]);
+  }
+}
+
 TEST(InfEngineTest, Initialization) {
   using Eigen::VectorXf;
   using Eigen::MatrixXf;

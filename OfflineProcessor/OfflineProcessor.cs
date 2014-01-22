@@ -78,7 +78,7 @@ namespace HandInput.OfflineProcessor {
         }
         if (featureProcessor == null)
           featureProcessor = (IFeatureProcessor)Activator.CreateInstance(
-              featureProcessorType);
+              featureProcessorType, new Object[] {sampleRate});
         if (depthPixelData == null)
           depthPixelData = new Int16[depthFrame.PixelDataLength];
         if (colorPixelData == null)

@@ -23,7 +23,7 @@ using HandInput.Util;
 namespace HandInput.GesturesViewer {
   partial class MainWindow {
     static readonly int FPS = 30;
-    static readonly int SampleRate = int.Parse(ConfigurationManager.AppSettings["sample_rate"]);
+    static readonly float SampleRate = float.Parse(ConfigurationManager.AppSettings["sample_rate"]);
 
     DispatcherTimer timer;
     GroundTruthDataRelayer gtReplayer;
@@ -111,7 +111,8 @@ namespace HandInput.GesturesViewer {
       if (handTracker != null && recogEngine != null) {
         var result = handTracker.Update(depthManager.PixelData, colorManager.PixelData,
             SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
-        recogEngine.Update(result, true);
+        var gesture = recogEngine.Update(result, true);
+        statusTextBox.Text = gesture;
         fpsCounter.LogFPS();
         UpdateDisplay(result);
       }

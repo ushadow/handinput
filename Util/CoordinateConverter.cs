@@ -26,7 +26,8 @@ namespace HandInput.Util {
       this.dif = dif;
     }
 
-    public CoordinateConverter(CoordinateMapper mapper, ColorImageFormat cif, DepthImageFormat dif) {
+    public CoordinateConverter(CoordinateMapper mapper, ColorImageFormat cif, DepthImageFormat dif) 
+    {
       this.mapper = mapper;
       this.cif = cif;
       this.dif = dif;

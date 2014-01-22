@@ -13,7 +13,10 @@ using Emgu.CV.CvEnum;
 using Common.Logging;
 
 namespace HandInput.Engine {
-  public class FeatureProcessor : IFeatureProcessor {
+  /// <summary>
+  /// Output raw features: relative position and image patch data without further processing.
+  /// </summary>
+  public class SimpleFeatureProcessor : IFeatureProcessor {
     static readonly int FeatureImageWidth = 64;
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 

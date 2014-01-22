@@ -2,16 +2,15 @@
 #include "pcheader.h"
 
 namespace handinput {
-  class SVMClassifier {
+  class PROCESSOR_API SVMClassifier {
   public:
-    SVMClassifier(std::string model_file, bool predict_prob = false);
+    SVMClassifier(const char* model_file, bool predict_prob = true);
     ~SVMClassifier();
-    double* predict(std::vector<double> attr);
+    Eigen::VectorXd Predict(const Eigen::Ref<const Eigen::VectorXf> attr);
   private:
-    svm_node *x_;
     svm_model *model_;
     int svm_type_;
     bool predict_prob_;
-    double *prob_estimates_;
+    Eigen::VectorXd prob_estimates_;
   };
 }

@@ -18,12 +18,12 @@ namespace HandInput.Engine {
 
     public RecognitionEngine(String modelFile) {
       this.modelFile = modelFile;
-      processor = new MProcessor(HandInputParams.FeatureImageWidth, HandInputParams.FeatureImageWidth,
-                                 modelFile);
+      processor = new MProcessor(HandInputParams.FeatureImageWidth, 
+          HandInputParams.FeatureImageWidth, modelFile);
     }
 
-    public int Update(TrackingResult result, bool visualize = false) {
-      int gesture = 0;
+    public String Update(TrackingResult result, bool visualize = false) {
+      String gesture = "";
       if (result.RelPos.IsSome && result.DepthBoundingBoxes.Count > 0) {
         var pos = result.RelPos.Value;
         var image = result.DepthImage;

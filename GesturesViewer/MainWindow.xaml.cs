@@ -35,6 +35,7 @@ namespace HandInput.GesturesViewer {
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
     readonly DepthStreamManager depthManager = new DepthStreamManager();
+    SkeletonDisplayManager skeletonDisplayManager;
     readonly DebugDisplayManager debugDisplayManager = new DebugDisplayManager(
         HandInputParams.DepthWidth, HandInputParams.DepthHeight);
     readonly TrainingManager trainingManager = new TrainingManager();
@@ -44,7 +45,6 @@ namespace HandInput.GesturesViewer {
     KinectSensor kinectSensor;
 
     AudioStreamManager audioManager;
-    SkeletonDisplayManager skeletonDisplayManager;
     bool displayDebug = false;
     DisplayOption displayOption = DisplayOption.DEPTH;
 
@@ -61,8 +61,9 @@ namespace HandInput.GesturesViewer {
     public MainWindow() {
       InitializeComponent();
       keyActions = new Dictionary<Key, Action>() {
-        {Key.Space, RecordGesture}, {Key.P, TogglePlay}
-      }; 
+        {Key.Space, RecordGesture}, {Key.P, TogglePlay}, {Key.N, StepForward}, 
+        {Key.S, StartKinect}
+      };
     }
 
     void Kinects_StatusChanged(object sender, StatusChangedEventArgs e) {
@@ -112,9 +113,7 @@ namespace HandInput.GesturesViewer {
             break;
           }
         }
-
         InitializeKinect();
-
       } catch (Exception ex) {
         MessageBox.Show(ex.Message);
       }
@@ -135,7 +134,6 @@ namespace HandInput.GesturesViewer {
     void InitializeKinect() {
       if (kinectSensor == null)
         return;
-
       Log.InfoFormat("Color stream nominal focal length in pixel = {0}",
           kinectSensor.ColorStream.NominalFocalLengthInPixels);
       Log.InfoFormat("Depth stream nominal focal length in pixel = {0}",
@@ -155,17 +153,21 @@ namespace HandInput.GesturesViewer {
         JitterRadius = 0.05f,
         MaxDeviationRadius = 0.04f
       });
-
-      kinectSensor.AllFramesReady += kinectRuntime_AllFrameReady;
       skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor, kinectCanvas);
-      kinectSensor.Start();
-
       kinectDisplay.DataContext = colorManager;
       maskDispay.DataContext = debugDisplayManager;
       depthDisplay.DataContext = depthManager;
 
       HandInputParams.ColorFocalLength = kinectSensor.ColorStream.NominalFocalLengthInPixels;
       HandInputParams.DepthFocalLength = kinectSensor.DepthStream.NominalFocalLengthInPixels;
+    }
+
+    void StartKinect() {
+      if (kinectSensor == null)
+        return;
+
+      kinectSensor.AllFramesReady += kinectRuntime_AllFrameReady;
+      kinectSensor.Start();
     }
 
     void StartTracking() {
@@ -183,12 +185,10 @@ namespace HandInput.GesturesViewer {
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
         var data = buffer.Take();
         var result = handTracker.Update(data.DepthData, data.ColorData, data.Skeleton);
-        int gestureIndex = recogEngine.Update(result);
+        String gesture = recogEngine.Update(result);
         Dispatcher.Invoke(DispatcherPriority.Normal, new Action<TrackingResult>(UpdateDisplay),
           result);
-        if (gestureIndex >= 1 && gestureIndex <= 2)
-          Dispatcher.Invoke(DispatcherPriority.Normal, new Action<String>(SetStatus),
-              Gestures[gestureIndex]);
+        Dispatcher.Invoke(DispatcherPriority.Normal, new Action<String>(SetStatus), gesture);
         fpsCounter.LogFPS();
       }
     }
@@ -326,11 +326,11 @@ namespace HandInput.GesturesViewer {
         recorder = null;
       }
 
-      if (kinectSensor != null) {
+      if (kinectSensor != null && kinectSensor.IsRunning) {
         kinectSensor.AllFramesReady -= kinectRuntime_AllFrameReady;
         kinectSensor.Stop();
-        kinectSensor = null;
       }
+      kinectSensor = null;
 
       StopReplay();
     }

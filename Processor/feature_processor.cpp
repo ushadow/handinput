@@ -6,10 +6,10 @@ namespace handinput {
   const std::string FeatureProcessor::kDepthWindowName = "Depth";
   const std::string FeatureProcessor::kColorWindowName = "Color";
 
-  FeatureProcessor::FeatureProcessor(int w, int h) : w_(w), h_(h), pos_buffer_(kSpan), 
-    temporal_mask_(kSpan, 1.0f / kSpan) {
+  FeatureProcessor::FeatureProcessor(int w, int h, int buffer_size) : w_(w), h_(h), 
+      pos_buffer_(buffer_size), temporal_mask_(buffer_size, 1.0f / buffer_size) {
     hog_.reset(new HOGDescriptor(w, h, kCellSize, kNBins));
-    scaled_image_.reset(new cv::Mat(h, w, CV_8U)); 
+    resized_image_.reset(new cv::Mat(h, w, CV_8U)); 
     float_image_.reset(new cv::Mat(h, w, CV_32F));
     feature_.reset(new float[hog_->Length() + kMotionFeatureLen]);
     descriptor_ = feature_.get() + kMotionFeatureLen;
@@ -38,7 +38,8 @@ namespace handinput {
         CopyMatToArray(v, feature_.get(), 3);
         CopyMatToArray(a, feature_.get(), 6);
         Compute(image, kDepthWindowName, visualize);
-        Compute(skin, kColorWindowName, visualize);
+        if (skin.cols > 0)
+          Compute(skin, kColorWindowName, visualize);
         updated = true;
       }
       prev_v_ = v;
@@ -57,12 +58,12 @@ namespace handinput {
   // Resizes the image and converts the image to float point values. 
   float* FeatureProcessor::Compute(cv::Mat& image, std::string window_name, bool visualize) {
     // Uses the default linear interpolation.
-    cv::resize(image, *scaled_image_, cv::Size(w_, h_));
-    scaled_image_->convertTo(*float_image_, CV_32F);
+    cv::resize(image, *resized_image_, cv::Size(w_, h_));
+    resized_image_->convertTo(*float_image_, CV_32F);
 
     hog_->Compute((float*) float_image_->data, descriptor_);
     if (visualize) {
-      cv::Mat vis = VisualizeHOG(*scaled_image_);
+      cv::Mat vis = VisualizeHOG(*resized_image_);
       DisplayImage(vis, window_name);
     }
     return descriptor_;

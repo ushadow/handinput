@@ -23,6 +23,9 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <math.h>
+#include <exception>
+#include <stdexcept>
 
 #include "cv.h"
 #include "opencv2\core\core.hpp"
@@ -34,4 +37,6 @@
 #include <Eigen/Dense>
 
 #include "svm.h"
+
+#include "json_spirit.h"
 

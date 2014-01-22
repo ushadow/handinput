@@ -6,6 +6,7 @@ namespace handinput {
   class PROCESSOR_API HMM {
   public:
     // Factory method for creating HMM. The caller must take the ownership of the HMM object.
+    // mx_model: cannot be null.
     static HMM* CreateFromMxArray(mxArray* mx_model);
 
     // prior: makes a copy of prioir.

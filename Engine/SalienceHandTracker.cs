@@ -52,7 +52,6 @@ namespace HandInput.Engine {
     MCvConnectedComp connectedComp = new MCvConnectedComp();
     MCvBox2D shiftedBox = new MCvBox2D();
     CoordinateConverter mapper;
-    MHandTracker handTracker;
     Image<Gray, Byte> prevSmoothedDepth, smoothedDepth;
     int bufferSize;
 
@@ -148,8 +147,6 @@ namespace HandInput.Engine {
       this.width = width;
       this.height = height;
       this.bufferSize = bufferSize;
-
-      handTracker = new MHandTracker(width, height);
 
       // Diff at t - 0;
       DiffMask0 = new Image<Gray, Byte>(width, height);

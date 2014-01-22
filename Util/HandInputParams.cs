@@ -25,9 +25,10 @@ namespace HandInput.Util {
     // Kinect out of range readings: 
     // too near: 0, too far: 0x0FFF (4095), unknown: 0x1FFF (8191) 
     public static int MinDepth = 800; // mm
-    public static int FeatureImageWidth = 64;
+    public static int FeatureImageWidth = 32;
     public static float ColorFocalLength = 531.15f;
     public static float DepthFocalLength = 571.26f;
+    public static int SmoothWSize = 15;
 
     public static byte[] GetKinectParams(byte[] bytes) {
       var bf = new BinaryFormatter();

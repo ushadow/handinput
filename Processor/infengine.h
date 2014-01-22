@@ -1,10 +1,12 @@
 #pragma once
 #include "pcheader.h"
 #include "hmm.h"
+#include "svm_classifier.h"
 
 namespace handinput {
   class PROCESSOR_API InfEngine {
   public:
+    // model_file: full path of the MATLAB model file saved in v7.3.
     InfEngine(const std::string& model_file);
     ~InfEngine() {}
 
@@ -19,15 +21,16 @@ namespace handinput {
     const Eigen::VectorXf* std_mu() const { return &std_mu_; }
     const Eigen::VectorXf* std_sigma() const { return &std_sigma_; }
     const HMM* hmm() const { return hmm_.get(); }
+    std::vector<std::string> gesture_labels() const { return gesture_labels_; };
 
-
-    // raw_feature: feature before dimensional reduction. Cannot be null.
+    // raw_feature: feature before dimensional reduction. Can be null.
     //
     // Returns
     // The most probable gesture label.
-    int Update(float* raw_feature);
+    std::string Update(float* raw_feature);
     void Reset() { hmm_->Reset(); }
   private:
+    static const std::string kHandPoses[];
     int descriptor_len_, n_principal_comps_, feature_len_, n_states_per_gesture_, n_vocabularies_;
     // Each row is a principal component.
     Eigen::MatrixXf principal_comp_; 
@@ -35,9 +38,11 @@ namespace handinput {
     Eigen::VectorXf std_mu_;
     Eigen::VectorXf std_sigma_;
     std::unique_ptr<HMM> hmm_;
+    std::unique_ptr<SVMClassifier> svm_classifier_;
+    std::vector<std::string> gesture_labels_;
 
     InfEngine(const InfEngine&) {}
     InfEngine& operator=(const InfEngine&) { return *this; }
-    void InitHMM(mxArray* mx_model);
+    void InitGestureLabels(mxArray* mx_gesture_labels);
   };
 }

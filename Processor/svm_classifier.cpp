@@ -4,28 +4,28 @@
 namespace handinput {
   static int (*info)(const char *fmt,...) = &printf;
 
-  double* SVMClassifier::predict(std::vector<double> attr) {
+  Eigen::VectorXd SVMClassifier::Predict(const Eigen::Ref<const Eigen::VectorXf> attr) {
 
     double predict_label;
-    if (x_ == NULL)
-      x_ = (struct svm_node *) realloc(x_, attr.size() + 1 * sizeof(struct svm_node));
+    svm_node* x = new svm_node[attr.size() + 1];
 
     for (int i = 0; i < attr.size(); i++) {
-      x_[i].index = i + 1;
-      x_[i].value = attr[i];
+      x[i].index = i + 1;
+      x[i].value = attr[i];
     }
-    x_[attr.size()].index = -1;
+    x[attr.size()].index = -1;
 
     if (predict_prob_ && (svm_type_ == C_SVC || svm_type_ == NU_SVC)) {
-      predict_label = svm_predict_probability(model_, x_, prob_estimates_);
+      predict_label = svm_predict_probability(model_, x, prob_estimates_.data());
     } else {
-      predict_label = svm_predict(model_, x_);
+      predict_label = svm_predict(model_, x);
     }
+    delete [] x;
     return prob_estimates_;
   }
 
-  SVMClassifier::SVMClassifier(std::string model_file, bool pred_prob) : predict_prob_(pred_prob) {
-    model_ = svm_load_model(model_file.c_str()); 
+  SVMClassifier::SVMClassifier(const char* model_file, bool pred_prob) : predict_prob_(pred_prob) {
+    model_ = svm_load_model(model_file); 
     if (model_ == NULL) {
       fprintf(stderr,"can't open model file %s\n", model_file);
       exit(1);
@@ -48,15 +48,12 @@ namespace handinput {
       if (svm_type_ == NU_SVR || svm_type_ == EPSILON_SVR)
         info("Prob. model for test data: target value = predicted value + z,\nz: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma=%g\n",svm_get_svr_probability(model_));
       else {
-        prob_estimates_ = (double *) malloc(nr_class_ * sizeof(double));
+        prob_estimates_ = Eigen::VectorXd(nr_class_);
       }
     }
   }
 
   SVMClassifier::~SVMClassifier() {
     svm_free_and_destroy_model(&model_);
-    free(x_);
-    if (predict_prob_)
-      free(prob_estimates_);
   }
 }

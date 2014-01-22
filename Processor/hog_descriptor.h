@@ -4,13 +4,14 @@
 namespace handinput {
   
 // One-fold normalization HOG descriptor. The length of the descriptor is 
-// (w / sbin - 1) * (h / sbin - 1) * obin.
+// (w / sbin - fold_per_dimension) * (h / sbin - fold_per_dimension) * obin.
 class HOGDescriptor {
 public:
   // w: width of the input image.
   // h: heigth of the input image.
   HOGDescriptor(int w, int h, int sbin, int obin, int fold = 1);
   ~HOGDescriptor(void) {};
+  // Computes HOG feature in row-oriented order.
   void Compute(float* I, float* HG);
   // Descriptor length.
   int Length();

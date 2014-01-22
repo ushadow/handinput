@@ -5,7 +5,7 @@
         Loaded="Window_Loaded"
         Closing="Window_Closing"        
         WindowState="Normal"    
-        Title="Gestures Viewer" MinHeight="700" MinWidth="1000" MaxHeight="700" MaxWidth="2000" KeyDown="Window_KeyDown">
+        Title="Gestures Viewer" MinHeight="1000" MinWidth="1000" MaxHeight="1500" MaxWidth="2000" KeyDown="Window_KeyDown">
     <Window.Resources>
         <Style TargetType="{x:Type TextBlock}">
             <Setter Property="FontFamily" Value="Segoe UI"/>
@@ -25,13 +25,13 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="450"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="300"/>
+            <RowDefinition Height="350"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="200"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="100"/>
             <RowDefinition Height="*" MinHeight="30"/>
@@ -45,7 +45,7 @@
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
-        <Viewbox Margin="5" Grid.RowSpan="4">
+        <Viewbox Margin="5" Grid.RowSpan="3">
             <StackPanel Orientation="Horizontal">
                 <Grid Width="320" Height="240" ClipToBounds="True">
                     <Image x:Name="kinectDisplay" Source="{Binding Bitmap}"/>
@@ -61,12 +61,12 @@
                 </Grid>
             </StackPanel>
         </Viewbox>
-        <GroupBox Grid.Row="4" Header="Keys">
+        <GroupBox Grid.Row="3" Header="Keys">
             <Grid>
                 <Label Content="#" Name="labelKeys"/>
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Row ="5" Header="GroundTruth">
+        <GroupBox Grid.Row ="4" Header="GroundTruth">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -106,7 +106,8 @@
         </Grid>
         <TextBlock Text="STATUS" Grid.Column="1" Grid.Row="2" Margin="4"/>
         <TextBox x:Name="statusTextBox" FontSize="30" Grid.Column="1" Margin="10,10,10,0" Grid.Row="3"
-                 ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                 ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 TextWrapping="Wrap"/>
         <StackPanel Grid.Row="6" Margin="212,0" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Rectangle x:Name="audioBeamAngle" Height="20" Width="300" Margin="5">
                 <Rectangle.Fill>
@@ -137,7 +138,8 @@
         </ListBox>
         <Slider Minimum="0" 
                 Value="{Binding ElevationAngle, Mode=TwoWay}" x:Name="frameSlider"
-                Grid.Row="6" Margin="5" ValueChanged="frameSlider_ValueChanged"/>
-        <Button Grid.RowSpan="2" Content="View Debug" Margin="267,10,267,0" HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click" x:Name="viewButton"/>
+                Grid.Row="5" Margin="5" ValueChanged="frameSlider_ValueChanged"/>
+        <Button Grid.RowSpan="2" Content="View Debug" Margin="267,10,267,0" 
+                HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click" x:Name="viewButton"/>
     </Grid>
 </Window>

@@ -27,6 +27,7 @@
     <ClCompile Include="hmm_test.cpp" />
     <ClCompile Include="infengine_test.cpp" />
     <ClCompile Include="mixgaussian_test.cpp" />
+    <ClCompile Include="svm_classifier_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Processor\Processor.vcxproj">

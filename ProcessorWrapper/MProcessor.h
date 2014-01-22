@@ -8,7 +8,7 @@ namespace handinput {
     MProcessor(int w, int h, System::String^ model_file);
     ~MProcessor() { this->!MProcessor(); }
     !MProcessor() { delete processor_; }
-    int Update(float x, float y, float z, System::IntPtr image, System::IntPtr skin, 
+    System::String^ Update(float x, float y, float z, System::IntPtr image, System::IntPtr skin, 
                bool visualize);
     void Reset() { processor_->Reset(); } 
   private:

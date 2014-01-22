@@ -9,10 +9,14 @@ namespace handinput {
     processor_ = new Processor(w, h, str);
   }
 
-  int MProcessor::Update(float x, float y, float z, System::IntPtr image, System::IntPtr skin,
-                         bool visualize) {
-    return processor_->Update(x, y, z, reinterpret_cast<IplImage*>(image.ToPointer()), 
+  System::String^ MProcessor::Update(float x, float y, float z, System::IntPtr image, 
+      System::IntPtr skin, bool visualize) {
+
+    std::string gesture_label = processor_->Update(x, y, z, 
+        reinterpret_cast<IplImage*>(image.ToPointer()), 
         reinterpret_cast<IplImage*>(skin.ToPointer()), visualize);
+    System::String^ ms = msclr::interop::marshal_as<System::String^>(gesture_label);
+    return ms;
   }
 }
 
