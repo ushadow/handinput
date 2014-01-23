@@ -157,8 +157,6 @@ namespace HandInput.Util {
 
       CvInvoke.cvMorphologyEx(PlayerMask.Ptr, PlayerMask.Ptr,
           IntPtr.Zero, IntPtr.Zero, CV_MORPH_OP.CV_MOP_OPEN, CvOpenIter);
-
-      ImageUtil.AlignImageDepthToColor(PlayerMask, ColorPlayerMask, depthFrame, mapper);
     }
 
     Seq<Point> FindPlayerContour(Image<Gray, Byte> mask) {

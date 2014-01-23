@@ -11,6 +11,10 @@ namespace HandInput.GesturesViewer {
 
     public WriteableBitmap Bitmap { get; private set; }
 
+    /// <summary>
+    /// Creates a new PixelData array.
+    /// </summary>
+    /// <param name="frame"></param>
     public void Update(ReplayDepthImageFrame frame) {
       PixelData = new short[frame.PixelDataLength];
       frame.CopyPixelDataTo(PixelData);

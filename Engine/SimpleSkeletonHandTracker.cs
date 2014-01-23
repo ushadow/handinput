@@ -62,7 +62,7 @@ namespace HandInput.Engine {
     /// <param name="skeleton"></param>
     /// <returns>If skeleton is null, returns an empty result.</returns>
     public TrackingResult Update(short[] depthFrame, byte[] cf, Skeleton skeleton) {
-      if (skeleton != null) {
+      if (skeleton != null && depthFrame != null && cf != null) {
         float z = DefaultZDist;
         var rightHandJoint = SkeletonUtil.GetJoint(skeleton, JointType.HandRight);
         var rightHandDepthPos = mapper.MapSkeletonPointToDepthPoint(rightHandJoint.Position);
@@ -79,11 +79,8 @@ namespace HandInput.Engine {
             height, skeleton, mapper);
         var depthBBs = new List<Rectangle>();
         depthBBs.Add(HandRect);
-        var colorBBS = new List<Rectangle>();
-        colorBBS.Add(mapper.MapDepthRectToColorRect(HandRect, depthFrame, width, height));
-        playerDetector.SmoothSkin(colorBBS.Last());
         return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth, 
-                                  depthBBs, playerDetector.SkinImage, colorBBS);
+                                  depthBBs, playerDetector.SkinImage);
       }
       return new TrackingResult();
     }
@@ -101,8 +98,11 @@ namespace HandInput.Engine {
     /// <returns></returns>
     Rectangle ComputeInitialRect(DepthImagePoint point, float z) {
       var scaledHandWidth = DepthUtil.GetDepthImageLength(width, HandWidth, z) * 2;
-      return new Rectangle((int)(point.X - scaledHandWidth / 2),
-        (int)(point.Y - scaledHandWidth / 2), (int)(scaledHandWidth), (int)(scaledHandWidth));
+      var left = Math.Max(0, (int)(point.X - scaledHandWidth / 2));
+      var top = Math.Max(0, (int)(point.Y - scaledHandWidth / 2));
+      var right = Math.Min(width, (int) (left + scaledHandWidth));
+      var bottom = Math.Min(height, (int) (top + scaledHandWidth));
+      return new Rectangle(left, top, right - left, bottom - top);
     }
 
     void FindBestBoundingBox(Rectangle initialRect) {

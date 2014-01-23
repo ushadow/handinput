@@ -73,8 +73,8 @@ namespace HandInput.Util {
         roiWidth = roi.Width;
         roiHeight = roi.Height;
       }
-      for (int i = roi.Top; i < roi.Top + roiHeight; i++)
-        for (int j = roi.Left; j <roi.Left + roiWidth; j++) {
+      for (int i = Math.Max(0, roi.Top); i < Math.Min(height, roi.Top + roiHeight); i++)
+        for (int j = Math.Max(0, roi.Left); j <Math.Min(width, roi.Left + roiWidth); j++) {
           y = YCrCbData[i, j, 0];
           cr = YCrCbData[i, j, 1];
           cb = YCrCbData[i, j, 2];
@@ -94,7 +94,7 @@ namespace HandInput.Util {
         }
 
       skinMask.ROI = roi;
-      CvInvoke.cvAnd(SkinImage.Ptr, skinMask.Ptr, SkinImage.Ptr, IntPtr.Zero);
+      //CvInvoke.cvAnd(SkinImage.Ptr, skinMask.Ptr, SkinImage.Ptr, IntPtr.Zero);
       CvInvoke.cvMorphologyEx(skinMask.Ptr, skinMask.Ptr, IntPtr.Zero, Rect6.Ptr, 
                               CV_MORPH_OP.CV_MOP_OPEN, 1);
       return skinMask;

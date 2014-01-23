@@ -46,8 +46,8 @@ namespace HandInput.Util {
         roiHeight = roi.Height;
         roiWidth = roi.Width;
       }
-      for (int r = roi.Top; r < roi.Top + roiHeight; r++)
-        for (int c = roi.Left; c < roi.Left + roiWidth; c++)
+      for (int r = Math.Max(0, roi.Top); r < Math.Min(height, roi.Top + roiHeight); r++)
+        for (int c = Math.Max(0, roi.Left); c < Math.Min(width, roi.Left + roiWidth); c++)
           for (int channel = 0; channel < 3; channel++) {
             dst[r, c, channel] = src[(r * width + c) * 4 + channel];
           }

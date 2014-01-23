@@ -28,7 +28,7 @@ namespace handinput {
     // Returns
     // The most probable gesture label.
     std::string Update(float* raw_feature);
-    void Reset() { hmm_->Reset(); }
+    void Reset() { if (hmm_) hmm_->Reset(); }
   private:
     static const std::string kHandPoses[];
     int descriptor_len_, n_principal_comps_, feature_len_, n_states_per_gesture_, n_vocabularies_;

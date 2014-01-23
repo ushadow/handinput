@@ -86,7 +86,6 @@ namespace handinput {
         VectorXd::Index max_index;
         prob.maxCoeff(&max_index);
         handpose_index = (int) max_index;
-        std::cout << "most likely hand pose " << handpose_index << std::endl;
       }
 
       if (hmm_) {

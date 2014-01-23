@@ -53,7 +53,7 @@ namespace HandInput.Engine {
       if (result.RelPos.IsSome && result.DepthBoundingBoxes.Count > 0) {
         var pos = result.RelPos.Value;
         var ptr = ComputeFeature(pos, result.DepthImage, result.DepthBoundingBoxes.Last(),
-            result.ColorImage, result.ColorBoundingBoxes.Last());
+            result.ColorImage, result.ColorBoundingBoxes.LastOrDefault());
         if (!ptr.Equals(IntPtr.Zero)) {
           feature = new Single[FeatureLength];
           Marshal.Copy(ptr, feature, 0, FeatureLength);
@@ -73,11 +73,9 @@ namespace HandInput.Engine {
     IntPtr ComputeFeature(Vector3D pos, Image<Gray, Byte> image, Rectangle bb,
         Image<Gray, Byte> colorImage, Rectangle colorBB) {
       image.ROI = bb;
-      colorImage.ROI = colorBB;
       var ptr = featureProcessor.Compute((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr,
                                           Visualize);
       image.ROI = Rectangle.Empty;
-      colorImage.ROI = Rectangle.Empty;
       return ptr;
     }
   }

@@ -62,7 +62,7 @@ namespace HandInput.GesturesViewer {
       InitializeComponent();
       keyActions = new Dictionary<Key, Action>() {
         {Key.Space, RecordGesture}, {Key.P, TogglePlay}, {Key.N, StepForward}, 
-        {Key.S, StartKinect}
+        {Key.S, StartKinect}, {Key.T, StartTracking}
       };
     }
 
@@ -153,7 +153,7 @@ namespace HandInput.GesturesViewer {
         JitterRadius = 0.05f,
         MaxDeviationRadius = 0.04f
       });
-      skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor.CoordinateMapper, 
+      skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor.CoordinateMapper,
                                                           kinectCanvas);
       kinectDisplay.DataContext = colorManager;
       maskDispay.DataContext = debugDisplayManager;
@@ -172,24 +172,46 @@ namespace HandInput.GesturesViewer {
     }
 
     void StartTracking() {
-      cancellationTokenSource = new CancellationTokenSource();
       StopReplay();
-      var token = cancellationTokenSource.Token;
-      Task.Factory.StartNew(() => HandTrackingTask(token), token);
+      if (!kinectSensor.IsRunning)
+        StartKinect();
+      handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
+          HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
+      recogEngine = new RecognitionEngine(ModelFile);
     }
 
     void HandTrackingTask(CancellationToken token) {
       Log.Debug("Start tracking");
-      handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
-          HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
-      recogEngine = new RecognitionEngine(ModelFile);
       while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
-        var data = buffer.Take();
-        var result = handTracker.Update(data.DepthData, data.ColorData, data.Skeleton);
-        String gesture = recogEngine.Update(result);
-        Dispatcher.Invoke(DispatcherPriority.Normal, new Action<TrackingResult>(UpdateDisplay),
-          result);
-        Dispatcher.Invoke(DispatcherPriority.Normal, new Action<String>(SetStatus), gesture);
+        //var data = buffer.Take();
+        //try {
+        //  kinectSensor.AllFramesReady -= kinectRuntime_AllFrameReady;
+        //  var result = handTracker.Update(data.DepthData, data.ColorData, data.Skeleton);
+        //  String gesture = recogEngine.Update(result, true);
+        //  kinectSensor.AllFramesReady += kinectRuntime_AllFrameReady;
+        //  Dispatcher.Invoke(DispatcherPriority.Normal, new Action<TrackingResult>(UpdateDisplay),
+        //    result);
+        //  Dispatcher.Invoke(DispatcherPriority.Normal, new Action<String>(SetStatus), gesture);
+        //} catch (Exception e) {
+        //  Log.Debug(e.Message);
+        //  Log.Debug(e.StackTrace);
+        //}
+        var cf = kinectSensor.ColorStream.OpenNextFrame(Int32.MaxValue);
+        var df = kinectSensor.DepthStream.OpenNextFrame(Int32.MaxValue);
+        var sf = kinectSensor.SkeletonStream.OpenNextFrame(Int32.MaxValue);
+        if (cf != null)
+          Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => colorManager.Update(cf, !displayDebug)));
+
+        if (df != null) {
+          depthFrameNumber = df.FrameNumber;
+          depthManager.Update(df);
+        }
+
+        if (sf != null) {
+          //UpdateSkeletonDisplay(sf);
+          handTracker.Update(depthManager.PixelData, colorManager.PixelData,
+              SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons()));
+        }
         fpsCounter.LogFPS();
       }
     }
@@ -210,6 +232,8 @@ namespace HandInput.GesturesViewer {
       if (result.ColorBoundingBoxes.Count > 0) {
         VisualUtil.DrawRectangle(colorCanvas, result.ColorBoundingBoxes.Last(), Brushes.Red,
             (float)colorCanvas.ActualWidth / HandInputParams.ColorWidth);
+      }
+      if (result.DepthBoundingBoxes.Count > 0) {
         VisualUtil.DrawRectangle(depthCanvas, result.DepthBoundingBoxes.Last(), Brushes.Red,
                     (float)depthCanvas.ActualWidth / HandInputParams.DepthWidth);
       }
@@ -232,8 +256,8 @@ namespace HandInput.GesturesViewer {
 
     void UpdateSimpleHandTrackerDisplay() {
       SimpleSkeletonHandTracker ssht = (SimpleSkeletonHandTracker)handTracker;
-      VisualUtil.DrawRectangle(colorCanvas, ssht.InitialHandRect, Brushes.Green,
-          (float)colorCanvas.ActualWidth / HandInputParams.ColorWidth);
+      VisualUtil.DrawRectangle(depthCanvas, ssht.InitialHandRect, Brushes.Green,
+          (float)depthCanvas.ActualWidth / HandInputParams.DepthWidth);
     }
 
     void UpdateStipHandTrackerDisplay() {
@@ -277,12 +301,14 @@ namespace HandInput.GesturesViewer {
 
         if (sf != null) {
           UpdateSkeletonDisplay(sf);
-          if (buffer.Count <= 1)
-            buffer.Add(new KinectDataPacket {
-              ColorData = colorManager.PixelData,
-              DepthData = depthManager.PixelData,
-              Skeleton = SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons())
-            });
+          if (handTracker != null && recogEngine != null) {
+            var result = handTracker.Update(depthManager.PixelData, colorManager.PixelData,
+              SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons()));
+            var gesture = recogEngine.Update(result);
+            UpdateDisplay(result);
+            statusTextBox.Text = gesture;
+            fpsCounter.LogFPS();
+          }
         }
       }
     }
@@ -302,7 +328,7 @@ namespace HandInput.GesturesViewer {
       }
 
       try {
-        skeletonDisplayManager.Draw(frame.Skeletons, seatedMode.IsChecked == true, 
+        skeletonDisplayManager.Draw(frame.Skeletons, seatedMode.IsChecked == true,
                                     HandInputParams.ColorImageFormat);
       } catch (Exception e) {
         Log.Error(e.Message);

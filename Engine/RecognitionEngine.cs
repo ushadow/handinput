@@ -29,11 +29,9 @@ namespace HandInput.Engine {
         var image = result.DepthImage;
         var skin = result.ColorImage;
         image.ROI = result.DepthBoundingBoxes.Last();
-        skin.ROI = result.ColorBoundingBoxes.Last();
         gesture = processor.Update((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr, 
                                     skin.Ptr, visualize);
         image.ROI = Rectangle.Empty;
-        skin.ROI = Rectangle.Empty;
         reset = false;
       } else {
         if (!reset) {
