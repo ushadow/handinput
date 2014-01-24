@@ -19,6 +19,7 @@ namespace handinput {
     int n_states() const { return n_states_; }
     int feature_len() const { return feature_len_; }
     const Eigen::VectorXd* prior() const { return &prior_; }
+    const std::vector<int>& state_to_label_map() const { return state_to_label_map_; }
 
     // Transition matrix transposed.
     const Eigen::MatrixXd* transmat_t() const { return &transmat_t_; }
@@ -26,6 +27,8 @@ namespace handinput {
     const MixGaussian* MixGaussianAt(int index) const;
 
     int MostLikelyState();
+    // 1-based label index.
+    int MostLikelyLabel();
 
     double Fwdback(const Eigen::Ref<const Eigen::VectorXf> x);
     void Reset();

@@ -1,0 +1,14 @@
+﻿<grammar version="1.0" xml:lang="en-US" root="rootRule" tag-format="semantics/1.0-literals" xmlns="http://www.w3.org/2001/06/grammar">
+  <rule id="rootRule">
+    <one-of>
+      <item>
+        <tag>MORE</tag>
+        <one-of>
+          <item> faster </item>
+          <item> more </item>
+          <item> quicker </item>
+        </one-of>
+      </item>
+    </one-of>
+  </rule>
+</grammar>

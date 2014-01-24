@@ -91,20 +91,11 @@ namespace handinput {
 
       if (hmm_) {
         hmm_->Fwdback(full_feature);
-        int state = hmm_->MostLikelyState();
-        int stage = state % n_states_per_gesture_;
-        if (stage > n_states_per_gesture_ / 2) {
-          int gesture_index  = state / n_states_per_gesture_ + 1;
-          std::cout << "most likely state = " << hmm_->MostLikelyState() << std::endl;
-        } else if (state == hmm_->n_states() - 1) {
-          // Rest position.
-          gesture_index = n_vocabularies_;
-        }
+        gesture_index = hmm_->MostLikelyLabel();
       }
     }
 
     json_spirit::mObject result;
-    result["hand_pose"] = hand_pose_labels_[handpose_index];
     result["gesture"] = gesture_labels_[gesture_index];
     std::string s = write(result, json_spirit::pretty_print | json_spirit::raw_utf8);
     return s;

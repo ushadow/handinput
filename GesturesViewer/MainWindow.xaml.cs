@@ -169,6 +169,7 @@ namespace HandInput.GesturesViewer {
 
       kinectSensor.AllFramesReady += kinectRuntime_AllFrameReady;
       kinectSensor.Start();
+      StartSpeechRecognition();
     }
 
     void StartTracking() {

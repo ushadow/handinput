@@ -121,4 +121,7 @@
   <data name="Gestures" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Data\Gestures.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="SpeechGrammar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Data\SpeechGrammar.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
 </root>

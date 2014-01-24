@@ -79,6 +79,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Microsoft.Kinect.Toolkit\bin\Release\Microsoft.Kinect.Toolkit.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Speech, Version=11.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\Microsoft SDKs\Speech\v11.0\Assembly\Microsoft.Speech.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -104,6 +108,7 @@
     <Compile Include="HandInputEvent.cs" />
     <Compile Include="HandTracker.cs" />
     <Compile Include="IHandTracker.cs" />
+    <Compile Include="SpeechManager.cs" />
     <Compile Include="StipHandTracker.cs" />
     <Compile Include="KinectDataPacket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

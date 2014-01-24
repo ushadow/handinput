@@ -1,11 +1,13 @@
 ﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="HandInput.GesturesViewer.MainWindow"
-        Loaded="Window_Loaded"
-        Closing="Window_Closing"        
-        WindowState="Normal"    
-        Title="Gestures Viewer" MinHeight="1000" MinWidth="1000" MaxHeight="1500" MaxWidth="2000" KeyDown="Window_KeyDown">
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" 
+        x:Class="HandInput.GesturesViewer.MainWindow"
+        Loaded="Window_Loaded" Closing="Window_Closing" WindowState="Normal"    
+        Title="Gestures Viewer" MinHeight="700" MinWidth="1000" MaxHeight="1500" MaxWidth="2000" 
+        SizeToContent="Height"
+        KeyDown="Window_KeyDown">
     <Window.Resources>
         <Style TargetType="{x:Type TextBlock}">
             <Setter Property="FontFamily" Value="Segoe UI"/>
@@ -31,12 +33,14 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="350"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="200"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="100"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="100"/>
-            <RowDefinition Height="*" MinHeight="30"/>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
-        <Rectangle Grid.RowSpan="7">
+        <Rectangle Grid.RowSpan="9">
             <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                     <GradientStop Color="#FFCECECE" Offset="0"/>
@@ -81,7 +85,27 @@
                 <Label Content="Gesture" Name="labelGesture" Grid.Row="1"/>
                 <Label Content="#" Name="labelGestureVal" Grid.Row="1" Grid.Column="1"/>
             </Grid>
-        </GroupBox>
+        </GroupBox>        <Slider Minimum="0" 
+                Value="{Binding ElevationAngle, Mode=TwoWay}" x:Name="frameSlider"
+                Grid.Row="5" Margin="5" ValueChanged="frameSlider_ValueChanged"/>
+        <Button Grid.RowSpan="2" Content="View Debug" Margin="267,10,267,0" 
+                HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click" x:Name="viewButton"/>
+        <StackPanel Grid.Row="6" Margin="212,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Rectangle x:Name="audioBeamAngle" Height="20" Width="300" Margin="5">
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1, 0">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStopCollection>
+                                <GradientStop Offset="0" Color="Black"/>
+                                <GradientStop Offset="{Binding BeamAngle}" Color="Orange"/>
+                                <GradientStop Offset="1" Color="Black"/>
+                            </GradientStopCollection>
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+            <StackPanel Orientation="Horizontal" />
+        </StackPanel>
 
         <TextBlock Text="COMMANDS" Grid.Column="1" Margin="4"/>
         <Grid Margin="10" Grid.Column="1" Grid.Row="1">
@@ -106,26 +130,16 @@
         </Grid>
         <TextBlock Text="STATUS" Grid.Column="1" Grid.Row="2" Margin="4"/>
         <TextBox x:Name="statusTextBox" FontSize="30" Grid.Column="1" Margin="10,10,10,0" Grid.Row="3"
+                 Grid.RowSpan="2"
                  ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"
                  TextWrapping="Wrap"/>
-        <StackPanel Grid.Row="6" Margin="212,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Rectangle x:Name="audioBeamAngle" Height="20" Width="300" Margin="5">
-                <Rectangle.Fill>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1, 0">
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStopCollection>
-                                <GradientStop Offset="0" Color="Black"/>
-                                <GradientStop Offset="{Binding BeamAngle}" Color="Orange"/>
-                                <GradientStop Offset="1" Color="Black"/>
-                            </GradientStopCollection>
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
-                </Rectangle.Fill>
-            </Rectangle>
-            <StackPanel Orientation="Horizontal" />
-        </StackPanel>
-        <TextBlock Text="STABILITIES" Grid.Column="1" Grid.Row="4" />
-        <ListBox x:Name="stabilitiesList" FontSize="20" Grid.Column="1" Grid.Row="5" Margin="10" Grid.RowSpan="2">
+        
+        <TextBlock Text="SPEECH" Grid.Column="1" Grid.Row="5" Margin="4"/>
+        <TextBox x:Name="speechTextBox" FontSize="30" Grid.Column="1" Margin="10,10,10,10" 
+                 Grid.Row="6" />
+
+        <TextBlock Text="STABILITIES" Grid.Column="1" Grid.Row="7" />
+        <ListBox x:Name="stabilitiesList" FontSize="20" Grid.Column="1" Grid.Row="8" Margin="10" Grid.RowSpan="2">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
@@ -136,10 +150,6 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Slider Minimum="0" 
-                Value="{Binding ElevationAngle, Mode=TwoWay}" x:Name="frameSlider"
-                Grid.Row="5" Margin="5" ValueChanged="frameSlider_ValueChanged"/>
-        <Button Grid.RowSpan="2" Content="View Debug" Margin="267,10,267,0" 
-                HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click" x:Name="viewButton"/>
+
     </Grid>
 </Window>

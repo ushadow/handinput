@@ -82,6 +82,8 @@ namespace handinput {
   }
 
   void HMM::CheckRI() {
+    if (alpha_.size() != state_to_label_map_.size())
+      throw std::invalid_argument("alpha size is not equal to state_to_label_map size.");
     if (mixgaussians_.size() != n_states_ || transmat_t_.rows() != n_states_ ||
       transmat_t_.cols() != n_states_)
       throw std::invalid_argument("The input is not valid.");
@@ -114,6 +116,11 @@ namespace handinput {
     VectorXf::Index maxIndex;
     alpha_.maxCoeff(&maxIndex);
     return (int) maxIndex;
+  }
+
+  int HMM::MostLikelyLabel() {
+    int state = MostLikelyState();
+    return state_to_label_map_[state];
   }
 
   void HMM::ComputeObslik(const Eigen::Ref<const Eigen::VectorXf> x) {

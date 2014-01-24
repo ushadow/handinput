@@ -87,6 +87,7 @@ ASSERT_NEAR(0.0145, pc->coeff(N_PRINCIPAL_COMPS - 1, kDescriptorLen - 1), ABS_ER
   ASSERT_NEAR(0, transmat->coeff(0, kNStates - 1), ABS_ERROR);
   ASSERT_NEAR(0.0098, transmat->coeff(kNStates - 1, 0), ABS_ERROR);
   ASSERT_NEAR(0.9750, transmat->coeff(kNStates - 1, kNStates - 1), ABS_ERROR);
+ 
   const MixGaussian* mixgaussian = hmm->MixGaussianAt(0);
   ASSERT_EQ(N_MIXTURES, mixgaussian->n_mixtures());
   const VectorXf* mix = mixgaussian->mix();
@@ -98,6 +99,12 @@ ASSERT_NEAR(0.0145, pc->coeff(N_PRINCIPAL_COMPS - 1, kDescriptorLen - 1), ABS_ER
   const MatrixXf* inv_cov = gaussian->inv_cov();
   ASSERT_NEAR(19.3991, inv_cov->coeff(0, 0), ABS_ERROR);
   ASSERT_NEAR(0.8824, inv_cov->coeff(FEATURE_LEN - 1, FEATURE_LEN - 1), ABS_ERROR);
+
+  gaussian = mixgaussian->GaussianAt(1);
+  mean = gaussian->mean();
+  ASSERT_NEAR(-0.1283, mean->coeff(0), ABS_ERROR);
+  inv_cov = gaussian->inv_cov();
+  ASSERT_NEAR(3.5790, inv_cov->coeff(0, 0), ABS_ERROR);
 
   mixgaussian = hmm->MixGaussianAt(kNStates - 1);
   gaussian = mixgaussian->GaussianAt(1);

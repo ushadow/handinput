@@ -29,5 +29,9 @@ TEST(HMMTest, Fwdback) {
   ASSERT_NEAR(-99.4905, loglik, ABS_ERROR);
   ASSERT_EQ(8, hmm->MostLikelyState());
 
+  const std::vector<int>& map = hmm->state_to_label_map();
+  ASSERT_EQ(1, map[0]);
+  ASSERT_EQ(4, map[map.size() - 1]);
+
   mxDestroyArray(model);
 }
