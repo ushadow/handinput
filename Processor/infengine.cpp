@@ -2,8 +2,6 @@
 #include "infengine.h"
 
 namespace handinput {
-  const std::string InfEngine::kHandPoses[] = {"Unknown", "Point"};
-
   InfEngine::InfEngine(const std::string& model_file) {
     using Eigen::Map;
     using Eigen::MatrixXf;
@@ -14,15 +12,22 @@ namespace handinput {
     // by this routine.
     mxArray* model = matGetVariable(file, "model");
     mxArray* preprocess_model = mxGetField(model, 0, "preprocessModel");
-    mxArray* pca_model = mxGetCell(preprocess_model, 0);
-    mxArray* std_model = mxGetCell(preprocess_model, 1);
-    mxArray* svm_model = mxGetCell(preprocess_model, 2);
+    size_t num_preprocess_models = mxGetNumberOfElements(preprocess_model);
+    int i = 0;
+    mxArray* pca_model = mxGetCell(preprocess_model, i);
+    i++;
+    if (num_preprocess_models > 2) {
+      mxArray* svm_model = mxGetCell(preprocess_model, i);
+      InitSVM(svm_model);
+      i++;
+    }
+    mxArray* std_model = mxGetCell(preprocess_model, i);
 
     mxArray* pca_mean_mx = mxGetField(pca_model, 0, "mean");
     mxArray* principal_comp_mx = mxGetField(pca_model, 0, "pc");
     mxArray* std_mu_mx = mxGetField(std_model, 0, "mu");
     mxArray* std_sigma_mx = mxGetField(std_model, 0, "sigma");
-    char* svm_model_file = mxArrayToString(svm_model);
+
 
     descriptor_len_ = (int) mxGetN(principal_comp_mx);
     n_principal_comps_ = (int) mxGetM(principal_comp_mx);
@@ -38,11 +43,6 @@ namespace handinput {
     std_mu_ = Map<VectorXf>(mu_data, feature_len_);
     std_sigma_ = Map<VectorXf>(sigma_data, feature_len_);
 
-    if (svm_model_file != NULL) {
-      svm_classifier_.reset(new SVMClassifier(svm_model_file));
-      std::cout << "SVM initialized" << std::endl;
-    }
-
     // Initialize HMM model.
     mxArray* inf_model = mxGetField(model, 0, "infModel");
     if (inf_model != NULL)
@@ -55,6 +55,7 @@ namespace handinput {
     n_vocabularies_ = (int)mxGetScalar(vocabulary_size_mx);
     n_states_per_gesture_ = (int)mxGetScalar(n_states_mx);
     InitGestureLabels(gesture_labels);
+    hand_pose_labels_.push_back("Unknown");
 
     mxDestroyArray(model);
     matClose(file);
@@ -103,7 +104,7 @@ namespace handinput {
     }
 
     json_spirit::mObject result;
-    result["hand_pose"] = kHandPoses[handpose_index];
+    result["hand_pose"] = hand_pose_labels_[handpose_index];
     result["gesture"] = gesture_labels_[gesture_index];
     std::string s = write(result, json_spirit::pretty_print | json_spirit::raw_utf8);
     return s;
@@ -116,6 +117,20 @@ namespace handinput {
     for (int i = 0; i < mxGetNumberOfElements(mx_gesture_labels); i++) {
       std::string s = std::string(mxArrayToString(mxGetCell(mx_gesture_labels, i)));
       gesture_labels_.push_back(s);
+    }
+  }
+
+  void InfEngine::InitSVM(mxArray* svm_model) {
+    mxArray* svm_file_mx = mxGetField(svm_model, 0, "file");
+    mxArray* svm_labels_mx = mxGetField(svm_model, 0, "labels");
+    char* svm_model_file = mxArrayToString(svm_file_mx);
+    if (svm_model_file != NULL) {
+      svm_classifier_.reset(new SVMClassifier(svm_model_file));
+      std::cout << "SVM initialized" << std::endl;
+    }
+    for (int i = 0; i < mxGetNumberOfElements(svm_labels_mx); i++) {
+      std::string s = std::string(mxArrayToString(mxGetCell(svm_labels_mx, i)));
+      hand_pose_labels_.push_back(s);
     }
   }
 }

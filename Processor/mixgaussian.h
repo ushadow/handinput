@@ -13,7 +13,7 @@ namespace handinput {
     const Eigen::VectorXf* mix() const { return &mix_; }
     const Gaussian* GaussianAt(int index) const;
 
-    float Prob(const Eigen::Ref<const Eigen::VectorXf> x) const;
+    double Prob(const Eigen::Ref<const Eigen::VectorXf> x) const;
   private:
     Eigen::VectorXf mix_;
     std::vector<std::unique_ptr<const Gaussian>> gaussians_;

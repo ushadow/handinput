@@ -19,10 +19,10 @@ namespace handinput {
     return gaussians_[index].get();
   }
 
-  float MixGaussian::Prob(const Eigen::Ref<const Eigen::VectorXf> x) const {
+  double MixGaussian::Prob(const Eigen::Ref<const Eigen::VectorXf> x) const {
     using std::vector;
 
-    float sum = 0.0f;
+    double sum = 0.0f;
     for (int i = 0; i < gaussians_.size(); i++) {
       sum += gaussians_[i]->Prob(x) * mix_(i);
     }

@@ -3,7 +3,7 @@
 #include "hmm.h"
 #include "mat.h"
 
-#define ABS_ERROR 0.0001
+#define ABS_ERROR 0.1
 
 static const std::string kModelFile = "../../../data/model.mat";
 
@@ -11,7 +11,7 @@ TEST(HMMTest, Fwdback) {
   using handinput::HMM;
   using Eigen::VectorXf;
 
-  const int kFeatureLen = 32;
+  const int kFeatureLen = 35;
 
   char full[_MAX_PATH];
   _fullpath(full, kModelFile.c_str(), _MAX_PATH);
@@ -21,13 +21,13 @@ TEST(HMMTest, Fwdback) {
   std::unique_ptr<HMM> hmm(HMM::CreateFromMxArray(mxGetField(model, 0, "infModel")));
   ASSERT_EQ(kFeatureLen, hmm->feature_len());
 
-  float loglik = hmm->Fwdback(VectorXf::Zero(kFeatureLen));
-  ASSERT_NEAR(-28.0732, loglik, ABS_ERROR);
-  ASSERT_EQ(1, hmm->MostLikelyState());
+  double loglik = hmm->Fwdback(VectorXf::Zero(kFeatureLen));
+  ASSERT_NEAR(-36.3618, loglik, ABS_ERROR);
+  ASSERT_EQ(8, hmm->MostLikelyState());
   
   loglik = hmm->Fwdback(VectorXf::Ones(kFeatureLen));
-  ASSERT_NEAR(-73.5158, loglik, ABS_ERROR);
-  ASSERT_EQ(2, hmm->MostLikelyState());
+  ASSERT_NEAR(-99.4905, loglik, ABS_ERROR);
+  ASSERT_EQ(8, hmm->MostLikelyState());
 
   mxDestroyArray(model);
 }

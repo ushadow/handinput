@@ -6,8 +6,11 @@ namespace handinput {
     using std::vector;
     using std::unique_ptr;
     using Eigen::Map;
+    using Eigen::VectorXd;
+    using Eigen::MatrixXd;
     using Eigen::VectorXf;
     using Eigen::MatrixXf;
+    using Eigen::InnerStride;
 
     mxArray* mx_hmm_model = mxGetField(mx_model, 0, "model");
     mxArray* mx_prior = mxGetField(mx_hmm_model, 0, "prior");
@@ -15,26 +18,32 @@ namespace handinput {
     mxArray* mx_mu = mxGetField(mx_hmm_model, 0, "mu");
     mxArray* mx_sigma = mxGetField(mx_hmm_model, 0, "Sigma");
     mxArray* mx_mixmat = mxGetField(mx_hmm_model, 0, "mixmat");
+    mxArray* mx_map = mxGetField(mx_hmm_model, 0, "map");
 
-    const float* prior_data = (const float*) mxGetData(mx_prior);
-    const float* transmat_data = (const float*) mxGetData(mx_transmat);
+    const double* prior_data = (const double*) mxGetData(mx_prior);
+    const double* transmat_data = (const double*) mxGetData(mx_transmat);
     float* mixmat_data = (float*) mxGetData(mx_mixmat);
     float* mu_data = (float*) mxGetData(mx_mu);
     float* sigma_data = (float*) mxGetData(mx_sigma);
 
     int n_states = (int) mxGetNumberOfElements(mx_prior);
-    int n_mixtures = (int) mxGetM(mx_mixmat);
+    int n_mixtures = (int) mxGetN(mx_mixmat);
     size_t feature_len = mxGetM(mx_mu);
     size_t sigma_len = feature_len * feature_len;
+
+    const int* map_data = (const int*) mxGetData(mx_map);
+    size_t map_len = mxGetNumberOfElements(mx_map);
+    std::vector<int> map(map_data, map_data + map_len);
 
     vector<unique_ptr<const MixGaussian>> mixgaussians;
     for (int i = 0; i < n_states; i++) {
       // mixmat_data is m x n matrix where each colum is the mixture probability for a state.
-      Map<VectorXf> mix(mixmat_data + i * n_mixtures, n_mixtures);  
+      Map<VectorXf, 0, InnerStride<>> mix(mixmat_data + i, n_mixtures, 
+                                          InnerStride<>(n_states));  
       vector<unique_ptr<const Gaussian>> gaussians;
       for (int j = 0; j < n_mixtures; j++) {
-        Map<VectorXf> mu(mu_data + feature_len * (i * n_mixtures + j), feature_len);
-        Map<MatrixXf> sigma(sigma_data + sigma_len * (i * n_mixtures + j), feature_len, 
+        Map<VectorXf> mu(mu_data + feature_len * (j * n_states + i), feature_len);
+        Map<MatrixXf> sigma(sigma_data + sigma_len * (j * n_states + i), feature_len, 
           feature_len);
         unique_ptr<const Gaussian> p(new Gaussian(mu, sigma));
         gaussians.push_back(std::move(p));
@@ -42,21 +51,22 @@ namespace handinput {
       unique_ptr<const MixGaussian> mixgauss(new MixGaussian(mix, gaussians));
       mixgaussians.push_back(std::move(mixgauss));
     }
-    return new HMM(VectorXf::Map(prior_data, n_states),
-      MatrixXf::Map(transmat_data, n_states, n_states), mixgaussians);
+    return new HMM(VectorXd::Map(prior_data, n_states),
+      MatrixXd::Map(transmat_data, n_states, n_states), map, mixgaussians);
   }
 
-  HMM::HMM(const Eigen::Ref<const Eigen::VectorXf> prior, 
-    const Eigen::Ref<const Eigen::MatrixXf> transmat, 
+  HMM::HMM(const Eigen::Ref<const Eigen::VectorXd> prior, 
+    const Eigen::Ref<const Eigen::MatrixXd> transmat, 
+    const std::vector<int> state_to_label_map,
     std::vector<std::unique_ptr<const MixGaussian>>& mixgaussians) 
-    : mixgaussians_(std::move(mixgaussians)) {
+    : mixgaussians_(std::move(mixgaussians)), state_to_label_map_(state_to_label_map) {
 
-      using Eigen::VectorXf;
+      using Eigen::VectorXd;
 
       n_states_ = (int) prior.size();
       feature_len_ = mixgaussians_[0]->feature_len();
-      obslik_ = VectorXf::Zero(n_states_);
-      alpha_ = VectorXf::Zero(n_states_);
+      obslik_ = VectorXd::Zero(n_states_);
+      alpha_ = VectorXd::Zero(n_states_);
       prior_ = prior;
       transmat_t_ = transmat.transpose();
       loglik_ = 0;
@@ -83,7 +93,7 @@ namespace handinput {
     return mixgaussians_[index].get();
   }
 
-  float HMM::Fwdback(const Eigen::Ref<const Eigen::VectorXf> x) {
+  double HMM::Fwdback(const Eigen::Ref<const Eigen::VectorXf> x) {
     ComputeObslik(x);
     if (reset_) {
       alpha_ = prior_.cwiseProduct(obslik_);
@@ -91,7 +101,7 @@ namespace handinput {
     } else {
       alpha_ = (transmat_t_ * alpha_).cwiseProduct(obslik_).eval();
     }
-    float norm = Normalize();
+    double norm = Normalize();
     if (norm == 0)
       loglik_ = -FLT_MAX;
     else
@@ -113,8 +123,8 @@ namespace handinput {
   }
 
   // Normalizes the alpha.
-  float HMM::Normalize() {
-    float norm = alpha_.norm();
+  double HMM::Normalize() {
+    double norm = alpha_.norm();
     if (norm == 0) {
       norm = 1;
       reset_ = true;

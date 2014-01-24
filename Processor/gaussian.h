@@ -12,7 +12,7 @@ namespace handinput {
     const Eigen::VectorXf* mean() const { return &mean_; }
     const Eigen::MatrixXf* inv_cov() const { return &inv_cov_; }
 
-    float Prob(const Eigen::Ref<const Eigen::VectorXf> v) const;
+    double Prob(const Eigen::Ref<const Eigen::VectorXf> v) const;
   private:
     Eigen::VectorXf mean_;
     Eigen::MatrixXf inv_cov_;

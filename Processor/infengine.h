@@ -14,6 +14,7 @@ namespace handinput {
     int feature_len() const { return feature_len_; }
     int descriptor_len() const { return descriptor_len_; }
     int n_principal_comps() const { return n_principal_comps_; }
+    // For gestures with dynamic path.
     int n_states_per_gesture() const { return n_states_per_gesture_; }
     int n_vocabularies() const { return n_vocabularies_; }
     const Eigen::VectorXf* pca_mean() const { return &pca_mean_; }
@@ -30,7 +31,6 @@ namespace handinput {
     std::string Update(float* raw_feature);
     void Reset() { if (hmm_) hmm_->Reset(); }
   private:
-    static const std::string kHandPoses[];
     int descriptor_len_, n_principal_comps_, feature_len_, n_states_per_gesture_, n_vocabularies_;
     // Each row is a principal component.
     Eigen::MatrixXf principal_comp_; 
@@ -40,9 +40,11 @@ namespace handinput {
     std::unique_ptr<HMM> hmm_;
     std::unique_ptr<SVMClassifier> svm_classifier_;
     std::vector<std::string> gesture_labels_;
+    std::vector<std::string> hand_pose_labels_;
 
     InfEngine(const InfEngine&) {}
     InfEngine& operator=(const InfEngine&) { return *this; }
     void InitGestureLabels(mxArray* mx_gesture_labels);
+    void InitSVM(mxArray* mx_svm);
   };
 }
