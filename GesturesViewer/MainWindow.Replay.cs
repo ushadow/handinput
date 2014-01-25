@@ -23,10 +23,13 @@ using HandInput.Util;
 namespace HandInput.GesturesViewer {
   partial class MainWindow {
     static readonly int FPS = 30;
-    static readonly float SampleRate = float.Parse(ConfigurationManager.AppSettings["sample_rate"]);
+    static readonly String IpAddress = ConfigurationManager.AppSettings["ip"];
+    static readonly int Port = int.Parse(ConfigurationManager.AppSettings["port"]);
 
     DispatcherTimer timer;
     GroundTruthDataRelayer gtReplayer;
+    GestureServer gestureServer;
+    float sampleRate = 1;
 
     void replayButton_Click(object sender, RoutedEventArgs e) {
       OpenFileDialog openFileDialog = new OpenFileDialog {
@@ -61,7 +64,6 @@ namespace HandInput.GesturesViewer {
     /// </summary>
     /// <param name="recordStream"></param>
     void Replay(Stream recordStream, Stream gtStream) {
-      CancelTracking();
       replay = new KinectAllFramesReplay(recordStream);
       if (gtStream != null)
         gtReplayer = new GroundTruthDataRelayer(gtStream);
@@ -72,6 +74,7 @@ namespace HandInput.GesturesViewer {
       handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
           HandInputParams.DepthHeight, replay.GetKinectParams());
       recogEngine = new RecognitionEngine(ModelFile);
+      sampleRate = recogEngine.GetSampleRate();
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
       timer.Tick += new EventHandler(OnTimerTick);
@@ -128,7 +131,7 @@ namespace HandInput.GesturesViewer {
     }
 
     void StepForward() {
-      frameSlider.Value += SampleRate;
+      frameSlider.Value += sampleRate;
     }
 
     /// <summary>

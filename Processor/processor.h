@@ -14,6 +14,7 @@ namespace handinput {
     std::string Update(float x, float y, float z, IplImage* image, IplImage* skin, 
                        bool visualize = false);
     void Reset() { inf_engine_->Reset(); };
+    int KinectSampleRate() { return inf_engine_->kinect_sample_rate(); }
   private:
     std::unique_ptr<FeatureProcessor> feature_proc_;
     std::unique_ptr<InfEngine> inf_engine_;

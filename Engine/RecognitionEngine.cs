@@ -22,6 +22,10 @@ namespace HandInput.Engine {
           HandInputParams.FeatureImageWidth, modelFile);
     }
 
+    public int GetSampleRate() {
+      return processor.KinectSampleRate();
+    }
+
     public String Update(TrackingResult result, bool visualize = false) {
       String gesture = "";
       if (result.RelPos.IsSome && result.DepthBoundingBoxes.Count > 0) {

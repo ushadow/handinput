@@ -14,7 +14,7 @@ using Emgu.CV.Structure;
 using Common.Logging;
 
 namespace HandInput.Engine {
-  public class HandTracker {
+  public class HandJointTracker {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
     Skeleton[] skeletonData;
     CoordinateMapper coordMapper;
@@ -23,7 +23,7 @@ namespace HandInput.Engine {
     Image<Gray, Byte> gray;
     Image<Gray, Byte> scaled;
 
-    public HandTracker(CoordinateMapper coordMapper) {
+    public HandJointTracker(CoordinateMapper coordMapper) {
       this.coordMapper = coordMapper;
       imageStorage = new byte[height, width, 3];
       gray = new Image<Gray, byte>(width, height);

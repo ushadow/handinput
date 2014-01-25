@@ -21,7 +21,7 @@ namespace HandInput.Engine {
     public event HandInputEventHandler HandInputEvent;
 
     private KinectSensorChooser sensorChooser = new KinectSensorChooser();
-    private HandTracker handTracker;
+    private HandJointTracker handTracker;
 
     /// <summary>
     /// Creates a new instance of HandInputEngine.
@@ -41,7 +41,7 @@ namespace HandInput.Engine {
         log.InfoFormat("The new sensor is null.");
         return;
       }
-      handTracker = new HandTracker(newSensor.CoordinateMapper);
+      handTracker = new HandJointTracker(newSensor.CoordinateMapper);
       EnsureSkeletonStreamState(newSensor.SkeletonStream);
       newSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(OnAllFramesReady);
     }

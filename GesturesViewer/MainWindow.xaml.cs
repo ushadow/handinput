@@ -53,7 +53,6 @@ namespace HandInput.GesturesViewer {
 
     int depthFrameNumber;
     BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
-    CancellationTokenSource cancellationTokenSource;
     IHandTracker handTracker;
     RecognitionEngine recogEngine;
     FPSCounter fpsCounter = new FPSCounter();
@@ -222,11 +221,6 @@ namespace HandInput.GesturesViewer {
       statusTextBox.ScrollToEnd();
     }
 
-    void CancelTracking() {
-      if (cancellationTokenSource != null)
-        cancellationTokenSource.Cancel();
-    }
-
     void UpdateDisplay(TrackingResult result) {
       colorCanvas.Children.Clear();
       depthCanvas.Children.Clear();
@@ -343,8 +337,6 @@ namespace HandInput.GesturesViewer {
     }
 
     void Clean() {
-      CancelTracking();
-
       if (audioManager != null) {
         audioManager.Dispose();
         audioManager = null;

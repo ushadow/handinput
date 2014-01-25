@@ -11,6 +11,7 @@ namespace handinput {
     System::String^ Update(float x, float y, float z, System::IntPtr image, System::IntPtr skin, 
                bool visualize);
     void Reset() { processor_->Reset(); } 
+    int KinectSampleRate() { return processor_->KinectSampleRate(); }
   private:
     Processor* processor_;
   };

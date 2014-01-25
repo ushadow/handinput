@@ -100,13 +100,14 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GestureServer.cs" />
     <Compile Include="SimpleFeatureProcessor.cs" />
     <Compile Include="IFeatureProcessor.cs" />
     <Compile Include="SimpleSkeletonHandTracker.cs" />
     <Compile Include="SkeletonHandTracker.cs" />
     <Compile Include="HandInputEngine.cs" />
     <Compile Include="HandInputEvent.cs" />
-    <Compile Include="HandTracker.cs" />
+    <Compile Include="HandJointTracker.cs" />
     <Compile Include="IHandTracker.cs" />
     <Compile Include="SpeechManager.cs" />
     <Compile Include="StipHandTracker.cs" />
@@ -129,6 +130,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\WebSocketServer\WebSocketServer\WebSocketServer.csproj">
+      <Project>{cc9cfe96-4647-4e8a-89f7-4818b4a006fe}</Project>
+      <Name>WebSocketServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ProcessorWrapper\ProcessorWrapper.vcxproj">
       <Project>{141272a8-30f0-433f-ad0c-dda69a6077d0}</Project>
       <Name>ProcessorWrapper</Name>

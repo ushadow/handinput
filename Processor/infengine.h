@@ -14,6 +14,7 @@ namespace handinput {
     int feature_len() const { return feature_len_; }
     int descriptor_len() const { return descriptor_len_; }
     int n_principal_comps() const { return n_principal_comps_; }
+    int kinect_sample_rate() const { return kinect_sample_rate_; }
     // For gestures with dynamic path.
     int n_states_per_gesture() const { return n_states_per_gesture_; }
     int n_vocabularies() const { return n_vocabularies_; }
@@ -31,6 +32,7 @@ namespace handinput {
     std::string Update(float* raw_feature);
     void Reset() { if (hmm_) hmm_->Reset(); }
   private:
+    int kinect_sample_rate_;
     int descriptor_len_, n_principal_comps_, feature_len_, n_states_per_gesture_, n_vocabularies_;
     // Each row is a principal component.
     Eigen::MatrixXf principal_comp_; 
