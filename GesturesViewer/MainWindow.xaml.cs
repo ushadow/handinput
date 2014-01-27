@@ -178,6 +178,7 @@ namespace HandInput.GesturesViewer {
       handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
           HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
       recogEngine = new RecognitionEngine(ModelFile);
+      gestureServer.Start();
     }
 
     void HandTrackingTask(CancellationToken token) {
@@ -300,6 +301,7 @@ namespace HandInput.GesturesViewer {
             var result = handTracker.Update(depthManager.PixelData, colorManager.PixelData,
               SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons()));
             var gesture = recogEngine.Update(result);
+            gestureServer.Send(gesture);
             UpdateDisplay(result);
             statusTextBox.Text = gesture;
             fpsCounter.LogFPS();
@@ -336,6 +338,9 @@ namespace HandInput.GesturesViewer {
       Clean();
     }
 
+    /// <summary>
+    /// Cleans up everything.
+    /// </summary>
     void Clean() {
       if (audioManager != null) {
         audioManager.Dispose();
@@ -400,18 +405,6 @@ namespace HandInput.GesturesViewer {
 
     void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
       //switch (e.Key) {
-      //  case Key.Space:
-      //    RecordGesture();
-      //    break;
-      //  case Key.P:
-      //    TogglePlay();
-      //    break;
-      //  case Key.T:
-      //    StartTracking();
-      //    break;
-      //  case Key.N:
-      //    StepForward();
-      //    break;
       //  case Key.C:
       //    displayOption = DisplayOption.COLOR;
       //    break;

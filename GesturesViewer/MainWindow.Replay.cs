@@ -28,7 +28,7 @@ namespace HandInput.GesturesViewer {
 
     DispatcherTimer timer;
     GroundTruthDataRelayer gtReplayer;
-    GestureServer gestureServer;
+    GestureServer gestureServer = new GestureServer(IpAddress, Port);
     float sampleRate = 1;
 
     void replayButton_Click(object sender, RoutedEventArgs e) {
@@ -75,6 +75,7 @@ namespace HandInput.GesturesViewer {
           HandInputParams.DepthHeight, replay.GetKinectParams());
       recogEngine = new RecognitionEngine(ModelFile);
       sampleRate = recogEngine.GetSampleRate();
+      gestureServer.Start();
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
       timer.Tick += new EventHandler(OnTimerTick);
@@ -115,6 +116,7 @@ namespace HandInput.GesturesViewer {
         var result = handTracker.Update(depthManager.PixelData, colorManager.PixelData,
             SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
         var gesture = recogEngine.Update(result, true);
+        gestureServer.Send(gesture);
         statusTextBox.Text = gesture;
         fpsCounter.LogFPS();
         UpdateDisplay(result);
@@ -147,6 +149,7 @@ namespace HandInput.GesturesViewer {
       }
 
       recogEngine = null;
+      gestureServer.Stop();
     }
 
     void replay_AllFramesReady(object sender, ReplayAllFramesReadyEventArgs e) {

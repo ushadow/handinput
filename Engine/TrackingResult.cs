@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
+using System.Drawing;
+using window = System.Windows;
 
 using Emgu.CV;
 using Emgu.CV.Structure;
 
 using HandInput.Util;
-using System.Drawing;
 
 namespace HandInput.Engine {
   public class TrackingResult {
@@ -18,6 +19,7 @@ namespace HandInput.Engine {
     /// X axis is rightward, Y axis is upward, Z axis is away from the camera.
     /// </summary>
     public Option<Vector3D> RelPos { get; private set; }
+    public Option<window.Point> RightHandAbsPos { get; private set; }
     public Image<Gray, Byte> DepthImage { get; private set; }
     // Can be null.
     public Image<Gray, Byte> ColorImage { get; private set; }
@@ -26,6 +28,7 @@ namespace HandInput.Engine {
 
     public TrackingResult() {
       RelPos = new None<Vector3D>();
+      RightHandAbsPos = new None<window.Point>();
       DepthBoundingBoxes = new List<Rectangle>();
       ColorBoundingBoxes = new List<Rectangle>();
     }
@@ -36,6 +39,14 @@ namespace HandInput.Engine {
       RelPos = relPos;
       DepthImage = smoothedDepth;
       DepthBoundingBoxes = depthBox;
+
+      if (DepthBoundingBoxes.Count > 0) {
+        var rect = DepthBoundingBoxes.Last();
+        RightHandAbsPos = new Some<window.Point>(rect.Center());
+      } else {
+        RightHandAbsPos = new None<window.Point>();
+      }
+
       ColorImage = skin;
 
       if (colorBox == null)

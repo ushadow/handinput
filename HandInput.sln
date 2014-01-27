@@ -239,6 +239,7 @@ Global
 		{CC9CFE96-4647-4E8A-89F7-4818B4A006FE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{CC9CFE96-4647-4E8A-89F7-4818B4A006FE}.Release|Win32.ActiveCfg = Release|Any CPU
 		{CC9CFE96-4647-4E8A-89F7-4818B4A006FE}.Release|x64.ActiveCfg = Release|Any CPU
+		{CC9CFE96-4647-4E8A-89F7-4818B4A006FE}.Release|x64.Build.0 = Release|Any CPU
 		{CC9CFE96-4647-4E8A-89F7-4818B4A006FE}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

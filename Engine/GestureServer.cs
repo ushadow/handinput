@@ -22,6 +22,17 @@ namespace HandInput.Engine {
       }
     }
 
+    public void Start() { server.Start(); }
+
+    /// <summary>
+    /// Disposes the connection and stops the gesture server.
+    /// </summary>
+    public void Stop() {
+      if (connection != null)
+        connection.Dispose();
+      server.Stop(); 
+    }
+
     void OnClientConnected(object sender, ClientConnectedEventArgs e) {
       connection = e.Client;
     }
