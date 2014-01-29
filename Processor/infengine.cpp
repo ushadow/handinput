@@ -105,9 +105,10 @@ namespace handinput {
     }
 
     json_spirit::mObject result;
-    result["gesture"] = gesture_labels_[gesture_index];
+    const string& gesture_label = gesture_labels_[gesture_index];
+    result["gesture"] = gesture_label;
     result["stage"] = stage;
-    result["eventType"] = gesture_event_detector_.Detect(stage);
+    result["eventType"] = gesture_event_detector_.Detect(gesture_label, stage);
     std::string s = write(result, json_spirit::pretty_print | json_spirit::raw_utf8);
     return s;
   }
