@@ -119,14 +119,14 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>PROCESSOR_EXPORTS;WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PROCESSOR_EXPORTS;WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(EIGEN)\;$(MATLAB)\extern\include;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\program_files\boost_1_54_0;$(EIGEN)\;$(MATLAB)\extern\include;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include;G:\workspace\json_spirit_v4.06\json_spirit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>pcheader.h</PrecompiledHeaderFile>
       <CompileAsManaged />
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
@@ -134,8 +134,8 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(MATLAB)\extern\lib\win64\microsoft;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_core249.lib;opencv_imgproc249.lib;opencv_highgui249.lib;opencv_video249.lib;opencv_objdetect249.lib;libmat.lib;libmx.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>G:\workspace\json_spirit_v4.06\x64\Debug;$(MATLAB)\extern\lib\win64\microsoft;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>json_spirit_lib.lib;opencv_core249.lib;opencv_imgproc249.lib;opencv_highgui249.lib;opencv_video249.lib;opencv_objdetect249.lib;libmat.lib;libmx.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

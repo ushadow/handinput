@@ -4,6 +4,7 @@ using System.Timers;
 using System.ComponentModel;
 
 using Common.Logging;
+using System.Collections.Generic;
 
 namespace HandInput.GesturesViewer {
 
@@ -37,10 +38,25 @@ namespace HandInput.GesturesViewer {
         OnPropertyChanged("Status");
       }
     }
+
+    public Dictionary<string, object> Items {
+      get {
+        return gestureList;
+      }
+    }
+
+    public Dictionary<string, object> SelectedItems {
+      get {
+        return selectedItems;
+      }
+    }
+
     public event PropertyChangedEventHandler PropertyChanged;
     public event EventHandler<TrainingEventArgs> TrainingEvent;
 
-    String[] gestures;
+    Dictionary<string, object> gestureList = new Dictionary<string, object>();
+    Dictionary<string, object> selectedItems = new Dictionary<string, object>(); 
+
     String status;
     Timer timer = new Timer(1000);
     Int32 counter = 0, repCounter = StartRepCount;
@@ -48,9 +64,12 @@ namespace HandInput.GesturesViewer {
 
     public TrainingManager() {
 
-      gestures = Properties.Resources.Gestures.Split(new char[] { '\r', '\n' },
+      var gestures = Properties.Resources.Gestures.Split(new char[] { '\r', '\n' },
           StringSplitOptions.RemoveEmptyEntries);
-      timer.Elapsed += new ElapsedEventHandler(OnTimeEvent);
+      foreach (var s in gestures) {
+        gestureList.Add(s, null);
+        selectedItems.Add(s, null);
+      }
     }
 
     /// <summary>
@@ -58,6 +77,7 @@ namespace HandInput.GesturesViewer {
     /// </summary>
     public void Start() {
       Status = "Starting...";
+      timer.Elapsed += new ElapsedEventHandler(OnTimeEvent);
       timer.Enabled = true;
     }
 
@@ -76,8 +96,8 @@ namespace HandInput.GesturesViewer {
       }
 
       timer.Interval = GestureWaitTime;
-      if (counter < gestures.Count()) {
-        var gesture = gestures[counter];
+      if (counter < selectedItems.Count()) {
+        var gesture = selectedItems.ElementAt(counter).Key;
         Status = String.Format("{0} #{1}", gesture, repCounter);
         if (repCounter == NumRepitions) {
           repCounter = StartRepCount;

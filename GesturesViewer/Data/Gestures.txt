@@ -1,3 +1,4 @@
 ﻿SwipeLeft
 SwipeRight
 Point
+PalmUp

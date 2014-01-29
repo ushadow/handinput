@@ -22,7 +22,6 @@ using HandInput.Engine;
 using HandInput.Util;
 using System.Text;
 
-
 namespace HandInput.GesturesViewer {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
@@ -58,12 +57,17 @@ namespace HandInput.GesturesViewer {
     RecognitionEngine recogEngine;
     FPSCounter fpsCounter = new FPSCounter();
 
+    /// <summary>
+    /// Initializes UI.
+    /// </summary>
     public MainWindow() {
       InitializeComponent();
       keyActions = new Dictionary<Key, Action>() {
         {Key.Space, RecordGesture}, {Key.P, TogglePlay}, {Key.N, StepForward}, 
         {Key.S, StartKinect}, {Key.T, StartTracking}
       };
+      labelKeys.Content = GetKeyOptionString();
+      gestureComboBox.DataContext = trainingManager;
     }
 
     void Kinects_StatusChanged(object sender, StatusChangedEventArgs e) {
@@ -117,7 +121,6 @@ namespace HandInput.GesturesViewer {
       } catch (Exception ex) {
         MessageBox.Show(ex.Message);
       }
-      labelKeys.Content = GetKeyOptionString();
     }
 
     String GetKeyOptionString() {
@@ -326,7 +329,7 @@ namespace HandInput.GesturesViewer {
       }
 
       try {
-        skeletonDisplayManager.Draw(frame.Skeletons, seatedMode.IsChecked == true,
+        skeletonDisplayManager.Draw(frame.Skeletons, false,
                                     HandInputParams.ColorImageFormat);
       } catch (Exception e) {
         Log.Error(e.Message);

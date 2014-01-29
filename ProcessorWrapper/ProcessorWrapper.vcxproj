@@ -104,7 +104,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Processor;$(EIGEN)\;$(MATLAB)\extern\include;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\program_files\boost_1_54_0;G:\workspace\json_spirit_v4.06\json_spirit;$(ProjectDir)..\Processor;$(EIGEN)\;$(MATLAB)\extern\include;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include\opencv;$(ProjectDir)..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
