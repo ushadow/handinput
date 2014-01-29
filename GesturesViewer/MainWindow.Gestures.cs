@@ -18,6 +18,14 @@ namespace HandInput.GesturesViewer {
     }
 
     void RecordGesture() {
+      var time = String.Format("{0:yyyy-MM-dd_HH-mm}", DateTime.Now);
+      var dir = Path.Combine(DataDir, Pid, time);
+      Directory.CreateDirectory(dir);
+      var fileName = Path.Combine(dir, "KinectData_1.bin");
+      var gtFile = Path.Combine(dir, "KinectDataGTD_1.txt");
+      sw = new StreamWriter(File.Create(gtFile));
+      DirectRecord(fileName);
+
       trainingManager.TrainingEvent += OnTrainingEvent;
       trainingManager.Start();
       var binding = new Binding("Status");
@@ -30,13 +38,6 @@ namespace HandInput.GesturesViewer {
     void OnTrainingEvent(Object sender, TrainingEventArgs e) {
       switch (e.Type) {
         case TrainingEventType.Start:
-          var time = String.Format("{0:yyyy-MM-dd_HH-mm}", DateTime.Now);
-          var dir = Path.Combine(DataDir, Pid, time);
-          Directory.CreateDirectory(dir);
-          var fileName = Path.Combine(dir, "KinectData_1.bin");
-          var gtFile = Path.Combine(dir, "KinectDataGTD_1.txt");
-          sw = new StreamWriter(File.Create(gtFile));
-          DirectRecord(fileName);
           break;
         case TrainingEventType.End:
           sw.Close();

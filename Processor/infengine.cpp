@@ -43,23 +43,26 @@ namespace handinput {
     std_mu_ = Map<VectorXf>(mu_data, feature_len_);
     std_sigma_ = Map<VectorXf>(sigma_data, feature_len_);
 
-    // Initialize HMM model.
-    mxArray* inf_model = mxGetField(model, 0, "infModel");
-    if (inf_model != NULL)
-      hmm_.reset(HMM::CreateFromMxArray(inf_model));
 
     mxArray* param = mxGetField(model, 0, "param");
     mxArray* vocabulary_size_mx = mxGetField(param, 0, "vocabularySize");
     mxArray* n_states_mx = mxGetField(param, 0, "nS");
     mxArray* gesture_labels = mxGetField(param, 0, "gestureLabel");
     mxArray* kinect_sample_rate_mx = mxGetField(param, 0, "kinectSampleRate");
+    mxArray* lag_max = mxGetField(param, 0, "L");
+    
 
     kinect_sample_rate_ = (int)mxGetScalar(kinect_sample_rate_mx);
     n_vocabularies_ = (int)mxGetScalar(vocabulary_size_mx);
     n_states_per_gesture_ = (int)mxGetScalar(n_states_mx);
     InitGestureLabels(gesture_labels);
     hand_pose_labels_.push_back("Unknown");
+    int lag = (int)mxGetScalar(lag_max);
 
+    // Initialize HMM model.
+    mxArray* inf_model = mxGetField(model, 0, "infModel");
+    if (inf_model != NULL)
+      hmm_.reset(HMM::CreateFromMxArray(inf_model, lag));
     mxDestroyArray(model);
     matClose(file);
   }
@@ -68,9 +71,11 @@ namespace handinput {
     using Eigen::Map;
     using Eigen::VectorXf;
     using Eigen::VectorXd;
+    using std::string;
 
     int gesture_index = 0;
     int handpose_index = 0;
+    string stage = "Unknown";
 
     if (raw_feature != NULL) {
       int motion_feature_len = feature_len_ - n_principal_comps_;
@@ -94,12 +99,15 @@ namespace handinput {
 
       if (hmm_) {
         hmm_->Fwdback(full_feature);
-        gesture_index = hmm_->MostLikelyLabel();
+        gesture_index = hmm_->MostLikelyLabelIndex();
+        stage = hmm_->MostLikelyStage();
       }
     }
 
     json_spirit::mObject result;
     result["gesture"] = gesture_labels_[gesture_index];
+    result["stage"] = stage;
+    result["eventType"] = gesture_event_detector_.Detect(stage);
     std::string s = write(result, json_spirit::pretty_print | json_spirit::raw_utf8);
     return s;
   }
@@ -126,5 +134,10 @@ namespace handinput {
       std::string s = std::string(mxArrayToString(mxGetCell(svm_labels_mx, i)));
       hand_pose_labels_.push_back(s);
     }
+  }
+
+  void InfEngine::Reset() { 
+    if (hmm_) hmm_->Reset(); 
+    gesture_event_detector_.Reset();
   }
 }

@@ -105,6 +105,7 @@ namespace HandInput.OfflineProcessor {
     void ReadFile() {
       Log.DebugFormat("Reading file {0}...", inputFile);
       var recordStream = File.OpenRead(inputFile);
+      Log.DebugFormat("Create replayer type: {0}", replayerType);
       replayer = Activator.CreateInstance(replayerType, new Object[] { recordStream });
     }
 

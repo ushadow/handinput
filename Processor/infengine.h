@@ -2,6 +2,7 @@
 #include "pcheader.h"
 #include "hmm.h"
 #include "svm_classifier.h"
+#include "gesture_event_detector.h"
 
 namespace handinput {
   class PROCESSOR_API InfEngine {
@@ -30,7 +31,7 @@ namespace handinput {
     // Returns
     // The most probable gesture label.
     std::string Update(float* raw_feature);
-    void Reset() { if (hmm_) hmm_->Reset(); }
+    void Reset();
   private:
     int kinect_sample_rate_;
     int descriptor_len_, n_principal_comps_, feature_len_, n_states_per_gesture_, n_vocabularies_;
@@ -43,6 +44,7 @@ namespace handinput {
     std::unique_ptr<SVMClassifier> svm_classifier_;
     std::vector<std::string> gesture_labels_;
     std::vector<std::string> hand_pose_labels_;
+    GestureEventDetector gesture_event_detector_;
 
     InfEngine(const InfEngine&) {}
     InfEngine& operator=(const InfEngine&) { return *this; }

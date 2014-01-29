@@ -214,6 +214,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="gesture_event_detector.cpp" />
     <ClCompile Include="hand_tracker.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
@@ -272,7 +273,7 @@
     <ClInclude Include="databuffer.h" />
     <ClInclude Include="feature_processor.h" />
     <ClInclude Include="gaussian.h" />
-    <ClInclude Include="gesture_result.h" />
+    <ClInclude Include="gesture_event_detector.h" />
     <ClInclude Include="hand_tracker.h" />
     <ClInclude Include="harrisbuffer.h" />
     <ClInclude Include="harrisbuffer_rt.h" />

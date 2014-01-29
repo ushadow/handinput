@@ -47,6 +47,7 @@ namespace HandInput.GesturesViewer {
     AudioStreamManager audioManager;
     bool displayDebug = false;
     DisplayOption displayOption = DisplayOption.DEPTH;
+    bool viewHog = false;
 
     KinectRecorder recorder;
     KinectAllFramesReplay replay;
@@ -168,7 +169,7 @@ namespace HandInput.GesturesViewer {
 
       kinectSensor.AllFramesReady += kinectRuntime_AllFrameReady;
       kinectSensor.Start();
-      StartSpeechRecognition();
+      //StartSpeechRecognition();
     }
 
     void StartTracking() {
@@ -359,6 +360,7 @@ namespace HandInput.GesturesViewer {
       kinectSensor = null;
 
       StopReplay();
+      gestureServer.Stop();
     }
 
     void Button_Click(object sender, RoutedEventArgs e) {

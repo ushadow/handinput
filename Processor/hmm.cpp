@@ -2,7 +2,7 @@
 #include "hmm.h"
 
 namespace handinput {
-  HMM* HMM::CreateFromMxArray(mxArray* mx_model) {
+  HMM* HMM::CreateFromMxArray(mxArray* mx_model, int lag) {
     using std::vector;
     using std::unique_ptr;
     using Eigen::Map;
@@ -11,6 +11,8 @@ namespace handinput {
     using Eigen::VectorXf;
     using Eigen::MatrixXf;
     using Eigen::InnerStride;
+    using std::vector;
+    using std::string;
 
     mxArray* mx_hmm_model = mxGetField(mx_model, 0, "model");
     mxArray* mx_prior = mxGetField(mx_hmm_model, 0, "prior");
@@ -18,7 +20,8 @@ namespace handinput {
     mxArray* mx_mu = mxGetField(mx_hmm_model, 0, "mu");
     mxArray* mx_sigma = mxGetField(mx_hmm_model, 0, "Sigma");
     mxArray* mx_mixmat = mxGetField(mx_hmm_model, 0, "mixmat");
-    mxArray* mx_map = mxGetField(mx_hmm_model, 0, "map");
+    mxArray* mx_map = mxGetField(mx_hmm_model, 0, "labelMap");
+    mxArray* mx_stage_map = mxGetField(mx_hmm_model, 0, "stageMap");
 
     const double* prior_data = (const double*) mxGetData(mx_prior);
     const double* transmat_data = (const double*) mxGetData(mx_transmat);
@@ -33,13 +36,19 @@ namespace handinput {
 
     const int* map_data = (const int*) mxGetData(mx_map);
     size_t map_len = mxGetNumberOfElements(mx_map);
-    std::vector<int> map(map_data, map_data + map_len);
+    vector<int> map(map_data, map_data + map_len);
+
+    vector<string> stage_map;
+    for (int i = 0; i < mxGetNumberOfElements(mx_stage_map); i++) {
+      string s = string(mxArrayToString(mxGetCell(mx_stage_map, i)));
+      stage_map.push_back(s);
+    }
 
     vector<unique_ptr<const MixGaussian>> mixgaussians;
     for (int i = 0; i < n_states; i++) {
       // mixmat_data is m x n matrix where each colum is the mixture probability for a state.
       Map<VectorXf, 0, InnerStride<>> mix(mixmat_data + i, n_mixtures, 
-                                          InnerStride<>(n_states));  
+        InnerStride<>(n_states));  
       vector<unique_ptr<const Gaussian>> gaussians;
       for (int j = 0; j < n_mixtures; j++) {
         Map<VectorXf> mu(mu_data + feature_len * (j * n_states + i), feature_len);
@@ -52,38 +61,38 @@ namespace handinput {
       mixgaussians.push_back(std::move(mixgauss));
     }
     return new HMM(VectorXd::Map(prior_data, n_states),
-      MatrixXd::Map(transmat_data, n_states, n_states), map, mixgaussians);
+      MatrixXd::Map(transmat_data, n_states, n_states), mixgaussians, map, stage_map, lag + 1);
   }
 
   HMM::HMM(const Eigen::Ref<const Eigen::VectorXd> prior, 
-    const Eigen::Ref<const Eigen::MatrixXd> transmat, 
-    const std::vector<int> state_to_label_map,
-    std::vector<std::unique_ptr<const MixGaussian>>& mixgaussians) 
-    : mixgaussians_(std::move(mixgaussians)), state_to_label_map_(state_to_label_map) {
+    Eigen::MatrixXd transmat, 
+    std::vector<std::unique_ptr<const MixGaussian>>& mixgaussians, 
+    const std::vector<int> state_to_label_map, 
+    const std::vector<std::string> stage_map, int smooth_win) 
+    : mixgaussians_(std::move(mixgaussians)), state_to_label_map_(state_to_label_map),
+    stage_map_(std::move(stage_map)), smooth_win_(smooth_win), transmat_(transmat) {
 
       using Eigen::VectorXd;
 
       n_states_ = (int) prior.size();
       feature_len_ = mixgaussians_[0]->feature_len();
-      obslik_ = VectorXd::Zero(n_states_);
-      alpha_ = VectorXd::Zero(n_states_);
       prior_ = prior;
       transmat_t_ = transmat.transpose();
       loglik_ = 0;
 
       Reset();
-      
+
       CheckRI();
   }
 
   void HMM::Reset() {
-    alpha_.setZero();
+    alpha_.clear();
+    obslik_.clear();
+    most_likely_hidden_state_ = n_states_ - 1;
     reset_ = true;
   }
 
   void HMM::CheckRI() {
-    if (alpha_.size() != state_to_label_map_.size())
-      throw std::invalid_argument("alpha size is not equal to state_to_label_map size.");
     if (mixgaussians_.size() != n_states_ || transmat_t_.rows() != n_states_ ||
       transmat_t_.cols() != n_states_)
       throw std::invalid_argument("The input is not valid.");
@@ -95,48 +104,86 @@ namespace handinput {
     return mixgaussians_[index].get();
   }
 
-  double HMM::Fwdback(const Eigen::Ref<const Eigen::VectorXf> x) {
+  void HMM::Fwdback(const Eigen::Ref<const Eigen::VectorXf> x) {
+    using Eigen::VectorXd;
+
     ComputeObslik(x);
-    if (reset_) {
-      alpha_ = prior_.cwiseProduct(obslik_);
+
+    VectorXd alpha1;
+    if (alpha_.size() <= 0) {
+      alpha1 = prior_.cwiseProduct(obslik_.back());
       reset_ = false;
     } else {
-      alpha_ = (transmat_t_ * alpha_).cwiseProduct(obslik_).eval();
+      alpha1 = (transmat_t_ * alpha_.back()).cwiseProduct(obslik_.back());
     }
-    double norm = Normalize();
-    if (norm == 0)
-      loglik_ = -FLT_MAX;
-    else
-      loglik_ += log(norm);
-    return loglik_;
+
+    double norm = Normalize(&alpha1);
+
+    if (norm == 0) {
+      Reset();
+    } else {
+      if (alpha_.size() >= smooth_win_)
+        alpha_.pop_front();
+      alpha_.push_back(std::move(alpha1));
+
+      Back();
+
+      most_likely_hidden_state_ = MostLikelyState();
+      std::cout << most_likely_hidden_state_ << std::endl;
+    }
+  }
+
+  void HMM::Back() {
+    using Eigen::VectorXd;
+
+    VectorXd beta = VectorXd::Ones(n_states_);
+    for (std::deque<VectorXd>::const_reverse_iterator rit = obslik_.rbegin(); 
+      rit != obslik_.rend() - 1; rit++) {
+        beta = transmat_ * (beta.cwiseProduct(*rit));
+        double norm = Normalize(&beta);
+        if (norm == 0) {
+          Reset();
+          return;
+        }
+    }
+    gamma_ = alpha_.back().cwiseProduct(beta);
   }
 
   int HMM::MostLikelyState() {
     using Eigen::VectorXf;
     VectorXf::Index maxIndex;
-    alpha_.maxCoeff(&maxIndex);
+    gamma_.maxCoeff(&maxIndex);
     return (int) maxIndex;
   }
 
-  int HMM::MostLikelyLabel() {
-    int state = MostLikelyState();
-    return state_to_label_map_[state];
+  int HMM::MostLikelyLabelIndex() {
+    return state_to_label_map_[most_likely_hidden_state_];
+  }
+
+  std::string HMM::MostLikelyStage() {
+    return stage_map_[most_likely_hidden_state_];
   }
 
   void HMM::ComputeObslik(const Eigen::Ref<const Eigen::VectorXf> x) {
+    using Eigen::VectorXd;
+
+    VectorXd obs1 = VectorXd::Zero(n_states_);
     for (int i = 0; i < n_states_; i++) {
-      obslik_(i) = mixgaussians_[i]->Prob(x);
+      obs1(i) = mixgaussians_[i]->Prob(x);
     }
+
+    if (obslik_.size() >= smooth_win_) {
+      obslik_.pop_front();
+    }
+    obslik_.push_back(std::move(obs1));
   }
 
   // Normalizes the alpha.
-  double HMM::Normalize() {
-    double norm = alpha_.norm();
-    if (norm == 0) {
-      norm = 1;
-      reset_ = true;
+  double HMM::Normalize(Eigen::VectorXd* x) {
+    double norm = x->norm();
+    if (norm != 0) {
+      x->normalize();
     }
-    alpha_ = alpha_ / norm;
     return norm;
   }
 }

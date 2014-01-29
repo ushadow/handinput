@@ -115,7 +115,7 @@ namespace HandInput.GesturesViewer {
       if (handTracker != null && recogEngine != null) {
         var result = handTracker.Update(depthManager.PixelData, colorManager.PixelData,
             SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
-        var gesture = recogEngine.Update(result, true);
+        var gesture = recogEngine.Update(result, viewHog);
         gestureServer.Send(gesture);
         statusTextBox.Text = gesture;
         fpsCounter.LogFPS();
@@ -149,7 +149,6 @@ namespace HandInput.GesturesViewer {
       }
 
       recogEngine = null;
-      gestureServer.Stop();
     }
 
     void replay_AllFramesReady(object sender, ReplayAllFramesReadyEventArgs e) {
