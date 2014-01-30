@@ -2,6 +2,8 @@
 #include "hmm.h"
 
 namespace handinput {
+#define EPS 10e-32
+
   HMM* HMM::CreateFromMxArray(mxArray* mx_model, int lag) {
     using std::vector;
     using std::unique_ptr;
@@ -86,6 +88,9 @@ namespace handinput {
   }
 
   void HMM::Reset() {
+#ifdef _DEBUG
+    std::cout << "HMM reset." << std::endl;
+#endif
     alpha_.clear();
     obslik_.clear();
     most_likely_hidden_state_ = n_states_ - 1;
@@ -119,7 +124,7 @@ namespace handinput {
 
     double norm = Normalize(&alpha1);
 
-    if (norm == 0) {
+    if (norm <= EPS) {
       Reset();
     } else {
       if (alpha_.size() >= smooth_win_)
@@ -127,11 +132,6 @@ namespace handinput {
       alpha_.push_back(std::move(alpha1));
 
       Back();
-
-      most_likely_hidden_state_ = MostLikelyState();
-#ifdef _DEBUG
-      std::cout << most_likely_hidden_state_ << std::endl;
-#endif
     }
   }
 
@@ -143,12 +143,18 @@ namespace handinput {
       rit != obslik_.rend() - 1; rit++) {
         beta = transmat_ * (beta.cwiseProduct(*rit));
         double norm = Normalize(&beta);
-        if (norm == 0) {
+        if (norm <= EPS) {
           Reset();
           return;
         }
     }
-    gamma_ = alpha_.back().cwiseProduct(beta);
+    gamma_ = alpha_.front().cwiseProduct(beta);
+    most_likely_hidden_state_ = MostLikelyState();
+#ifdef _DEBUG
+    std::cout << "gamma = " << std::endl;
+    std::cout << gamma_ << std::endl;
+    std::cout << "most likely state = " << most_likely_hidden_state_ << std::endl;
+#endif
   }
 
   int HMM::MostLikelyState() {
@@ -183,7 +189,7 @@ namespace handinput {
   // Normalizes the alpha.
   double HMM::Normalize(Eigen::VectorXd* x) {
     double norm = x->norm();
-    if (norm != 0) {
+    if (norm > EPS) {
       x->normalize();
     }
     return norm;

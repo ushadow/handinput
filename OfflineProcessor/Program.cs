@@ -43,7 +43,7 @@ namespace HandInput.OfflineProcessor {
     /// <summary>
     /// Default options.
     /// </summary>
-    static int nSession = 4;
+    static int nSessions = 0;
     static float sampleRate = 1;
     static String type = "fe";
     static String sessionToProcess = null;
@@ -81,8 +81,9 @@ namespace HandInput.OfflineProcessor {
             " Default is all.", v => batchList = ParseIndex(v) },
         { "h|help", "show this message and exit", v => showHelp = v != null },
         { "s=", "{SESSION} name to be processed", v => sessionToProcess = v },
-        { "ns=", "{NUMBER OF SESSIONS} to be processed. [4]", 
-            v => nSession = Int32.Parse(v) },
+        { "ns=", String.Format("{{NUMBER OF SESSIONS}} to be processed. If 0, process all sessions. [{0}]",
+                               nSessions),
+            v => nSessions = Int32.Parse(v) },
         { "gs=", String.Format("{{SENSOR}} for ground truth. [{0}]", gtSensor), 
             v => gtSensor = v},
         { "sample=", String.Format("{{SAMPLE RATE}}. [{0}]", sampleRate), 
@@ -195,7 +196,11 @@ namespace HandInput.OfflineProcessor {
       } else {
         sessionDirs = Directory.GetDirectories(inputFolder);
       }
-      foreach (var dir in sessionDirs.Take(nSession)) {
+
+      if (nSessions == 0)
+        nSessions = sessionDirs.Count();
+
+      foreach (var dir in sessionDirs.Take(nSessions)) {
         var dirInfo = new DirectoryInfo(dir);
         var inputSession = Path.Combine(inputFolder, dirInfo.Name);
         var outputSession = Path.Combine(outputFolder, dirInfo.Name);
