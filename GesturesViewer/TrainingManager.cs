@@ -25,10 +25,12 @@ namespace HandInput.GesturesViewer {
 
     static readonly int GestureWaitTime = 3000; //ms
     static readonly int StartWaitTime = 8000;
-    static readonly int NumRepitions = 3;
     static readonly int StartRepCount = 1;
+    static readonly int DefaultNumRepitions = 3;
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
+    public int NumRepitions { get; private set; }
+    
     public String Status {
       get {
         return status;
@@ -59,23 +61,25 @@ namespace HandInput.GesturesViewer {
 
     String status;
     Timer timer = new Timer(1000);
-    Int32 counter = 0, repCounter = StartRepCount;
+    Int32 counter, repCounter;
     Boolean started = false;
 
     public TrainingManager() {
-
       var gestures = Properties.Resources.Gestures.Split(new char[] { '\r', '\n' },
           StringSplitOptions.RemoveEmptyEntries);
       foreach (var s in gestures) {
         gestureList.Add(s, null);
         selectedItems.Add(s, null);
       }
+      NumRepitions = DefaultNumRepitions;
     }
 
     /// <summary>
     /// Starts gesture training recording procedure.
     /// </summary>
     public void Start() {
+      counter = 0;
+      repCounter = StartRepCount;
       Status = "Starting...";
       timer.Elapsed += new ElapsedEventHandler(OnTimeEvent);
       timer.Enabled = true;

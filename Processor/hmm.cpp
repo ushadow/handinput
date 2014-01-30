@@ -129,7 +129,9 @@ namespace handinput {
       Back();
 
       most_likely_hidden_state_ = MostLikelyState();
+#ifdef _DEBUG
       std::cout << most_likely_hidden_state_ << std::endl;
+#endif
     }
   }
 

@@ -18,6 +18,8 @@ namespace HandInput.GesturesViewer {
     }
 
     void RecordGesture() {
+      StartKinect();
+
       var time = String.Format("{0:yyyy-MM-dd_HH-mm}", DateTime.Now);
       var dir = Path.Combine(DataDir, Pid, time);
       Directory.CreateDirectory(dir);

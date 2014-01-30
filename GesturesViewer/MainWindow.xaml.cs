@@ -68,6 +68,7 @@ namespace HandInput.GesturesViewer {
       };
       labelKeys.Content = GetKeyOptionString();
       gestureComboBox.DataContext = trainingManager;
+      repitionsTextBox.DataContext = trainingManager;
     }
 
     void Kinects_StatusChanged(object sender, StatusChangedEventArgs e) {
@@ -166,19 +167,21 @@ namespace HandInput.GesturesViewer {
       HandInputParams.DepthFocalLength = kinectSensor.DepthStream.NominalFocalLengthInPixels;
     }
 
+    /// <summary>
+    /// Starts Kinect if it is not started.
+    /// </summary>
     void StartKinect() {
-      if (kinectSensor == null)
+      if (kinectSensor == null || kinectSensor.IsRunning)
         return;
 
       kinectSensor.AllFramesReady += kinectRuntime_AllFrameReady;
       kinectSensor.Start();
-      //StartSpeechRecognition();
+      StartSpeechRecognition();
     }
 
     void StartTracking() {
       StopReplay();
-      if (!kinectSensor.IsRunning)
-        StartKinect();
+      StartKinect();
       handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
           HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
       recogEngine = new RecognitionEngine(ModelFile);

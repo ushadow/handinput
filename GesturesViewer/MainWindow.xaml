@@ -130,6 +130,11 @@
                                              SelectedItems="{Binding SelectedItems}" Width="250"
                                              Margin="10,6,0,6" />
             </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Row="3">
+                <TextBlock VerticalAlignment="Center">Repitions</TextBlock>
+                <TextBox Margin="10,6,0,6" Width="250" VerticalAlignment="Center" 
+                         Text="{Binding NumRepitions}" Name="repitionsTextBox"></TextBox>
+            </StackPanel>
         </Grid>
         <TextBlock Text="STATUS" Grid.Column="1" Grid.Row="2" Margin="4"/>
         <TextBox x:Name="statusTextBox" FontSize="30" Grid.Column="1" Margin="10,10,10,0" Grid.Row="3"
