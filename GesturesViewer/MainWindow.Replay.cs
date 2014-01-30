@@ -28,7 +28,7 @@ namespace HandInput.GesturesViewer {
 
     DispatcherTimer timer;
     GroundTruthDataRelayer gtReplayer;
-    GestureServer gestureServer = new GestureServer(IpAddress, Port);
+   
     float sampleRate = 1;
 
     void replayButton_Click(object sender, RoutedEventArgs e) {
@@ -75,7 +75,6 @@ namespace HandInput.GesturesViewer {
           HandInputParams.DepthHeight, replay.GetKinectParams());
       recogEngine = new RecognitionEngine(ModelFile);
       sampleRate = recogEngine.GetSampleRate();
-      gestureServer.Start();
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
       timer.Tick += new EventHandler(OnTimerTick);

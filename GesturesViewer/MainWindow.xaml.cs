@@ -57,6 +57,8 @@ namespace HandInput.GesturesViewer {
     RecognitionEngine recogEngine;
     FPSCounter fpsCounter = new FPSCounter();
 
+    GestureServer gestureServer = new GestureServer(IpAddress, Port);
+
     /// <summary>
     /// Initializes UI.
     /// </summary>
@@ -69,6 +71,7 @@ namespace HandInput.GesturesViewer {
       labelKeys.Content = GetKeyOptionString();
       gestureComboBox.DataContext = trainingManager;
       repitionsTextBox.DataContext = trainingManager;
+      gestureServer.Start();
     }
 
     void Kinects_StatusChanged(object sender, StatusChangedEventArgs e) {
@@ -138,10 +141,6 @@ namespace HandInput.GesturesViewer {
     void InitializeKinect() {
       if (kinectSensor == null)
         return;
-      Log.InfoFormat("Color stream nominal focal length in pixel = {0}",
-          kinectSensor.ColorStream.NominalFocalLengthInPixels);
-      Log.InfoFormat("Depth stream nominal focal length in pixel = {0}",
-          kinectSensor.DepthStream.NominalFocalLengthInPixels);
 
       audioManager = new AudioStreamManager(kinectSensor.AudioSource);
       audioBeamAngle.DataContext = audioManager;
@@ -185,7 +184,6 @@ namespace HandInput.GesturesViewer {
       handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
           HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
       recogEngine = new RecognitionEngine(ModelFile);
-      gestureServer.Start();
     }
 
     void HandTrackingTask(CancellationToken token) {
