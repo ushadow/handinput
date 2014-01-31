@@ -99,7 +99,10 @@ namespace HandInput.Engine {
     Rectangle ComputeInitialRect(DepthImagePoint point, float z) {
       var scaledHandWidth = DepthUtil.GetDepthImageLength(width, HandWidth, z) * 2;
       var left = Math.Max(0, (int)(point.X - scaledHandWidth / 2));
+      left = Math.Min(left, width - 1);
       var top = Math.Max(0, (int)(point.Y - scaledHandWidth / 2));
+      top = Math.Min(top, height - 1);
+      // right and bottom are exclusive.
       var right = Math.Min(width, (int) (left + scaledHandWidth));
       var bottom = Math.Min(height, (int) (top + scaledHandWidth));
       return new Rectangle(left, top, right - left, bottom - top);
