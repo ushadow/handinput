@@ -15,7 +15,7 @@ using handinput;
 using HandInput.Util;
 
 namespace HandInput.Engine {
-  public class RecognitionEngine {
+  public class GestureRecognitionEngine {
 
     static String ToJson(String gestureJson, Option<window.Point> rightHandPos) {
       StringWriter sw = new StringWriter();
@@ -46,7 +46,7 @@ namespace HandInput.Engine {
     bool reset = true;
     String modelFile;
 
-    public RecognitionEngine(String modelFile) {
+    public GestureRecognitionEngine(String modelFile) {
       this.modelFile = modelFile;
       processor = new MProcessor(HandInputParams.FeatureImageWidth,
           HandInputParams.FeatureImageWidth, modelFile);

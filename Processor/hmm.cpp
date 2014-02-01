@@ -4,6 +4,8 @@
 namespace handinput {
 #define EPS 10e-32
 
+  const double HMM::kMinGamma = 10e-17;
+
   HMM* HMM::CreateFromMxArray(mxArray* mx_model, int lag) {
     using std::vector;
     using std::unique_ptr;
@@ -77,6 +79,7 @@ namespace handinput {
       using Eigen::VectorXd;
 
       n_states_ = (int) prior.size();
+      rest_state_ = n_states_ - 1;
       feature_len_ = mixgaussians_[0]->feature_len();
       prior_ = prior;
       transmat_t_ = transmat.transpose();
@@ -87,13 +90,14 @@ namespace handinput {
       CheckRI();
   }
 
+  // Resets most likely state to rest state.
   void HMM::Reset() {
 #ifdef _DEBUG
     std::cout << "HMM reset." << std::endl;
 #endif
     alpha_.clear();
     obslik_.clear();
-    most_likely_hidden_state_ = n_states_ - 1;
+    most_likely_hidden_state_ = rest_state_;
     reset_ = true;
   }
 
@@ -149,7 +153,7 @@ namespace handinput {
         }
     }
     gamma_ = alpha_.front().cwiseProduct(beta);
-    most_likely_hidden_state_ = MostLikelyState();
+    ComputeMostLikelyState();
 #ifdef _DEBUG
     std::cout << "gamma = " << std::endl;
     std::cout << gamma_ << std::endl;
@@ -157,11 +161,15 @@ namespace handinput {
 #endif
   }
 
-  int HMM::MostLikelyState() {
+  void HMM::ComputeMostLikelyState() {
     using Eigen::VectorXf;
     VectorXf::Index maxIndex;
-    gamma_.maxCoeff(&maxIndex);
-    return (int) maxIndex;
+    double max_coeff = gamma_.maxCoeff(&maxIndex);
+    if (max_coeff > kMinGamma) {
+      most_likely_hidden_state_ = (int) maxIndex;
+    } else {
+      Reset();
+    }
   }
 
   int HMM::MostLikelyLabelIndex() {

@@ -28,7 +28,6 @@ namespace handinput {
 
     const MixGaussian* MixGaussianAt(int index) const;
 
-    int MostLikelyState();
     // 1-based label index.
     int MostLikelyLabelIndex();
     std::string MostLikelyStage();
@@ -37,6 +36,7 @@ namespace handinput {
     void Reset();
 
   private:
+    static const double kMinGamma;
     Eigen::VectorXd prior_, gamma_;
     std::deque<Eigen::VectorXd> alpha_, obslik_;
     std::vector<std::unique_ptr<const MixGaussian>> mixgaussians_;
@@ -46,7 +46,7 @@ namespace handinput {
     bool reset_;
     std::vector<int> state_to_label_map_;
     std::vector<std::string> stage_map_;
-    int smooth_win_;
+    int smooth_win_, rest_state_;
 
     HMM(const HMM&) {}
     HMM& operator=(const HMM&) { return *this; }
@@ -54,5 +54,6 @@ namespace handinput {
     double Normalize(Eigen::VectorXd* x);
     void CheckRI();
     void Back();
+    void ComputeMostLikelyState();
   };
 }

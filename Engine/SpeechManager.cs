@@ -9,8 +9,12 @@ using Microsoft.Speech.Recognition;
 using Microsoft.Speech.AudioFormat;
 using Microsoft.Kinect;
 
+using Newtonsoft.Json;
+
 namespace HandInput.Engine {
   public class SpeechManager {
+    static readonly double ConfidenceThreshold = 0.3;
+
     static public SpeechManager Create(Stream audioStream, Stream grammar) {
       foreach (RecognizerInfo recognizer in SpeechRecognitionEngine.InstalledRecognizers()) {
         string value;
@@ -24,10 +28,17 @@ namespace HandInput.Engine {
       return null;
     }
 
-    public event EventHandler<SpeechRecognizedEventArgs> SpeechRecognized {
-      add { engine.SpeechRecognized += value; }
-      remove { engine.SpeechRecognized -= value; }
+    static String ToJson(String speechText) {
+      StringWriter sw = new StringWriter();
+      JsonTextWriter writer = new JsonTextWriter(sw);
+      writer.WriteStartObject();
+      writer.WritePropertyName("speechEvent");
+      writer.WriteValue(speechText);
+      writer.WriteEndObject();
+      return sw.ToString();
     }
+
+    public event EventHandler<String> SpeechRecognized;
 
     SpeechRecognitionEngine engine;
 
@@ -44,6 +55,17 @@ namespace HandInput.Engine {
       engine.LoadGrammar(new Grammar(grammar));
       engine.SetInputToAudioStream(audioStream,
           new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
+      engine.SpeechRecognized += OnSpeechRecognized;
+    }
+
+    void OnSpeechRecognized(Object sender, SpeechRecognizedEventArgs e) {
+      if (e.Result.Confidence >= ConfidenceThreshold) {
+        var s = e.Result.Semantics.Value.ToString();
+        var json = ToJson(s);
+        if (SpeechRecognized != null) {
+          SpeechRecognized(this, json);
+        }
+      }
     }
 
   }

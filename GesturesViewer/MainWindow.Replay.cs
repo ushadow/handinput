@@ -28,7 +28,7 @@ namespace HandInput.GesturesViewer {
 
     DispatcherTimer timer;
     GroundTruthDataRelayer gtReplayer;
-   
+
     float sampleRate = 1;
 
     void replayButton_Click(object sender, RoutedEventArgs e) {
@@ -39,8 +39,7 @@ namespace HandInput.GesturesViewer {
 
       if (openFileDialog.ShowDialog() == true) {
         if (replay != null) {
-          replay.AllFramesReady -= replay_AllFramesReady;
-          replay.Stop();
+          replay.Dispose();
         }
         var fullPath = openFileDialog.FileName;
         Stream recordStream = File.OpenRead(fullPath);
@@ -64,16 +63,21 @@ namespace HandInput.GesturesViewer {
     /// </summary>
     /// <param name="recordStream"></param>
     void Replay(Stream recordStream, Stream gtStream) {
-      replay = new KinectAllFramesReplay(recordStream);
+      // Reset slider.
+      frameSlider.Value = 0;
+
       if (gtStream != null)
         gtReplayer = new GroundTruthDataRelayer(gtStream);
 
-      frameSlider.Maximum = replay.GetFramesCount();
-      frameSlider.Value = 0;
+      lock (this) {
+        replay = new KinectAllFramesReplay(recordStream);
+        frameSlider.Maximum = replay.GetFramesCount();
 
-      handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
-          HandInputParams.DepthHeight, replay.GetKinectParams());
-      recogEngine = new RecognitionEngine(ModelFile);
+        handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
+            HandInputParams.DepthHeight, replay.GetKinectParams());
+      }
+
+      recogEngine = new GestureRecognitionEngine(ModelFile);
       sampleRate = recogEngine.GetSampleRate();
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
@@ -92,6 +96,7 @@ namespace HandInput.GesturesViewer {
         if (frame != null) {
           ReplayFrame(frame.DepthImageFrame, frame.ColorImageFrame, frame.SkeletonFrame);
         } else {
+          Log.DebugFormat("Obtained a null frame.");
           StopReplay();
         }
       }
@@ -115,7 +120,10 @@ namespace HandInput.GesturesViewer {
         var result = handTracker.Update(depthManager.PixelData, colorManager.PixelData,
             SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
         var gesture = recogEngine.Update(result, viewHog);
-        gestureServer.Send(gesture);
+
+        lock (gestureServer)
+          gestureServer.Send(gesture);
+
         statusTextBox.Text = gesture;
         fpsCounter.LogFPS();
         UpdateDisplay(result);
@@ -142,27 +150,15 @@ namespace HandInput.GesturesViewer {
       if (timer != null && timer.IsEnabled)
         timer.Stop();
 
-      if (replay != null) {
-        replay.Dispose();
-        replay = null;
+      lock (this) {
+        if (replay != null) {
+          replay.Dispose();
+          replay = null;
+          Log.Debug("Set replay to null.");
+        }
       }
 
       recogEngine = null;
-    }
-
-    void replay_AllFramesReady(object sender, ReplayAllFramesReadyEventArgs e) {
-      ReplayFrame(e.DepthImageFrame, e.ColorImageFrame, e.SkeletonFrame);
-    }
-
-    void replay_ColorImageFrameReady(object sender, ReplayColorImageFrameReadyEventArgs e) {
-      if (displayDebug)
-        return;
-
-      colorManager.Update(e.ColorImageFrame);
-    }
-
-    void replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e) {
-      UpdateSkeletonDisplay(e.SkeletonFrame);
     }
 
     void UpdateGroundTruthDisplay(GroundTruthData data) {

@@ -2,3 +2,5 @@
 SwipeRight
 Point
 PalmUp
+Circle
+ShakeHand

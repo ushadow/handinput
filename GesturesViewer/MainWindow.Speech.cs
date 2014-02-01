@@ -11,8 +11,6 @@ using HandInput.Engine;
 
 namespace HandInput.GesturesViewer {
   partial class MainWindow {
-    static readonly double ConfidenceThreshold = 0.3;
-
     SpeechManager speechManager;
 
     void StartSpeechRecognition() {
@@ -26,11 +24,10 @@ namespace HandInput.GesturesViewer {
       }
     }
 
-    void SpeechRecognized(object sender, SpeechRecognizedEventArgs e) {
-      if (e.Result.Confidence >= ConfidenceThreshold) {
-        var s = e.Result.Semantics.Value.ToString();
-        speechTextBox.Text = s;
-      }
+    void SpeechRecognized(object sender, String s) {
+      speechTextBox.Text = s;
+      lock (gestureServer)
+        gestureServer.Send(s);
     }
 
     void StopSpeechRecognition() {

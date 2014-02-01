@@ -54,7 +54,7 @@ namespace HandInput.GesturesViewer {
     int depthFrameNumber;
     BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
     IHandTracker handTracker;
-    RecognitionEngine recogEngine;
+    GestureRecognitionEngine recogEngine;
     FPSCounter fpsCounter = new FPSCounter();
 
     GestureServer gestureServer = new GestureServer(IpAddress, Port);
@@ -179,47 +179,12 @@ namespace HandInput.GesturesViewer {
     }
 
     void StartTracking() {
+      Log.Debug("Start tracking.");
       StopReplay();
       StartKinect();
       handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
           HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
-      recogEngine = new RecognitionEngine(ModelFile);
-    }
-
-    void HandTrackingTask(CancellationToken token) {
-      Log.Debug("Start tracking");
-      while (kinectSensor != null && kinectSensor.IsRunning && !token.IsCancellationRequested) {
-        //var data = buffer.Take();
-        //try {
-        //  kinectSensor.AllFramesReady -= kinectRuntime_AllFrameReady;
-        //  var result = handTracker.Update(data.DepthData, data.ColorData, data.Skeleton);
-        //  String gesture = recogEngine.Update(result, true);
-        //  kinectSensor.AllFramesReady += kinectRuntime_AllFrameReady;
-        //  Dispatcher.Invoke(DispatcherPriority.Normal, new Action<TrackingResult>(UpdateDisplay),
-        //    result);
-        //  Dispatcher.Invoke(DispatcherPriority.Normal, new Action<String>(SetStatus), gesture);
-        //} catch (Exception e) {
-        //  Log.Debug(e.Message);
-        //  Log.Debug(e.StackTrace);
-        //}
-        var cf = kinectSensor.ColorStream.OpenNextFrame(Int32.MaxValue);
-        var df = kinectSensor.DepthStream.OpenNextFrame(Int32.MaxValue);
-        var sf = kinectSensor.SkeletonStream.OpenNextFrame(Int32.MaxValue);
-        if (cf != null)
-          Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => colorManager.Update(cf, !displayDebug)));
-
-        if (df != null) {
-          depthFrameNumber = df.FrameNumber;
-          depthManager.Update(df);
-        }
-
-        if (sf != null) {
-          //UpdateSkeletonDisplay(sf);
-          handTracker.Update(depthManager.PixelData, colorManager.PixelData,
-              SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons()));
-        }
-        fpsCounter.LogFPS();
-      }
+      recogEngine = new GestureRecognitionEngine(ModelFile);
     }
 
     void SetStatus(String status) {
@@ -306,7 +271,8 @@ namespace HandInput.GesturesViewer {
             var result = handTracker.Update(depthManager.PixelData, colorManager.PixelData,
               SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons()));
             var gesture = recogEngine.Update(result);
-            gestureServer.Send(gesture);
+            lock (gestureServer)
+              gestureServer.Send(gesture);
             UpdateDisplay(result);
             statusTextBox.Text = gesture;
             fpsCounter.LogFPS();
@@ -347,6 +313,7 @@ namespace HandInput.GesturesViewer {
     /// Cleans up everything.
     /// </summary>
     void Clean() {
+      Log.Debug("Cleaning.");
       if (audioManager != null) {
         audioManager.Dispose();
         audioManager = null;

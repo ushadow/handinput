@@ -2,6 +2,8 @@
 #include "gesture_event_detector.h"
 
 namespace handinput {
+  // Gesture stages: PreStroke, Gesture, PostStroke
+  // Gesture events: StratPreStroke, StartGesture, StopGesture
   std::string GestureEventDetector::Detect(const std::string& gesture, const std::string& stage) {
     using std::string;
 

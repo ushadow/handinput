@@ -113,7 +113,7 @@
     <Compile Include="StipHandTracker.cs" />
     <Compile Include="KinectDataPacket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RecognitionEngine.cs" />
+    <Compile Include="GestureRecognitionEngine.cs" />
     <Compile Include="SalienceHandTracker.cs" />
     <Compile Include="HogFeatureProcessor.cs" />
     <Compile Include="TrackingResult.cs" />
