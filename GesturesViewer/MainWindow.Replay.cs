@@ -22,7 +22,7 @@ using HandInput.Util;
 // Replay related interactions.
 namespace HandInput.GesturesViewer {
   partial class MainWindow {
-    static readonly int FPS = 30;
+    static readonly int FPS = 50;
     static readonly String IpAddress = ConfigurationManager.AppSettings["ip"];
     static readonly int Port = int.Parse(ConfigurationManager.AppSettings["port"]);
 
