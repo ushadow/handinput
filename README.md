@@ -10,7 +10,7 @@ Hand tracking and gesture recognition
 * NVIDIA CUDA 5.5 and [NVIDIA Nsight] (https://developer.nvidia.com/rdp/nsight-visual-studio-edition-downloads) >3.1 (WIN64)
 
 ## Dependencies
-* [Kinect SDK 1.7] (http://www.microsoft.com/en-us/kinectforwindowsdev/Downloads.aspx)
+* [Kinect SDK 1.8] (http://www.microsoft.com/en-us/kinectforwindowsdev/Downloads.aspx)
 * [Emgu] (http://sourceforge.net/projects/emgucv/files/emgucv/2.4.9-alpha/libemgucv-windows-universal-gpu-2.4.9.1847.zip/download) (version: Windows, universal, GPU, 2.4.9.1847)
   * Using x64 version dlls, which requires a rebuild of the source by changing the platform to x64 instead of Any CPU.
 * [Modified Kinect Toolbox] (https://github.com/uShadow/kinect-toolbox)
