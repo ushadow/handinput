@@ -10,13 +10,17 @@ Hand tracking and gesture recognition
 * NVIDIA CUDA 5.5 and [NVIDIA Nsight] (https://developer.nvidia.com/rdp/nsight-visual-studio-edition-downloads) >3.1 (WIN64)
 
 ## Dependencies
+### To run
+* .NET 4.5.1
 * [Kinect SDK 1.8] (http://www.microsoft.com/en-us/kinectforwindowsdev/Downloads.aspx)
+* Matlab 2013b 64bit (define $MATLAB evironment variable)
+  * Make sure `<path to matlab>\bin\win64` is in `Path`
+
+### To compile
 * [Emgu] (http://sourceforge.net/projects/emgucv/files/emgucv/2.4.9-alpha/libemgucv-windows-universal-gpu-2.4.9.1847.zip/download) (version: Windows, universal, GPU, 2.4.9.1847)
   * Using x64 version dlls, which requires a rebuild of the source by changing the platform to x64 instead of Any CPU.
 * [Modified Kinect Toolbox] (https://github.com/uShadow/kinect-toolbox)
 * Microsoft.Kinect.Toolkit (placed in the same directory as this solution).
-* Matlab 2013b 64bit (define $MATLAB evironment variable)
-  * Make sure `<path to matlab>\bin\win64` is in `path`
 * [Eigen 3.2.0] (http://eigen.tuxfamily.org/index.php?title=Main_Page)
 
 ## Run
