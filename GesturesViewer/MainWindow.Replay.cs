@@ -77,6 +77,7 @@ namespace HandInput.GesturesViewer {
             HandInputParams.DepthHeight, replay.GetKinectParams());
       }
 
+      Log.DebugFormat("model file: {0}", ModelFile);
       recogEngine = new GestureRecognitionEngine(ModelFile);
       sampleRate = recogEngine.GetSampleRate();
       timer = new DispatcherTimer();

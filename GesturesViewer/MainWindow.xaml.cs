@@ -21,6 +21,7 @@ using Common.Logging;
 using HandInput.Engine;
 using HandInput.Util;
 using System.Text;
+using System.IO;
 
 namespace HandInput.GesturesViewer {
   /// <summary>
@@ -30,7 +31,7 @@ namespace HandInput.GesturesViewer {
     enum DisplayOption { DEPTH, COLOR };
 
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
-    static readonly String ModelFile = ConfigurationManager.AppSettings["model_file"];
+    static readonly String ModelFile = Path.GetFullPath(ConfigurationManager.AppSettings["model_file"]);
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
     readonly DepthStreamManager depthManager = new DepthStreamManager();
