@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Timers;
 using System.ComponentModel;
+using System.Configuration;
+using System.IO;
 
 using Common.Logging;
 using System.Collections.Generic;
@@ -21,6 +23,7 @@ namespace HandInput.GesturesViewer {
 
   public class TrainingManager : INotifyPropertyChanged {
     public static readonly String KinectGTDPattern = "KinectDataGTD_{0}.txt";
+    public static readonly String KinectDataPattern = "KinectData_{0}.bin";
     public static readonly String KinectDataRegex = @"KinectData_(\d+).bin";
 
     static readonly int GestureWaitTime = 3000; //ms
@@ -30,7 +33,7 @@ namespace HandInput.GesturesViewer {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
     public int NumRepitions { get; private set; }
-    
+
     public String Status {
       get {
         return status;
@@ -57,7 +60,7 @@ namespace HandInput.GesturesViewer {
     public event EventHandler<TrainingEventArgs> TrainingEvent;
 
     Dictionary<string, object> gestureList = new Dictionary<string, object>();
-    Dictionary<string, object> selectedItems = new Dictionary<string, object>(); 
+    Dictionary<string, object> selectedItems = new Dictionary<string, object>();
 
     String status;
     Timer timer = new Timer(1000);

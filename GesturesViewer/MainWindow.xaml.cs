@@ -165,14 +165,21 @@ namespace HandInput.GesturesViewer {
 
       HandInputParams.ColorFocalLength = kinectSensor.ColorStream.NominalFocalLengthInPixels;
       HandInputParams.DepthFocalLength = kinectSensor.DepthStream.NominalFocalLengthInPixels;
+      Log.InfoFormat("Color focal length = {0}", HandInputParams.ColorFocalLength);
+      Log.InfoFormat("Depth focal length = {0}", HandInputParams.DepthFocalLength);
     }
 
     /// <summary>
-    /// Starts Kinect if it is not started.
+    /// Starts Kinect if it is not started. This call takes some time.
     /// </summary>
     void StartKinect() {
       if (kinectSensor == null || kinectSensor.IsRunning)
         return;
+
+      if (replay != null) {
+        replay.Dispose();
+        replay = null;
+      }
 
       kinectSensor.AllFramesReady += kinectRuntime_AllFrameReady;
       kinectSensor.Start();
