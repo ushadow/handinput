@@ -50,8 +50,8 @@ namespace HandInput.Engine {
     /// <returns>An option of newly created Single array.</returns>
     public Option<Array> Compute(TrackingResult result) {
       Single[] feature = null;
-      if (result.RelPos.IsSome && result.DepthBoundingBoxes.Count > 0) {
-        var pos = result.RelPos.Value;
+      if (result.RightHandRelPos.IsSome && result.DepthBoundingBoxes.Count > 0) {
+        var pos = result.RightHandRelPos.Value;
         var ptr = ComputeFeature(pos, result.DepthImage, result.DepthBoundingBoxes.Last(),
             result.ColorImage, result.ColorBoundingBoxes.LastOrDefault());
         if (!ptr.Equals(IntPtr.Zero)) {

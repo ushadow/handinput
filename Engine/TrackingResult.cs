@@ -18,7 +18,10 @@ namespace HandInput.Engine {
     /// Relative postion of the right hand with respect to the center of the shoulder.
     /// X axis is rightward, Y axis is upward, Z axis is away from the camera.
     /// </summary>
-    public Option<Vector3D> RelPos { get; private set; }
+    public Option<Vector3D> RightHandRelPos { get; private set; }
+    /// <summary>
+    /// Absolute position of the right hand in the depth frame.
+    /// </summary>
     public Option<window.Point> RightHandAbsPos { get; private set; }
     public Image<Gray, Byte> DepthImage { get; private set; }
     // Can be null.
@@ -27,7 +30,7 @@ namespace HandInput.Engine {
     public List<Rectangle> ColorBoundingBoxes { get; private set; }
 
     public TrackingResult() {
-      RelPos = new None<Vector3D>();
+      RightHandRelPos = new None<Vector3D>();
       RightHandAbsPos = new None<window.Point>();
       DepthBoundingBoxes = new List<Rectangle>();
       ColorBoundingBoxes = new List<Rectangle>();
@@ -36,7 +39,7 @@ namespace HandInput.Engine {
     public TrackingResult(Option<Vector3D> relPos, Image<Gray, Byte> smoothedDepth,
         List<Rectangle> depthBox, Image<Gray, Byte> skin = null, 
         List<Rectangle> colorBox = null) {
-      RelPos = relPos;
+      RightHandRelPos = relPos;
       DepthImage = smoothedDepth;
       DepthBoundingBoxes = depthBox;
 

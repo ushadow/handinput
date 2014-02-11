@@ -76,6 +76,8 @@ namespace handinput {
     int handpose_index = 0;
     string stage = "Unknown";
 
+    json_spirit::mObject result;
+
     if (raw_feature != NULL) {
       int motion_feature_len = feature_len_ - n_principal_comps_;
 
@@ -101,13 +103,13 @@ namespace handinput {
         gesture_index = hmm_->MostLikelyLabelIndex();
         stage = hmm_->MostLikelyStage();
       }
+
+      result["rightX"] = motion_feature[0];
+      result["rightY"] = motion_feature[1];
     }
 
-    json_spirit::mObject result;
     const string& gesture_label = gesture_labels_[gesture_index];
-    result["gesture"] = gesture_label;
-    result["stage"] = stage;
-    result["eventType"] = gesture_event_detector_.Detect(gesture_label, stage);
+    gesture_event_detector_.Detect(gesture_label, stage, &result);
     std::string s = write(result, json_spirit::pretty_print | json_spirit::raw_utf8);
     return s;
   }

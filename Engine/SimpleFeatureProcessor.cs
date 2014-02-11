@@ -40,9 +40,9 @@ namespace HandInput.Engine {
     /// <param name="result"></param>
     /// <returns></returns>
     public Option<Array> Compute(TrackingResult result) {
-      if (result.RelPos.IsSome) {
+      if (result.RightHandRelPos.IsSome) {
         var feature = new float[MotionFeatureLength + DescriptorLength];
-        var relPos = result.RelPos.Value;
+        var relPos = result.RightHandRelPos.Value;
         feature[0] = (float)relPos.X;
         feature[1] = (float)relPos.Y;
         feature[2] = (float)relPos.Z;
