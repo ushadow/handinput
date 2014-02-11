@@ -20,7 +20,7 @@ namespace handinput {
       } else if (stage == "Gesture") {
         gesture_event = "StartGesture";
       } else if (stage == "PostStroke" && prev_event_ == "StartGesture") {
-        gesture_event = "StopGesture";
+        gesture_event = "StartPostStroke";
         nucleus = prev_gesture_;
       }
     }
