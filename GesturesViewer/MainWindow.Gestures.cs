@@ -17,6 +17,7 @@ namespace HandInput.GesturesViewer {
             ConfigurationManager.AppSettings["processor_output_dir"]);
     static readonly String OfflineProcessorExe = Path.GetFullPath(ConfigurationManager.AppSettings[
         "offline_processor"]);
+    static readonly String MatlabExe = "matlab";
 
     StreamWriter sw;
 
@@ -71,13 +72,14 @@ namespace HandInput.GesturesViewer {
       Log.Info("Finished offline processing.");
     }
 
-    void ExecuteCommand(String command, String args) {
+    void ExecuteCommand(String command, String args, bool redirectError = true, 
+        bool redirectOutput = true) {
       Log.InfoFormat("Executing {0} {1}", command, args);
       var processInfo = new ProcessStartInfo(command, args);
       processInfo.CreateNoWindow = true;
       processInfo.UseShellExecute = false;
-      processInfo.RedirectStandardError = true;
-      processInfo.RedirectStandardOutput = true;
+      processInfo.RedirectStandardError = redirectError;
+      processInfo.RedirectStandardOutput = redirectOutput;
       var process = Process.Start(processInfo);
       process.WaitForExit();
 
@@ -86,10 +88,24 @@ namespace HandInput.GesturesViewer {
 
       var exitCode = process.ExitCode;
 
-      Log.DebugFormat("output>>{0}", String.IsNullOrEmpty(output) ? "(none)" : output);
-      Log.DebugFormat("error>>{0}", String.IsNullOrEmpty(error) ? "(none)" : error);
+      if (redirectOutput)
+        Log.DebugFormat("output>>{0}", String.IsNullOrEmpty(output) ? "(none)" : output);
+
+      if (redirectError)
+        Log.DebugFormat("error>>{0}", String.IsNullOrEmpty(error) ? "(none)" : error);
+
       Log.DebugFormat("exit code = {0}", exitCode.ToString());
       process.Close();
+    }
+
+    void trainButton_Click(object sender, RoutedEventArgs e) {
+      TrainModel();
+    }
+
+    void TrainModel() {
+      var args = String.Format("-nodisplay -nosplash -nodesktop -r \"train('{0}', '{1}'); pause(1); exit;\"",
+          OutputDir, ModelFile);
+      ExecuteCommand(MatlabExe, args, false, false);
     }
   }
 }
