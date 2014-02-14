@@ -9,7 +9,7 @@ using Microsoft.Speech.Recognition;
 
 using HandInput.Engine;
 
-namespace HandInput.GesturesViewer {
+namespace GesturesViewer {
   partial class MainWindow {
     SpeechManager speechManager;
 

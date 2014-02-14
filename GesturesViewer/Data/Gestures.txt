@@ -1,6 +1,7 @@
-﻿SwipeLeft
-SwipeRight
-Point
-PalmUp
+﻿Swipe_Left
+Swipe_Right
 Circle
-ShakeHand
+Shake_Hand
+Point
+Palm_Up
+Fist

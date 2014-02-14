@@ -22,8 +22,10 @@ using HandInput.Engine;
 using HandInput.Util;
 using System.Text;
 using System.IO;
+using System.Windows.Data;
+using System.Windows.Controls;
 
-namespace HandInput.GesturesViewer {
+namespace GesturesViewer {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// </summary>
@@ -70,9 +72,23 @@ namespace HandInput.GesturesViewer {
         {Key.S, StartKinect}, {Key.T, StartTracking}
       };
       labelKeys.Content = GetKeyOptionString();
+
+      trainingManager.TrainingEvent += OnTrainingEvent;
       gestureComboBox.DataContext = trainingManager;
       repitionsTextBox.DataContext = trainingManager;
       pidTextBox.DataContext = trainingManager;
+      var binding = new Binding("Status");
+      binding.Mode = BindingMode.OneWay;
+      binding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+      statusTextBox.DataContext = trainingManager;
+      statusTextBox.SetBinding(TextBox.TextProperty, binding);
+
+      binding = new Binding("Status");
+      binding.Mode = BindingMode.OneWay;
+      binding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+      binding.Converter = new ColorConverter();
+      statusTextBox.SetBinding(TextBox.ForegroundProperty, binding);
+
       gestureServer.Start();
     }
 

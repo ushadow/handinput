@@ -8,7 +8,7 @@ using System.IO;
 using Common.Logging;
 using System.Collections.Generic;
 
-namespace HandInput.GesturesViewer {
+namespace GesturesViewer {
 
   public enum TrainingEventType { Start, End, StartGesture, StopPostStroke };
 
@@ -28,8 +28,8 @@ namespace HandInput.GesturesViewer {
 
     static readonly String DefaultPid = ConfigurationManager.AppSettings["pid"];
     static readonly int GestureWaitTime = 3000; //ms
+    static readonly int GestureStopWaitTime = 1000;
     static readonly int StartWaitTime = 8000;
-    static readonly int StartRepCount = 1;
     static readonly int DefaultNumRepitions = 3;
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
@@ -63,11 +63,11 @@ namespace HandInput.GesturesViewer {
 
     Dictionary<string, object> gestureList = new Dictionary<string, object>();
     Dictionary<string, object> selectedItems = new Dictionary<string, object>();
+    IEnumerator<String> gestureEnumerator;
 
     String status;
     Timer timer = new Timer(1000);
-    Int32 counter, repCounter;
-    Boolean started = false;
+    Boolean started = false, gestureStop = false;
 
     public TrainingManager() {
       var gestures = Properties.Resources.Gestures.Split(new char[] { '\r', '\n' },
@@ -84,8 +84,8 @@ namespace HandInput.GesturesViewer {
     /// Starts gesture training recording procedure.
     /// </summary>
     public void Start() {
-      counter = 0;
-      repCounter = StartRepCount;
+      gestureEnumerator = new GestureList(new List<String>(selectedItems.Keys),
+                                          NumRepitions).GetOrderedList();
       Status = "Starting...";
       timer.Elapsed += new ElapsedEventHandler(OnTimeEvent);
       timer.Enabled = true;
@@ -105,22 +105,22 @@ namespace HandInput.GesturesViewer {
         return;
       }
 
-      timer.Interval = GestureWaitTime;
-      if (counter < selectedItems.Count()) {
-        var gesture = selectedItems.ElementAt(counter).Key;
-        Status = String.Format("{0} #{1}", gesture, repCounter);
-        if (repCounter == NumRepitions) {
-          repCounter = StartRepCount;
-          counter++;
+      if (!gestureStop) {
+        timer.Interval = GestureWaitTime;
+        if (gestureEnumerator.MoveNext()) {
+          var gesture = gestureEnumerator.Current;
+          Status = String.Format("{0}", gesture);
+          TrainingEvent(this, new TrainingEventArgs(TrainingEventType.StartGesture, gesture));
         } else {
-          repCounter++;
+          timer.Enabled = false;
+          Status = "Done";
+          TrainingEvent(this, new TrainingEventArgs(TrainingEventType.End));
         }
-        TrainingEvent(this, new TrainingEventArgs(TrainingEventType.StartGesture, gesture));
       } else {
-        timer.Enabled = false;
-        Status = "Done";
-        TrainingEvent(this, new TrainingEventArgs(TrainingEventType.End));
+        timer.Interval = GestureStopWaitTime;
+        Status = "Stop";
       }
+      gestureStop = !gestureStop;
     }
 
   }

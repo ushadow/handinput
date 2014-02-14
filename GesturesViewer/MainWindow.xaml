@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" 
         xmlns:control="clr-namespace:MultiSelectComboBox;assembly=MultiSelectComboBox"
-        x:Class="HandInput.GesturesViewer.MainWindow"
+        x:Class="GesturesViewer.MainWindow"
         Loaded="Window_Loaded" Closing="Window_Closing" WindowState="Normal"    
         Title="Gestures Viewer" MinHeight="700" MinWidth="1000" MaxHeight="1500" MaxWidth="2000" 
         SizeToContent="Height"
@@ -150,8 +150,8 @@
             </GroupBox>
         </Grid>
         <TextBlock Text="STATUS" Grid.Column="1" Grid.Row="2" Margin="4"/>
-        <TextBox x:Name="statusTextBox" FontSize="30" Grid.Column="1" Margin="10,10,10,0" Grid.Row="3"
-                 Grid.RowSpan="2"
+        <TextBox x:Name="statusTextBox" FontSize="60" Grid.Column="1" Margin="10,10,10,0" Grid.Row="3"
+                 Grid.RowSpan="2" 
                  ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"
                  TextWrapping="Wrap"/>
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace HandInput.GesturesViewer {
+namespace GesturesViewer {
   public class GroundTruthData {
     public int RefFrameDepth { get; private set; }
 

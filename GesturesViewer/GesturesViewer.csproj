@@ -8,7 +8,7 @@
     <ProjectGuid>{39F18801-83CF-4957-94DE-7529D2E3A8E9}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HandInput.GesturesViewer</RootNamespace>
+    <RootNamespace>GesturesViewer</RootNamespace>
     <AssemblyName>GesturesViewer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
@@ -153,8 +153,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ColorConverter.cs" />
     <Compile Include="DebugDisplayManager.cs" />
     <Compile Include="DepthStreamManager.cs" />
+    <Compile Include="GestureList.cs" />
     <Compile Include="GroundTruthData.cs" />
     <Compile Include="MainWindow.Replay.cs" />
     <Compile Include="MainWindow.Speech.cs" />

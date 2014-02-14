@@ -15,7 +15,7 @@ using Common.Logging;
 
 using HandInput.Util;
 
-namespace HandInput.GesturesViewer {
+namespace GesturesViewer {
   /// <summary>
   /// Manages the visualization of depth data.
   /// </summary>

@@ -6,7 +6,7 @@ using Microsoft.Win32;
 using Microsoft.Kinect;
 using HandInput.Util;
 
-namespace HandInput.GesturesViewer {
+namespace GesturesViewer {
   partial class MainWindow {
     private void recordOption_Click(object sender, RoutedEventArgs e) {
       if (recorder != null) {

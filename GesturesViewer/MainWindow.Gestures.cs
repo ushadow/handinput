@@ -1,12 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
-using System.Windows.Data;
-using System.Windows.Controls;
 using System.Configuration;
 using System.Diagnostics;
 
-namespace HandInput.GesturesViewer {
+namespace GesturesViewer {
   // Manages gesture recording.
   partial class MainWindow {
 
@@ -19,6 +17,8 @@ namespace HandInput.GesturesViewer {
     static readonly String MatlabExe = "matlab";
 
     StreamWriter sw;
+    bool processFeature = !String.IsNullOrEmpty(
+        ConfigurationManager.AppSettings["process_feature"]);
 
     void recordGesture_Click(object sender, RoutedEventArgs e) {
       RecordGesture();
@@ -35,13 +35,7 @@ namespace HandInput.GesturesViewer {
       sw = new StreamWriter(File.Create(gtFile));
       DirectRecord(fileName);
 
-      trainingManager.TrainingEvent += OnTrainingEvent;
       trainingManager.Start();
-      var binding = new Binding("Status");
-      binding.Mode = BindingMode.OneWay;
-      statusTextBox.DataContext = trainingManager;
-      binding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-      this.statusTextBox.SetBinding(TextBox.TextProperty, binding);
     }
 
     void OnTrainingEvent(Object sender, TrainingEventArgs e) {
@@ -51,9 +45,11 @@ namespace HandInput.GesturesViewer {
         case TrainingEventType.End:
           sw.Close();
           StopRecord();
-          trainingManager.Status = "Start processing";
-          ExecuteOfflineProcessor();
-          trainingManager.Status = "Done processing";
+          if (processFeature) {
+            trainingManager.Status = "Start processing";
+            ExecuteOfflineProcessor();
+            trainingManager.Status = "Done processing";
+          }
           break;
         case TrainingEventType.StartGesture:
           sw.WriteLine("{0} {1} {2}", TrainingEventType.StartGesture.ToString(), e.Gesture,
@@ -71,7 +67,7 @@ namespace HandInput.GesturesViewer {
       Log.Info("Finished offline processing.");
     }
 
-    void ExecuteCommand(String command, String args, bool redirectError = true, 
+    void ExecuteCommand(String command, String args, bool redirectError = true,
         bool redirectOutput = true) {
       Log.InfoFormat("Executing {0} {1}", command, args);
       var processInfo = new ProcessStartInfo(command, args);

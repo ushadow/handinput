@@ -4,7 +4,7 @@ using System.Windows.Media.Imaging;
 using Kinect.Toolbox.Record;
 using Kinect.Toolbox;
 
-namespace HandInput.GesturesViewer {
+namespace GesturesViewer {
   public class DepthStreamManager : Notifier, IStreamManager {
     public short[] PixelData { get; private set; }
     byte[] depthFrame32;
