@@ -72,6 +72,7 @@ namespace HandInput.GesturesViewer {
       labelKeys.Content = GetKeyOptionString();
       gestureComboBox.DataContext = trainingManager;
       repitionsTextBox.DataContext = trainingManager;
+      pidTextBox.DataContext = trainingManager;
       gestureServer.Start();
     }
 

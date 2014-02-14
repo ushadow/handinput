@@ -11,7 +11,6 @@ namespace HandInput.GesturesViewer {
   partial class MainWindow {
 
     static readonly int BatchIndex = 1;
-    static readonly String Pid = ConfigurationManager.AppSettings["pid"];
     static readonly String DataDir = ConfigurationManager.AppSettings["data_dir"];
     static readonly String OutputDir = Path.Combine(DataDir,
             ConfigurationManager.AppSettings["processor_output_dir"]);
@@ -29,7 +28,7 @@ namespace HandInput.GesturesViewer {
       StartKinect();
 
       var time = String.Format("{0:yyyy-MM-dd_HH-mm}", DateTime.Now);
-      var dir = Path.Combine(DataDir, Pid, time);
+      var dir = Path.Combine(DataDir, trainingManager.Pid, time);
       Directory.CreateDirectory(dir);
       var fileName = Path.Combine(dir, String.Format(TrainingManager.KinectDataPattern, BatchIndex));
       var gtFile = Path.Combine(dir, String.Format(TrainingManager.KinectGTDPattern, BatchIndex));

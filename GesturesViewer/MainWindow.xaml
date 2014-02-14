@@ -111,12 +111,8 @@
         <TextBlock Text="COMMANDS" Grid.Column="1" Margin="4"/>
         <Grid Margin="10" Grid.Column="1" Grid.Row="1">
             <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -124,19 +120,34 @@
                 <Button Content="Record" x:Name="recordOption" Click="recordOption_Click" VerticalAlignment="Center" Width="129" Margin="10,6,0,6"/>
             </StackPanel>
             <Button Content="Replay" x:Name="replayButton" Click="replayButton_Click" VerticalAlignment="Center" Grid.Row="1" Width="Auto"/>
-            <StackPanel Orientation="Horizontal" Grid.Row="2">
-                <Button Content="Capture Gesture" x:Name="recordGesture" Click="recordGesture_Click" VerticalAlignment="Center" Width="Auto"/>
-                <control:MultiSelectComboBox x:Name="gestureComboBox" ItemsSource="{Binding Items}"
+            <GroupBox Grid.Row="2" Header="Training">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width=".38*"/>
+                        <ColumnDefinition Width=".62*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock>Gestures</TextBlock>
+                    <control:MultiSelectComboBox x:Name="gestureComboBox" ItemsSource="{Binding Items}"
                                              SelectedItems="{Binding SelectedItems}" Width="250"
-                                             Margin="10,6,0,6" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Grid.Row="3">
-                <TextBlock VerticalAlignment="Center">Repitions</TextBlock>
-                <TextBox Margin="10,6,0,6" Width="250" VerticalAlignment="Center" 
+                                             Margin="5,6,5,6" Grid.Column="1"/>
+                    <TextBlock Grid.Row="1" VerticalAlignment="Center">Repitions</TextBlock>
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="5,6,5,6" Width="250" VerticalAlignment="Center" 
                          Text="{Binding NumRepitions}" Name="repitionsTextBox"></TextBox>
-            </StackPanel>
-            <Button Content="Train" Grid.Row="4" VerticalAlignment="Center" Width="Auto"
+                    <TextBlock Grid.Row="2" VerticalAlignment="Center">PID</TextBlock>
+                    <TextBox Grid.Row="2" Grid.Column="1" Margin="5,6,5,6" Width="250" VerticalAlignment="Center" 
+                         Text="{Binding Pid}" Name="pidTextBox"></TextBox>
+                    <Button Grid.Row="3" Content="Capture Gesture" x:Name="recordGesture" 
+                            Click="recordGesture_Click" VerticalAlignment="Center" Width="Auto"/>
+                    <Button Content="Train" Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Width="Auto"
                     x:Name="trainButton" Click="trainButton_Click"/>
+                </Grid>
+            </GroupBox>
         </Grid>
         <TextBlock Text="STATUS" Grid.Column="1" Grid.Row="2" Margin="4"/>
         <TextBox x:Name="statusTextBox" FontSize="30" Grid.Column="1" Margin="10,10,10,0" Grid.Row="3"

@@ -26,6 +26,7 @@ namespace HandInput.GesturesViewer {
     public static readonly String KinectDataPattern = "KinectData_{0}.bin";
     public static readonly String KinectDataRegex = @"KinectData_(\d+).bin";
 
+    static readonly String DefaultPid = ConfigurationManager.AppSettings["pid"];
     static readonly int GestureWaitTime = 3000; //ms
     static readonly int StartWaitTime = 8000;
     static readonly int StartRepCount = 1;
@@ -33,6 +34,7 @@ namespace HandInput.GesturesViewer {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
     public int NumRepitions { get; private set; }
+    public String Pid { get; private set; }
 
     public String Status {
       get {
@@ -75,6 +77,7 @@ namespace HandInput.GesturesViewer {
         selectedItems.Add(s, null);
       }
       NumRepitions = DefaultNumRepitions;
+      Pid = DefaultPid;
     }
 
     /// <summary>
