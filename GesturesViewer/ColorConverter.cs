@@ -9,6 +9,10 @@ using System.Windows.Media;
 
 namespace GesturesViewer {
   public class ColorConverter : IValueConverter {
+    static readonly Brush[] brushes = new Brush[] { Brushes.Blue, Brushes.Orange };
+    
+    int count = 0;
+
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
       var brush = Brushes.Black;
 
@@ -22,7 +26,7 @@ namespace GesturesViewer {
         case "starting...":
           return Brushes.Red;
         default:
-          return brush;
+          return brushes[(count++) % brushes.Count()] ;
       }
     }
 

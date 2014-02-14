@@ -27,7 +27,9 @@ namespace GesturesViewer {
     public static readonly String KinectDataRegex = @"KinectData_(\d+).bin";
 
     static readonly String DefaultPid = ConfigurationManager.AppSettings["pid"];
+    static readonly int GestureWaitTimeShort = 2000;
     static readonly int GestureWaitTime = 3000; //ms
+    static readonly int GestureMaxWaitTime = 6000;
     static readonly int GestureStopWaitTime = 1000;
     static readonly int StartWaitTime = 8000;
     static readonly int DefaultNumRepitions = 3;
@@ -58,6 +60,8 @@ namespace GesturesViewer {
       }
     }
 
+    public bool ShowStop { get; private set; }
+
     public event PropertyChangedEventHandler PropertyChanged;
     public event EventHandler<TrainingEventArgs> TrainingEvent;
 
@@ -66,8 +70,9 @@ namespace GesturesViewer {
     IEnumerator<String> gestureEnumerator;
 
     String status;
-    Timer timer = new Timer(1000);
+    Timer timer;
     Boolean started = false, gestureStop = false;
+    Random rnd = new Random();
 
     public TrainingManager() {
       var gestures = Properties.Resources.Gestures.Split(new char[] { '\r', '\n' },
@@ -78,6 +83,7 @@ namespace GesturesViewer {
       }
       NumRepitions = DefaultNumRepitions;
       Pid = DefaultPid;
+      ShowStop = true;
     }
 
     /// <summary>
@@ -85,19 +91,21 @@ namespace GesturesViewer {
     /// </summary>
     public void Start() {
       gestureEnumerator = new GestureList(new List<String>(selectedItems.Keys),
-                                          NumRepitions).GetOrderedList();
+                                          NumRepitions).GetRandomList();
+      gestureStop = false;
       Status = "Starting...";
+      timer = new Timer(1000);
       timer.Elapsed += new ElapsedEventHandler(OnTimeEvent);
       timer.Enabled = true;
     }
 
-    private void OnPropertyChanged(String propName) {
+    void OnPropertyChanged(String propName) {
       if (PropertyChanged != null) {
         PropertyChanged(this, new PropertyChangedEventArgs(propName));
       }
     }
 
-    private void OnTimeEvent(object source, ElapsedEventArgs e) {
+    void OnTimeEvent(object source, ElapsedEventArgs e) {
       if (!started) {
         started = true;
         timer.Interval = StartWaitTime;
@@ -106,22 +114,31 @@ namespace GesturesViewer {
       }
 
       if (!gestureStop) {
-        timer.Interval = GestureWaitTime;
+        timer.Interval = NextWaitTime();
         if (gestureEnumerator.MoveNext()) {
           var gesture = gestureEnumerator.Current;
           Status = String.Format("{0}", gesture);
           TrainingEvent(this, new TrainingEventArgs(TrainingEventType.StartGesture, gesture));
         } else {
           timer.Enabled = false;
+          timer.Dispose();
           Status = "Done";
           TrainingEvent(this, new TrainingEventArgs(TrainingEventType.End));
         }
       } else {
-        timer.Interval = GestureStopWaitTime;
-        Status = "Stop";
+        if (ShowStop) {
+          timer.Interval = GestureStopWaitTime;
+          Status = "Stop";
+        }
       }
-      gestureStop = !gestureStop;
+
+      if (ShowStop)
+        gestureStop = !gestureStop;
     }
 
+    int NextWaitTime() {
+      var minValue = ShowStop ? GestureWaitTime : GestureWaitTimeShort;
+      return rnd.Next(minValue, GestureMaxWaitTime);
+    }
   }
 }

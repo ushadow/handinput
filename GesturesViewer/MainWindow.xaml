@@ -131,6 +131,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock>Gestures</TextBlock>
                     <control:MultiSelectComboBox x:Name="gestureComboBox" ItemsSource="{Binding Items}"
@@ -142,9 +143,11 @@
                     <TextBlock Grid.Row="2" VerticalAlignment="Center">PID</TextBlock>
                     <TextBox Grid.Row="2" Grid.Column="1" Margin="5,6,5,6" Width="250" VerticalAlignment="Center" 
                          Text="{Binding Pid}" Name="pidTextBox"></TextBox>
-                    <Button Grid.Row="3" Content="Capture Gesture" x:Name="recordGesture" 
+                    <CheckBox Grid.Row="3" Content="Show Stop" x:Name="showStopCheckBox" 
+                              IsChecked="{Binding ShowStop}" VerticalAlignment="Center" d:LayoutOverrides="Width"/>
+                    <Button Grid.Row="4" Content="Capture Gesture" x:Name="recordGesture" 
                             Click="recordGesture_Click" VerticalAlignment="Center" Width="Auto"/>
-                    <Button Content="Train" Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Width="Auto"
+                    <Button Content="Train" Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Width="Auto"
                     x:Name="trainButton" Click="trainButton_Click"/>
                 </Grid>
             </GroupBox>

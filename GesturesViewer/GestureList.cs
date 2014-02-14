@@ -20,5 +20,11 @@ namespace GesturesViewer {
       return allGestures.GetEnumerator();
     }
 
+    public IEnumerator<String> GetRandomList() {
+      // Use time-dependent default seed.
+      Random rnd = new Random();
+
+      return allGestures.OrderBy(x => rnd.Next()).GetEnumerator();
+    }
   }
 }

@@ -89,6 +89,8 @@ namespace GesturesViewer {
       binding.Converter = new ColorConverter();
       statusTextBox.SetBinding(TextBox.ForegroundProperty, binding);
 
+      showStopCheckBox.DataContext = trainingManager;
+
       gestureServer.Start();
     }
 
