@@ -1,7 +1,7 @@
-﻿Swipe_Left
-Swipe_Right
-Circle
-Shake_Hand
-Point
-Palm_Up
-Fist
+﻿Swipe_Left,D
+Swipe_Right,D
+Circle,D
+Horizontal_Wave,D
+Point,S
+Palm_Up,S
+Grab,S

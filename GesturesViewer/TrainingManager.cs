@@ -25,6 +25,9 @@ namespace GesturesViewer {
     public static readonly String KinectGTDPattern = "KinectDataGTD_{0}.txt";
     public static readonly String KinectDataPattern = "KinectData_{0}.bin";
     public static readonly String KinectDataRegex = @"KinectData_(\d+).bin";
+    public static readonly String RestLabel = "Rest";
+    public static readonly String DoneLabel = "Done";
+    public static readonly String StartLabel = "Starting...";
 
     static readonly String DefaultPid = ConfigurationManager.AppSettings["pid"];
     static readonly int GestureWaitTimeShort = 2000;
@@ -78,8 +81,9 @@ namespace GesturesViewer {
       var gestures = Properties.Resources.Gestures.Split(new char[] { '\r', '\n' },
           StringSplitOptions.RemoveEmptyEntries);
       foreach (var s in gestures) {
-        gestureList.Add(s, null);
-        selectedItems.Add(s, null);
+        var tokens = s.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        gestureList.Add(tokens[0], tokens[1]);
+        selectedItems.Add(tokens[0], tokens[1]);
       }
       NumRepitions = DefaultNumRepitions;
       Pid = DefaultPid;
@@ -93,7 +97,7 @@ namespace GesturesViewer {
       gestureEnumerator = new GestureList(new List<String>(selectedItems.Keys),
                                           NumRepitions).GetRandomList();
       gestureStop = false;
-      Status = "Starting...";
+      Status = StartLabel;
       timer = new Timer(1000);
       timer.Elapsed += new ElapsedEventHandler(OnTimeEvent);
       timer.Enabled = true;
@@ -122,13 +126,13 @@ namespace GesturesViewer {
         } else {
           timer.Enabled = false;
           timer.Dispose();
-          Status = "Done";
+          Status = DoneLabel;
           TrainingEvent(this, new TrainingEventArgs(TrainingEventType.End));
         }
       } else {
         if (ShowStop) {
           timer.Interval = GestureStopWaitTime;
-          Status = "Stop";
+          Status = RestLabel;
         }
       }
 

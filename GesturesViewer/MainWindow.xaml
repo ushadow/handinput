@@ -153,7 +153,7 @@
             </GroupBox>
         </Grid>
         <TextBlock Text="STATUS" Grid.Column="1" Grid.Row="2" Margin="4"/>
-        <TextBox x:Name="statusTextBox" FontSize="60" Grid.Column="1" Margin="10,10,10,0" Grid.Row="3"
+        <TextBox x:Name="statusTextBox" FontSize="56" Grid.Column="1" Margin="10,10,10,0" Grid.Row="3"
                  Grid.RowSpan="2" 
                  ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"
                  TextWrapping="Wrap"/>

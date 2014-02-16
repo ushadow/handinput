@@ -10,7 +10,7 @@ using System.Windows.Media;
 namespace GesturesViewer {
   public class ColorConverter : IValueConverter {
     static readonly Brush[] brushes = new Brush[] { Brushes.Blue, Brushes.Orange };
-    
+
     int count = 0;
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
@@ -19,14 +19,12 @@ namespace GesturesViewer {
       if (value == null)
         return brush;
 
-      var s = value.ToString().ToLower();
-      switch (s) {
-        case "stop":
-        case "done":
-        case "starting...":
-          return Brushes.Red;
-        default:
-          return brushes[(count++) % brushes.Count()] ;
+      var s = value.ToString();
+      if (s.Equals(TrainingManager.RestLabel) || s.Equals(TrainingManager.DoneLabel) ||
+          s.Equals(TrainingManager.StartLabel)) {
+        return Brushes.Red;
+      } else {
+        return brushes[(count++) % brushes.Count()];
       }
     }
 
