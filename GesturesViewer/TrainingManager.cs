@@ -7,6 +7,7 @@ using System.IO;
 
 using Common.Logging;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace GesturesViewer {
 
@@ -28,6 +29,9 @@ namespace GesturesViewer {
     public static readonly String RestLabel = "Rest";
     public static readonly String DoneLabel = "Done";
     public static readonly String StartLabel = "Starting...";
+
+    static readonly char[] Alphabet = new char[] {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k',
+        'l', 'm', 'n'};
 
     static readonly String DefaultPid = ConfigurationManager.AppSettings["pid"];
     static readonly int GestureWaitTimeShort = 2000;
@@ -51,7 +55,7 @@ namespace GesturesViewer {
       }
     }
 
-    public Dictionary<string, object> Items {
+    public Dictionary<String, Object> Items {
       get {
         return gestureList;
       }
@@ -68,9 +72,10 @@ namespace GesturesViewer {
     public event PropertyChangedEventHandler PropertyChanged;
     public event EventHandler<TrainingEventArgs> TrainingEvent;
 
-    Dictionary<string, object> gestureList = new Dictionary<string, object>();
+    Dictionary<String, Object> gestureList = new Dictionary<String, Object>();
     Dictionary<string, object> selectedItems = new Dictionary<string, object>();
     IEnumerator<String> gestureEnumerator;
+    IEnumerator charEnumerator = Alphabet.GetEnumerator();
 
     String status;
     Timer timer;
@@ -121,7 +126,7 @@ namespace GesturesViewer {
         timer.Interval = NextWaitTime();
         if (gestureEnumerator.MoveNext()) {
           var gesture = gestureEnumerator.Current;
-          Status = String.Format("{0}", gesture);
+          Status = String.Format("{0}\n{1}", gesture, GetHelpText(gesture));
           TrainingEvent(this, new TrainingEventArgs(TrainingEventType.StartGesture, gesture));
         } else {
           timer.Enabled = false;
@@ -143,6 +148,19 @@ namespace GesturesViewer {
     int NextWaitTime() {
       var minValue = ShowStop ? GestureWaitTime : GestureWaitTimeShort;
       return rnd.Next(minValue, GestureMaxWaitTime);
+    }
+
+    String GetHelpText(String gesture) {
+      Object type;
+      gestureList.TryGetValue(gesture, out type);
+      if (type != null && type.Equals("S")) {
+        if (!charEnumerator.MoveNext()) {
+          charEnumerator.Reset();
+          charEnumerator.MoveNext();
+        }
+        return String.Format("draw \"{0}\"", charEnumerator.Current);
+      }
+      return "";
     }
   }
 }
