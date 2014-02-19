@@ -158,7 +158,7 @@ namespace GesturesViewer {
           charEnumerator.Reset();
           charEnumerator.MoveNext();
         }
-        return String.Format("draw \"{0}\"", charEnumerator.Current);
+        return String.Format("draw \"{0}\" slowly", charEnumerator.Current);
       }
       return "";
     }
