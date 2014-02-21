@@ -106,7 +106,7 @@ namespace GesturesViewer {
     void ReplayFrame(ReplayDepthImageFrame df, ReplayColorImageFrame cf,
         ReplaySkeletonFrame sf) {
       if (df != null) {
-        statusTextBox.Text = df.FrameNumber.ToString();
+        labelFrameNumber.Content = df.FrameNumber.ToString();
         if (gtReplayer != null) {
           var data = gtReplayer.GetDataFrame(df.FrameNumber);
           if (data != null) {

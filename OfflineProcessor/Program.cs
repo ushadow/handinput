@@ -32,7 +32,7 @@ namespace HandInput.OfflineProcessor {
       {"chairgest", typeof(chairgest.KinectReplay)}, {"standing", typeof(KinectAllFramesReplay)}
     };
 
-    static readonly Dictionary<String, Type> HandTrackers = new Dictionary<String,Type> {
+    static readonly Dictionary<String, Type> HandTrackers = new Dictionary<String, Type> {
       {"salience", typeof(SalienceHandTracker)}, {"simple", typeof(SimpleSkeletonHandTracker)}
     };
 
@@ -53,6 +53,7 @@ namespace HandInput.OfflineProcessor {
     static String featureProcessorName = "simple";
     static bool keep = false;
     static int bufferSize = 1;
+    static bool useParallel = false;
 
     static ParallelProcessor pp = new ParallelProcessor();
     static Object readLock = new Object();
@@ -99,7 +100,9 @@ namespace HandInput.OfflineProcessor {
             v => featureProcessorName = v },
         { "k|keep", "keep the exisiting processed file if present.", v => keep = v != null },
         { "buffer=", String.Format("{{BUFFER SIZE}}. [{0}]", bufferSize),
-            v => bufferSize = Int32.Parse(v) }
+            v => bufferSize = Int32.Parse(v) },
+        { "parallel", String.Format("Use parallel processing if present. [{0}]", useParallel),
+          v => useParallel = v != null}
       };
 
       try {
@@ -115,6 +118,8 @@ namespace HandInput.OfflineProcessor {
       }
 
       ValidateOptions();
+
+      Log.InfoFormat("Use paralle: {0}", useParallel);
 
       var stopWatch = new Stopwatch();
       stopWatch.Start();
@@ -179,6 +184,7 @@ namespace HandInput.OfflineProcessor {
         if (match.Success) {
           var pid = Int32.Parse(match.Groups[1].Value);
           if (pidList.Contains(pid)) {
+            Log.InfoFormat("Porcess pid: {0}", pid);
             var outputPidDir = Path.Combine(outputFolder, dirInfo.Name);
             ProcessSessions(dir, outputPidDir);
           }
@@ -197,10 +203,12 @@ namespace HandInput.OfflineProcessor {
         sessionDirs = Directory.GetDirectories(inputFolder);
       }
 
-      if (nSessions == 0)
-        nSessions = sessionDirs.Count();
+      var nSessionsToProcess = nSessions;
+      if (nSessionsToProcess == 0) {
+        nSessionsToProcess = sessionDirs.Count();
+      }
 
-      foreach (var dir in sessionDirs.Take(nSessions)) {
+      foreach (var dir in sessionDirs.Take(nSessionsToProcess)) {
         var dirInfo = new DirectoryInfo(dir);
         var inputSession = Path.Combine(inputFolder, dirInfo.Name);
         var outputSession = Path.Combine(outputFolder, dirInfo.Name);
@@ -247,7 +255,10 @@ namespace HandInput.OfflineProcessor {
                   replayerType, handTrackerType, featureProcessorType, sampleRate, gtSensor,
                   bufferSize);
               try {
-                pp.Spawn(proc.Process);
+                if (useParallel)
+                  pp.Spawn(proc.Process);
+                else
+                  proc.Process();
               } catch (Exception ex) {
                 Log.Error(ex.Message);
               }

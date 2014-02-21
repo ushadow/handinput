@@ -50,6 +50,8 @@
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
+        <Button Grid.RowSpan="2" Content="View Debug" Margin="267,10,267,0" 
+                HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click" x:Name="viewButton"/>
         <Viewbox Margin="5" Grid.RowSpan="3">
             <StackPanel Orientation="Horizontal">
                 <Grid Width="320" Height="240" ClipToBounds="True">
@@ -86,12 +88,10 @@
                 <Label Content="Gesture" Name="labelGesture" Grid.Row="1"/>
                 <Label Content="#" Name="labelGestureVal" Grid.Row="1" Grid.Column="1"/>
             </Grid>
-        </GroupBox>        <Slider Minimum="0" 
-                Value="{Binding ElevationAngle, Mode=TwoWay}" x:Name="frameSlider"
-                Grid.Row="5" Margin="5" ValueChanged="frameSlider_ValueChanged"/>
-        <Button Grid.RowSpan="2" Content="View Debug" Margin="267,10,267,0" 
-                HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click" x:Name="viewButton"/>
-        <StackPanel Grid.Row="6" Margin="212,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+        </GroupBox>        <DockPanel Grid.Row="5">            <Label Content="#" Width="50" DockPanel.Dock="Right" Name="labelFrameNumber"/>
+            <Slider Minimum="0" x:Name="frameSlider"
+                Margin="5" ValueChanged="frameSlider_ValueChanged"/>
+        </DockPanel>        <StackPanel Grid.Row="6" Margin="212,0" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Rectangle x:Name="audioBeamAngle" Height="20" Width="300" Margin="5">
                 <Rectangle.Fill>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1, 0">
@@ -105,7 +105,6 @@
                     </LinearGradientBrush>
                 </Rectangle.Fill>
             </Rectangle>
-            <StackPanel Orientation="Horizontal" />
         </StackPanel>
 
         <TextBlock Text="COMMANDS" Grid.Column="1" Margin="4"/>
