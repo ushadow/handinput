@@ -89,6 +89,7 @@
                 <Label Content="#" Name="labelGestureVal" Grid.Row="1" Grid.Column="1"/>
             </Grid>
         </GroupBox>        <DockPanel Grid.Row="5">            <Label Content="#" Width="50" DockPanel.Dock="Right" Name="labelFrameNumber"/>
+            <Label Content="#" Width="50" DockPanel.Dock="Right" Name="labelIndexNumber"/>
             <Slider Minimum="0" x:Name="frameSlider"
                 Margin="5" ValueChanged="frameSlider_ValueChanged"/>
         </DockPanel>        <StackPanel Grid.Row="6" Margin="212,0" HorizontalAlignment="Center" VerticalAlignment="Center">

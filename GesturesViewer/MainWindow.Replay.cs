@@ -92,6 +92,7 @@ namespace GesturesViewer {
 
     void frameSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
       int index = (int)e.NewValue;
+      labelIndexNumber.Content = index;
       if (replay != null) {
         var frame = replay.FrameAt(index);
         if (frame != null) {

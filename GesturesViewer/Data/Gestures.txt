@@ -1,7 +1,9 @@
-﻿Swipe_Left,D
-Swipe_Right,D
-Circle,D
-Horizontal_Wave,D
-Point,S
-Palm_Up,S
-Grab,S
+#name,          flow,	repeat,	nS
+Swipe_Left,     D,    0,      4
+Swipe_Right,    D,    0,      3
+Circle,         D,    0,      4
+Horizontal_Wave,D,    1,      4
+Point,          S,    0,      1
+Palm_Up,        S,    0,      1
+Grab,           S,    0,      1
+Rest,           S,    0,      1
