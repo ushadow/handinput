@@ -119,7 +119,7 @@ namespace HandInput.OfflineProcessor {
 
       ValidateOptions();
 
-      Log.InfoFormat("Use paralle: {0}", useParallel);
+      Log.InfoFormat("Use parallel: {0}", useParallel);
 
       var stopWatch = new Stopwatch();
       stopWatch.Start();

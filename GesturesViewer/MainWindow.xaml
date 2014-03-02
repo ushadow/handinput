@@ -78,6 +78,8 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -87,6 +89,10 @@
                 <Label Content="#" Name="labelPhaseVal" Grid.Column="1"/>
                 <Label Content="Gesture" Name="labelGesture" Grid.Row="1"/>
                 <Label Content="#" Name="labelGestureVal" Grid.Row="1" Grid.Column="1"/>
+                <Label Content="PID" Grid.Column="2"/>
+                <Label Content="" Name="labelPid" Grid.Column="3"/>
+                <Label Content="Session" Grid.Row="1" Grid.Column="2"/>
+                <Label Content="" Name="labelSession" Grid.Row="1" Grid.Column="3"/>
             </Grid>
         </GroupBox>        <DockPanel Grid.Row="5">            <Label Content="#" Width="50" DockPanel.Dock="Right" Name="labelFrameNumber"/>
             <Label Content="#" Width="50" DockPanel.Dock="Right" Name="labelIndexNumber"/>

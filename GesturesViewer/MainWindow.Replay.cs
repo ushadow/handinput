@@ -47,6 +47,7 @@ namespace GesturesViewer {
 
         var fileName = Path.GetFileName(fullPath);
         var dir = Path.GetDirectoryName(fullPath);
+        labelPid.Content = dir;
         var match = Regex.Match(fileName, TrainingManager.KinectDataRegex);
         if (match.Success) {
           var batchIndex = Int32.Parse(match.Groups[1].Value);
