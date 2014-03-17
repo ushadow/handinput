@@ -102,6 +102,16 @@ namespace HandInput.Util {
       return new Vector3D(sp1.X - sp2.X, sp1.Y - sp2.Y, sp1.Z - sp2.Z);
     }
 
+    /// <summary>
+    /// Relative position to the shoulder center joint in world coordinates.
+    /// </summary>
+    /// <param name="rect"></param>
+    /// <param name="depthData"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="skeleton"></param>
+    /// <param name="mapper"></param>
+    /// <returns></returns>
     public static Vector3D RelativePosToShoulder(Rectangle rect, byte[, ,] depthData, int width,
       int height, Skeleton skeleton, CoordinateConverter mapper) {
       var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);

@@ -79,11 +79,15 @@ namespace HandInput.Util {
       return rect;
     }
 
-    public static Rectangle DrawRectangle(Canvas canvas, drawing.Rectangle rect, Brush s, 
+    public static void DrawRectangle(Canvas canvas, drawing.Rectangle rect, Brush s, 
         float scale = 1) {
       var loc = rect.Location;
       var size = rect.Size;
-      return DrawRectangle(canvas, new Point(loc.X * scale, loc.Y * scale), 
+      
+      if (size.Width <= 0 || size.Height <= 0)
+        return;
+
+      DrawRectangle(canvas, new Point(loc.X * scale, loc.Y * scale), 
           new Size(size.Width * scale, size.Height * scale), s);
     }
 

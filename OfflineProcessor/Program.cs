@@ -74,7 +74,7 @@ namespace HandInput.OfflineProcessor {
       var p = new OptionSet() {
         { "i=", "the input {FOLDER} of the data set", v => inputFolder = v },
         { "o=", "the output {FOLDER} of the processed data", v => outputFolder = v },
-        { "t|type=", String.Format("type of the operation: gt|fe. Default is {0}.", type), 
+        { "t|type=", String.Format("type of the operation: gt|fe. [{0}]", type), 
             v => type = v },
         { "p=", "the {PID} of the data set to process. Can be a single number or a " +
             "range like 1-17. Default is all.", v => pidList = ParseIndex(v) },

@@ -17,7 +17,8 @@ namespace HandInput.Engine {
   /// Output raw features: relative position and image patch data without further processing.
   /// </summary>
   public class SimpleFeatureProcessor : IFeatureProcessor {
-    static readonly int FeatureImageWidth = 64;
+    static readonly int FeatureImageWidth = HandInputParams.FeatureImageWidth;
+    static readonly int BytesPerPixel = 4;
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
     public int MotionFeatureLength {
@@ -33,6 +34,10 @@ namespace HandInput.Engine {
     }
 
     Image<Gray, Single> floatImage = new Image<Gray, Single>(FeatureImageWidth, FeatureImageWidth);
+
+    public SimpleFeatureProcessor(float sampleRate = 1) {
+
+    }
 
     /// <summary>
     /// Creates a new feature array.
@@ -59,7 +64,9 @@ namespace HandInput.Engine {
       image.ROI = bb;
       floatImage.ConvertFrom(image);
       image.ROI = Rectangle.Empty;
-      System.Buffer.BlockCopy(floatImage.Bytes, 0, dst, dstIndex * 4, floatImage.Bytes.Length);
+      // Copy bytes.
+      System.Buffer.BlockCopy(floatImage.Bytes, 0, dst, dstIndex * BytesPerPixel, 
+                              floatImage.Bytes.Length);
     }
   }
 }

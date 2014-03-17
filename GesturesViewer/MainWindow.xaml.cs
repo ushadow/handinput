@@ -34,6 +34,7 @@ namespace GesturesViewer {
 
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
     static readonly String ModelFile = Path.GetFullPath(ConfigurationManager.AppSettings["model_file"]);
+    static readonly int NOptionPerLine = 5;
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
     readonly DepthStreamManager depthManager = new DepthStreamManager();
@@ -47,9 +48,12 @@ namespace GesturesViewer {
     KinectSensor kinectSensor;
 
     AudioStreamManager audioManager;
+
+    // Display options.
     bool displayDebug = false;
     DisplayOption displayOption = DisplayOption.DEPTH;
     bool viewHog = false;
+    bool viewSkeleton = true;
 
     KinectRecorder recorder;
     KinectAllFramesReplay replay;
@@ -68,8 +72,9 @@ namespace GesturesViewer {
     public MainWindow() {
       InitializeComponent();
       keyActions = new Dictionary<Key, Action>() {
-        {Key.Space, RecordGesture}, {Key.P, TogglePlay}, {Key.N, StepForward}, 
-        {Key.S, StartKinect}, {Key.T, StartTracking}
+        {Key.Space, RecordGesture}, {Key.D, ToggleDebugDisplayOption}, {Key.H, ToggleViewHog}, 
+        {Key.K, ToggleViewSkeleton}, {Key.N, StepForward}, {Key.P, TogglePlay}, 
+        {Key.S, StartKinect}, {Key.T, StartTracking}, 
       };
       labelKeys.Content = GetKeyOptionString();
 
@@ -149,8 +154,11 @@ namespace GesturesViewer {
 
     String GetKeyOptionString() {
       StringBuilder sb = new StringBuilder();
-      foreach (var kvp in keyActions) {
+      for (int i = 0; i < keyActions.Count; i++) {
+        var kvp = keyActions.ElementAt(i);
         sb.AppendFormat("{0}: {1}\t", kvp.Key, kvp.Value.Method.Name);
+        if ((i + 1) % NOptionPerLine == 0)
+          sb.Append('\n');
       }
       return sb.ToString();
     }
@@ -177,7 +185,7 @@ namespace GesturesViewer {
         MaxDeviationRadius = 0.04f
       });
       skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor.CoordinateMapper,
-                                                          kinectCanvas);
+                                                          skeletonCanvas);
       kinectDisplay.DataContext = colorManager;
       maskDispay.DataContext = debugDisplayManager;
       depthDisplay.DataContext = depthManager;
@@ -243,7 +251,7 @@ namespace GesturesViewer {
         if (displayOption == DisplayOption.DEPTH && result.DepthImage != null)
           debugDisplayManager.UpdateBitmap(result.DepthImage.Bytes);
         if (displayOption == DisplayOption.COLOR && result.ColorImage != null)
-          debugDisplayManager.UpdateBitmapMask(result.ColorImage.Bytes);
+          debugDisplayManager.UpdateBitmap(result.ColorImage.Bytes);
       }
     }
 
@@ -323,13 +331,36 @@ namespace GesturesViewer {
       }
 
       try {
-        skeletonDisplayManager.Draw(frame.Skeletons, false,
-                                    HandInputParams.ColorImageFormat);
+        if (viewSkeleton) {
+          skeletonDisplayManager.Draw(frame.Skeletons, false,
+                                      HandInputParams.ColorImageFormat);
+        } else {
+          skeletonCanvas.Children.Clear();
+        }
       } catch (Exception e) {
         Log.Error(e.Message);
       }
 
       stabilitiesList.ItemsSource = stabilities;
+    }
+
+    void ToggleViewSkeleton() {
+      viewSkeleton = !viewSkeleton;
+    }
+
+    void ToggleViewHog() {
+      viewHog = !viewHog;
+    }
+
+    void ToggleDebugDisplayOption() {
+      switch (displayOption) {
+        case DisplayOption.COLOR:
+          displayOption = DisplayOption.DEPTH;
+          break;
+        case DisplayOption.DEPTH:
+          displayOption = DisplayOption.COLOR;
+          break;
+      }
     }
 
     void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
@@ -340,7 +371,7 @@ namespace GesturesViewer {
     /// Cleans up everything.
     /// </summary>
     void Clean() {
-      Log.Debug("Cleaning.");
+      Log.Info("Cleaning.");
       if (audioManager != null) {
         audioManager.Dispose();
         audioManager = null;
@@ -404,16 +435,6 @@ namespace GesturesViewer {
     }
 
     void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
-      //switch (e.Key) {
-      //  case Key.C:
-      //    displayOption = DisplayOption.COLOR;
-      //    break;
-      //  case Key.D:
-      //    displayOption = DisplayOption.DEPTH;
-      //    break;
-      //  default:
-      //    break;
-      //}
       Action action;
       var found = keyActions.TryGetValue(e.Key, out action);
       if (found) {

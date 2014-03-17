@@ -40,14 +40,14 @@ namespace HandInput.Engine {
     MCvConnectedComp connectedComp = new MCvConnectedComp();
     MCvBox2D shiftedRect = new MCvBox2D();
 
-    public SimpleSkeletonHandTracker(int width, int height, Byte[] kinectParams, 
+    public SimpleSkeletonHandTracker(int width, int height, Byte[] kinectParams,
                                      int bufferSize = 1) {
       mapper = new CoordinateConverter(kinectParams, HandInputParams.ColorImageFormat,
                                        HandInputParams.DepthImageFormat);
       Init(width, height);
     }
 
-    public SimpleSkeletonHandTracker(int width, int height, CoordinateMapper coordMapper, 
+    public SimpleSkeletonHandTracker(int width, int height, CoordinateMapper coordMapper,
                                      int bufferSize = 1) {
       mapper = new CoordinateConverter(coordMapper, HandInputParams.ColorImageFormat,
                                        HandInputParams.DepthImageFormat);
@@ -70,17 +70,23 @@ namespace HandInput.Engine {
         // Relatively rough estimate.
         InitialHandRect = ComputeInitialRect(rightHandDepthPos, z);
 
-        playerDetector.UpdateMasks(depthFrame, cf, InitialHandRect, true, true);
-        var depthImage = playerDetector.DepthImage;
-        CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5, 0, 0);
-        FindBestBoundingBox(InitialHandRect);
+        if (!InitialHandRect.IsEmpty) {
+          playerDetector.UpdateMasks(depthFrame, cf, InitialHandRect, true, true);
+          var depthImage = playerDetector.DepthImage;
+          CvInvoke.cvSmooth(depthImage.Ptr, SmoothedDepth.Ptr, SMOOTH_TYPE.CV_MEDIAN, 5, 5, 0, 0);
+          HandRect = FindBestBoundingBox(InitialHandRect);
 
-        var relPos = SkeletonUtil.RelativePosToShoulder(HandRect, SmoothedDepth.Data, width, 
-            height, skeleton, mapper);
-        var depthBBs = new List<Rectangle>();
-        depthBBs.Add(HandRect);
-        return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth, 
-                                  depthBBs, playerDetector.SkinImage);
+          if (!HandRect.IsEmpty) {
+            var relPos = SkeletonUtil.RelativePosToShoulder(HandRect, SmoothedDepth.Data, width,
+                height, skeleton, mapper);
+            var depthBBs = new List<Rectangle>();
+            var colorBBs = new List<Rectangle>();
+            depthBBs.Add(HandRect);
+            colorBBs.Add(mapper.MapDepthRectToColorRect(HandRect, depthFrame, width, height));
+            return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth,
+                                      depthBBs, playerDetector.SkinImage, colorBBs);
+          }
+        }
       }
       return new TrackingResult();
     }
@@ -93,28 +99,34 @@ namespace HandInput.Engine {
     }
 
     /// <summary>
-    /// Computes initial hand searching rectangle in the depth image.
+    /// Computes initial hand searching rectangle in the depth image. If the point is out side of 
+    /// the frame boundary, an empty rectangle will be returned.
     /// </summary>
     /// <returns></returns>
     Rectangle ComputeInitialRect(DepthImagePoint point, float z) {
       var scaledHandWidth = DepthUtil.GetDepthImageLength(width, HandWidth, z) * 2;
       var left = Math.Max(0, (int)(point.X - scaledHandWidth / 2));
-      left = Math.Min(left, width - 1);
+      left = Math.Min(left, width);
       var top = Math.Max(0, (int)(point.Y - scaledHandWidth / 2));
-      top = Math.Min(top, height - 1);
+      top = Math.Min(top, height);
       // right and bottom are exclusive.
-      var right = Math.Min(width, (int) (left + scaledHandWidth));
-      var bottom = Math.Min(height, (int) (top + scaledHandWidth));
+      var right = Math.Min(width, (int)(left + scaledHandWidth));
+      var bottom = Math.Min(height, (int)(top + scaledHandWidth));
+      var rectWidth = right - left;
+      var rectHeight = bottom - top;
+      if (rectWidth <= 0 || rectHeight <= 0)
+        return Rectangle.Empty;
       return new Rectangle(left, top, right - left, bottom - top);
     }
 
-    void FindBestBoundingBox(Rectangle initialRect) {
+    Rectangle FindBestBoundingBox(Rectangle initialRect) {
       if (!initialRect.IsEmpty) {
         CvInvoke.cvCamShift(SmoothedDepth.Ptr, initialRect, new MCvTermCriteria(CamShiftIter),
             out connectedComp, out shiftedRect);
         if (!connectedComp.rect.IsEmpty)
-          HandRect = connectedComp.rect;
+          return connectedComp.rect;
       }
+      return Rectangle.Empty;
     }
   }
 }

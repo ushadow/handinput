@@ -22,7 +22,7 @@ namespace HandInput.Util {
     static readonly int CvOpenIter = 1;
     static readonly int ContourApproxLevel = 2;
 
-    public Image<Gray, Byte> PlayerMask { get; private set; }
+    public Image<Gray, Byte> DepthPlayerMask { get; private set; }
     public Image<Gray, Byte> ColorPlayerMask { get; private set; }
 
     /// <summary>
@@ -31,7 +31,7 @@ namespace HandInput.Util {
     public Image<Gray, Byte> DepthImage { get; private set; }
     public Image<Gray, Byte> DepthSkinMask;
     /// <summary>
-    /// Gray scale skin image.
+    /// Gray scale skin image. ROI maybe set.
     /// </summary>
     public Image<Gray, Byte> SkinImage {
       get { return dataBuffer.Peek<Image<Gray, Byte>>(typeof(Image<Gray, Byte>)); }
@@ -52,7 +52,7 @@ namespace HandInput.Util {
       this.width = width;
       this.height = height;
       this.mapper = mapper;
-      PlayerMask = new Image<Gray, Byte>(width, height);
+      DepthPlayerMask = new Image<Gray, Byte>(width, height);
       ColorPlayerMask = new Image<Gray, Byte>(width, height);
       DepthImage = new Image<Gray, Byte>(width, height);
       dataBuffer = new DataBuffer(bufferSize);
@@ -64,7 +64,7 @@ namespace HandInput.Util {
     /// <param name="depthFrame"></param>
     /// <returns></returns>
     public void FilterPlayer(short[] depthFrame, byte[] colorPixelData) {
-      UpdatePlayerDepthImage(depthFrame, PlayerMask.Data, null, Rectangle.Empty);
+      UpdatePlayerDepthImage(depthFrame, DepthPlayerMask.Data, null, Rectangle.Empty);
     }
 
     public void FilterPlayerContourSkin(short[] depthFrame, byte[] colorFrame) {
@@ -75,7 +75,7 @@ namespace HandInput.Util {
         DepthSkinMask = new Image<Gray, Byte>(width, height);
 
       UpdatePlayerMask(depthFrame);
-      var contour = FindPlayerContour(PlayerMask);
+      var contour = FindPlayerContour(DepthPlayerMask);
 
       var skinMask = skinDetector.DetectSkin(colorFrame);
       ImageUtil.AlignImageColorToDepth(skinMask, DepthSkinMask, depthFrame, mapper);
@@ -123,28 +123,24 @@ namespace HandInput.Util {
 
       var colorSkinMask = skinDetector.DetectSkin(colorPixelData, roi);
       ImageUtil.AlignImageColorToDepth(colorSkinMask, DepthSkinMask, depthFrame, mapper);
-      ColorPlayerMask.ROI = roi;
-      CvInvoke.cvAnd(skinDetector.SkinImage.Ptr, ColorPlayerMask.Ptr, skinDetector.SkinImage.Ptr,
-                     IntPtr.Zero);
-      ColorPlayerMask.ROI = Rectangle.Empty;
       dataBuffer.EnqueueAndCopy(skinDetector.SkinImage);
 
       byte[, ,] playerMask = null;
       byte[, ,] skinMask = null;
       if (filterPlayer)
-        playerMask = PlayerMask.Data;
+        playerMask = DepthPlayerMask.Data;
       if (filterSkin)
         skinMask = DepthSkinMask.Data;
       UpdatePlayerDepthImage(depthFrame, playerMask, skinMask, roi);
     }
 
     /// <summary>
-    /// Updates both depth and color player masks.
+    /// Updates depth player masks.
     /// </summary>
     /// <param name="depthFrame"></param>
     void UpdatePlayerMask(short[] depthFrame) {
-      CvInvoke.cvZero(PlayerMask.Ptr);
-      var data = PlayerMask.Data;
+      CvInvoke.cvZero(DepthPlayerMask.Ptr);
+      var data = DepthPlayerMask.Data;
 
       for (int r = 0; r < height; r++)
         for (int c = 0; c < width; c++) {
@@ -155,7 +151,7 @@ namespace HandInput.Util {
             data[r, c, 0] = 255;
         }
 
-      CvInvoke.cvMorphologyEx(PlayerMask.Ptr, PlayerMask.Ptr,
+      CvInvoke.cvMorphologyEx(DepthPlayerMask.Ptr, DepthPlayerMask.Ptr,
           IntPtr.Zero, IntPtr.Zero, CV_MORPH_OP.CV_MOP_OPEN, CvOpenIter);
     }
 
@@ -242,7 +238,7 @@ namespace HandInput.Util {
     }
 
     private Rectangle FindBoundingBox() {
-      var data = PlayerMask.Data;
+      var data = DepthPlayerMask.Data;
       int minX = width, maxX = 0, minY = height, maxY = 0;
       for (int r = 0; r < height; r++)
         for (int c = 0; c < width; c++) {

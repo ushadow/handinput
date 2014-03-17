@@ -71,6 +71,14 @@ namespace HandInput.Util {
       return MapDepthPointToSkeletonPoint(depthPoint);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="depthRect"></param>
+    /// <param name="depthPixel"></param>
+    /// <param name="width">frame width</param>
+    /// <param name="height">frame height</param>
+    /// <returns></returns>
     public Rectangle MapDepthRectToColorRect(Rectangle depthRect, short[] depthPixel, int width, 
         int height) {
       var y = Clip(depthRect.Top, 0, height - 1);

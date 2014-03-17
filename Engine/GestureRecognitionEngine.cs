@@ -44,6 +44,7 @@ namespace HandInput.Engine {
         image.ROI = Rectangle.Empty;
         reset = false;
       } else {
+        // No hand detected (hand may be out of field of view).
         if (!reset) {
           reset = true;
           processor.Reset();

@@ -86,7 +86,10 @@ namespace GesturesViewer {
       var gestures = Properties.Resources.Gestures.Split(new char[] { '\r', '\n' },
           StringSplitOptions.RemoveEmptyEntries);
       foreach (var s in gestures) {
-        var tokens = s.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        var trimmed = s.Trim();
+        if (trimmed.StartsWith("#") || trimmed.StartsWith("Rest", true, null))
+          continue;
+        var tokens = trimmed.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         gestureList.Add(tokens[0], tokens[1]);
         selectedItems.Add(tokens[0], tokens[1]);
       }
