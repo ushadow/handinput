@@ -49,6 +49,8 @@ namespace HandInput.Util {
     /// 
     /// </summary>
     /// <param name="img"></param>
+    /// <param name="roi">If ROI is not empty, only update skin image and skin mask in the ROI
+    /// region.</param>
     /// <returns>A reference of the skin mask. There is only one image allocated for skin mask and
     /// the image is reused.</returns>
     public Image<Gray, Byte> DetectSkin(Byte[] img, Rectangle roi) {

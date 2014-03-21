@@ -39,7 +39,9 @@ namespace GesturesViewer {
     readonly ColorStreamManager colorManager = new ColorStreamManager();
     readonly DepthStreamManager depthManager = new DepthStreamManager();
     SkeletonDisplayManager skeletonDisplayManager;
-    readonly DebugDisplayManager debugDisplayManager = new DebugDisplayManager(
+    readonly DebugDisplayManager debugColorDisplayManager = new DebugDisplayManager(
+        HandInputParams.ColorWidth, HandInputParams.ColorHeight);
+    readonly DebugDisplayManager debugDepthDisplayManager = new DebugDisplayManager(
         HandInputParams.DepthWidth, HandInputParams.DepthHeight);
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
@@ -187,7 +189,7 @@ namespace GesturesViewer {
       skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor.CoordinateMapper,
                                                           skeletonCanvas);
       kinectDisplay.DataContext = colorManager;
-      maskDispay.DataContext = debugDisplayManager;
+      maskDispay.DataContext = debugColorDisplayManager;
       depthDisplay.DataContext = depthManager;
 
       HandInputParams.ColorFocalLength = kinectSensor.ColorStream.NominalFocalLengthInPixels;
@@ -248,10 +250,8 @@ namespace GesturesViewer {
         }
       }
       if (displayDebug) {
-        if (displayOption == DisplayOption.DEPTH && result.DepthImage != null)
-          debugDisplayManager.UpdateBitmap(result.DepthImage.Bytes);
-        if (displayOption == DisplayOption.COLOR && result.ColorImage != null)
-          debugDisplayManager.UpdateBitmap(result.ColorImage.Bytes);
+        debugDepthDisplayManager.UpdateBitmap(result.DepthImage.Bytes);
+        debugColorDisplayManager.UpdateBitmap(result.ColorImage.Bytes);
       }
     }
 
@@ -275,8 +275,8 @@ namespace GesturesViewer {
         VisualUtil.DrawRectangle(colorCanvas, bb.Last(), Brushes.Red);
       }
       var converted = sht.TemporalSmoothed.ConvertScale<Byte>(255, 0);
-      debugDisplayManager.UpdateBitmap(converted.Bytes);
-      debugDisplayManager.UpdateBitmapMask(sht.SaliencyProb.Data);
+      debugColorDisplayManager.UpdateBitmap(converted.Bytes);
+      debugColorDisplayManager.UpdateBitmapMask(sht.SaliencyProb.Data);
     }
 
     void kinectRuntime_AllFrameReady(object sender, AllFramesReadyEventArgs e) {
@@ -396,11 +396,13 @@ namespace GesturesViewer {
       displayDebug = !displayDebug;
 
       if (displayDebug) {
-        viewButton.Content = "View Color";
-        kinectDisplay.DataContext = debugDisplayManager;
+        viewButton.Content = "View Color/Depth";
+        kinectDisplay.DataContext = debugColorDisplayManager;
+        depthDisplay.DataContext = debugDepthDisplayManager;
       } else {
         viewButton.Content = "View Debug";
         kinectDisplay.DataContext = colorManager;
+        depthDisplay.DataContext = depthManager;
       }
     }
 
