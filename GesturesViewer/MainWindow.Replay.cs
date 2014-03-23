@@ -124,8 +124,8 @@ namespace GesturesViewer {
             SkeletonUtil.FirstTrackedSkeleton(sf.Skeletons));
         var gesture = recogEngine.Update(result, viewHog);
 
-        lock (gestureServer)
-          gestureServer.Send(gesture);
+        lock (inputServer)
+          inputServer.Send(gesture);
 
         statusTextBox.Text = gesture;
         fpsCounter.LogFPS();

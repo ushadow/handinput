@@ -96,7 +96,6 @@
     <Compile Include="CoordinateConverterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HogFeatureProcessorTests.cs" />
-    <Compile Include="ReferenceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

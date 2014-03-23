@@ -43,17 +43,14 @@ namespace handinput {
     std_mu_ = Map<VectorXf>(mu_data, feature_len_);
     std_sigma_ = Map<VectorXf>(sigma_data, feature_len_);
 
-
     mxArray* param = mxGetField(model, 0, "param");
     mxArray* vocabulary_size_mx = mxGetField(param, 0, "vocabularySize");
-    mxArray* n_states_mx = mxGetField(param, 0, "nS");
     mxArray* gesture_labels = mxGetField(param, 0, "gestureLabel");
     mxArray* kinect_sample_rate_mx = mxGetField(param, 0, "kinectSampleRate");
     mxArray* lag_max = mxGetField(param, 0, "L");
 
     kinect_sample_rate_ = (int)mxGetScalar(kinect_sample_rate_mx);
     n_vocabularies_ = (int)mxGetScalar(vocabulary_size_mx);
-    n_states_per_gesture_ = (int)mxGetScalar(n_states_mx);
     InitGestureLabels(gesture_labels);
     hand_pose_labels_.push_back("Unknown");
     int lag = (int)mxGetScalar(lag_max);
@@ -115,6 +112,7 @@ namespace handinput {
   }
 
   void InfEngine::InitGestureLabels(mxArray* mx_gesture_labels) {
+    // Gesture label index from Matlab is 1-based. Put a dummy at the beginning.
     gesture_labels_.push_back("Unknown");
     if (mx_gesture_labels == NULL)
       return;

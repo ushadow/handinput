@@ -10,6 +10,13 @@
         </one-of>
       </item>
       <item>
+        <tag>LESS</tag>
+        <one-of>
+          <item>slower</item>
+          <item>less</item>
+        </one-of>
+      </item>
+      <item>
         <tag>SHOW</tag>
         <one-of>
           <item>show</item>

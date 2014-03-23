@@ -32,7 +32,7 @@ namespace HandInput.Engine {
       StringWriter sw = new StringWriter();
       JsonTextWriter writer = new JsonTextWriter(sw);
       writer.WriteStartObject();
-      writer.WritePropertyName("speechEvent");
+      writer.WritePropertyName("speech");
       writer.WriteValue(speechText);
       writer.WriteEndObject();
       return sw.ToString();

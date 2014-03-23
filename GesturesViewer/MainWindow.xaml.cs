@@ -66,7 +66,7 @@ namespace GesturesViewer {
     GestureRecognitionEngine recogEngine;
     FPSCounter fpsCounter = new FPSCounter();
 
-    GestureServer gestureServer = new GestureServer(IpAddress, Port);
+    GestureServer inputServer = new GestureServer(IpAddress, Port);
 
     /// <summary>
     /// Initializes UI.
@@ -84,6 +84,7 @@ namespace GesturesViewer {
       gestureComboBox.DataContext = trainingManager;
       repitionsTextBox.DataContext = trainingManager;
       pidTextBox.DataContext = trainingManager;
+
       var binding = new Binding("Status");
       binding.Mode = BindingMode.OneWay;
       binding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
@@ -98,7 +99,7 @@ namespace GesturesViewer {
 
       showStopCheckBox.DataContext = trainingManager;
 
-      gestureServer.Start();
+      inputServer.Start();
     }
 
     void Kinects_StatusChanged(object sender, StatusChangedEventArgs e) {
@@ -306,8 +307,8 @@ namespace GesturesViewer {
             var result = handTracker.Update(depthManager.PixelData, colorManager.PixelData,
               SkeletonUtil.FirstTrackedSkeleton(sf.GetSkeletons()));
             var gesture = recogEngine.Update(result);
-            lock (gestureServer)
-              gestureServer.Send(gesture);
+            lock (inputServer)
+              inputServer.Send(gesture);
             UpdateDisplay(result);
             statusTextBox.Text = gesture;
             fpsCounter.LogFPS();
@@ -389,7 +390,7 @@ namespace GesturesViewer {
       kinectSensor = null;
 
       StopReplay();
-      gestureServer.Stop();
+      inputServer.Stop();
     }
 
     void Button_Click(object sender, RoutedEventArgs e) {

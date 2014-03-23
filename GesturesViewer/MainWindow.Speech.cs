@@ -26,8 +26,8 @@ namespace GesturesViewer {
 
     void SpeechRecognized(object sender, String s) {
       speechTextBox.Text = s;
-      lock (gestureServer)
-        gestureServer.Send(s);
+      lock (inputServer)
+        inputServer.Send(s);
     }
 
     void StopSpeechRecognition() {
