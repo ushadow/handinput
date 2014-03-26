@@ -110,7 +110,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DropboxRelease|x64'">
-    <OutputPath>..\..\..\Dropbox\handinput\GesturesViewer\</OutputPath>
+    <OutputPath>..\..\..\Dropbox\handinput\GesturesViewer\bin\x64\DropboxRelease\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>

@@ -14,12 +14,10 @@ using Common.Logging;
 
 namespace HandInput.Engine {
   /// <summary>
-  /// Output raw features: relative position and scaled image patch data without further 
-  /// processing.
+  /// Output unormailized features: relative position and image patch data without further processing.
   /// </summary>
-  public class SimpleFeatureProcessor : IFeatureProcessor {
+  public class ColorFeatureProcessor : IFeatureProcessor {
     static readonly int FeatureImageWidth = HandInputParams.FeatureImageWidth;
-    static readonly int BytesPerPixel = 4;
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
     public int MotionFeatureLength {
@@ -28,16 +26,9 @@ namespace HandInput.Engine {
       }
     }
 
-    public int DescriptorLength {
-      get {
-        return FeatureImageWidth * FeatureImageWidth * 2;
-      }
-    }
+    public int DescriptorLength { get { return 0; } }
 
-    Image<Gray, Single> floatImage = new Image<Gray, Single>(FeatureImageWidth, FeatureImageWidth);
-
-    public SimpleFeatureProcessor(float sampleRate = 1) {
-
+    public ColorFeatureProcessor(float sampleRate = 1) {
     }
 
     /// <summary>
@@ -47,27 +38,30 @@ namespace HandInput.Engine {
     /// <returns></returns>
     public Option<Array> Compute(TrackingResult result) {
       if (result.RightHandRelPos.IsSome) {
-        var feature = new float[MotionFeatureLength + DescriptorLength];
+        var colorBb = result.ColorBoundingBoxes.Last();
+        var descriptorLen = colorBb.Width * colorBb.Height;
+        var feature = new float[MotionFeatureLength + descriptorLen + 2];
         var relPos = result.RightHandRelPos.Value;
         feature[0] = (float)relPos.X;
         feature[1] = (float)relPos.Y;
         feature[2] = (float)relPos.Z;
-        AddImageFeature(result.ColorImage, result.ColorBoundingBoxes.Last(), feature, 
-                        MotionFeatureLength);
-        AddImageFeature(result.DepthImage, result.DepthBoundingBoxes.Last(), feature,
-                        MotionFeatureLength + FeatureImageWidth * FeatureImageWidth);
+        feature[3] = colorBb.Width;
+        feature[4] = colorBb.Height;
+        AddImageFeature(result.ColorImage, colorBb, feature, MotionFeatureLength + 2);
         return new Some<Array>(feature);
       }
       return new None<Array>();
     }
 
     void AddImageFeature(Image<Gray, Byte> image, Rectangle bb, float[] dst, int dstIndex) {
-      image.ROI = bb;
-      floatImage.ConvertFrom(image);
-      image.ROI = Rectangle.Empty;
+      var data = image.Data;
+     
+      var k = 0;
       // Copy bytes.
-      System.Buffer.BlockCopy(floatImage.Bytes, 0, dst, dstIndex * BytesPerPixel, 
-                              floatImage.Bytes.Length);
+      for (int i = bb.Top; i < bb.Top + bb.Height; i++)
+        for (int j = bb.Left; j < bb.Left + bb.Width; j++, k++) {
+          dst[dstIndex + k] = data[i, j, 0];
+        }
     }
   }
 }

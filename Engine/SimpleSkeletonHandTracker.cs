@@ -82,7 +82,7 @@ namespace HandInput.Engine {
             var depthBBs = new List<Rectangle>();
             var colorBBs = new List<Rectangle>();
             depthBBs.Add(HandRect);
-            colorBBs.Add(mapper.MapDepthRectToColorRect(HandRect, depthFrame, width, height));
+            colorBBs.Add(InitialHandRect);
             return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth,
                                       depthBBs, playerDetector.SkinImage, colorBBs);
           }

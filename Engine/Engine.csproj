@@ -116,6 +116,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColorFeatureProcessor.cs" />
     <Compile Include="GestureServer.cs" />
     <Compile Include="SimpleFeatureProcessor.cs" />
     <Compile Include="IFeatureProcessor.cs" />

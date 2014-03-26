@@ -37,7 +37,8 @@ namespace HandInput.OfflineProcessor {
     };
 
     static readonly Dictionary<String, Type> FeatureProcessors = new Dictionary<String, Type> {
-      {"hog", typeof(HogFeatureProcessor)}, {"simple", typeof(SimpleFeatureProcessor)}
+      {"hog", typeof(HogFeatureProcessor)}, {"simple", typeof(SimpleFeatureProcessor)}, 
+      {"color", typeof(ColorFeatureProcessor)}
     };
 
     /// <summary>

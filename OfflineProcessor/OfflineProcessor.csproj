@@ -64,7 +64,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DropboxRelease|x64'">
-    <OutputPath>bin\x64\DropboxRelease\</OutputPath>
+    <OutputPath>..\..\..\Dropbox\handinput\OfflineProcessor\bin\x64\DropboxRealease\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -153,8 +153,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)..\Processor\bin\$(Platform)\$(Configuration)\Processor.dll" "$(TargetDir)"
-copy /Y "$(ProjectDir)..\GpuProcessor\bin\$(Platform)\$(Configuration)\GpuProcessor.dll" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(ProjectDir)..\Processor\bin\$(Platform)\$(Configuration)\Processor.dll" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
