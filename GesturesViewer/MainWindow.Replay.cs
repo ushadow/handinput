@@ -127,7 +127,7 @@ namespace GesturesViewer {
         lock (inputServer)
           inputServer.Send(gesture);
 
-        statusTextBox.Text = gesture;
+        textGestureEvent.Text = gesture;
         fpsCounter.LogFPS();
         UpdateDisplay(result);
       }

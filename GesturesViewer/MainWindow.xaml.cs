@@ -217,8 +217,8 @@ namespace GesturesViewer {
     }
 
     void StartTracking() {
-      Log.Debug("Start tracking.");
       StopReplay();
+      Log.Debug("Start tracking.");
       StartKinect();
       handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
           HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
@@ -310,7 +310,7 @@ namespace GesturesViewer {
             lock (inputServer)
               inputServer.Send(gesture);
             UpdateDisplay(result);
-            statusTextBox.Text = gesture;
+            textGestureEvent.Text = gesture;
             fpsCounter.LogFPS();
           }
         }
