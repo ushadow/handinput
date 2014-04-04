@@ -28,12 +28,12 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="450"/>
+            <ColumnDefinition Width="480"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="25"/>
             <RowDefinition Height="350"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="50"/>
             <RowDefinition Height="100"/>
             <RowDefinition Height="100"/>
             <RowDefinition Height="Auto"/>
@@ -41,7 +41,7 @@
             <RowDefinition Height="100" />
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <Button Grid.RowSpan="2" Content="View Debug" Margin="267,10,267,0" 
+        <Button Content="View Debug" Grid.RowSpan="2" Margin="267,10,267,0" 
                 HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click" x:Name="viewButton"/>
         <Viewbox Margin="5" Grid.RowSpan="3">
             <StackPanel Orientation="Horizontal">
@@ -109,7 +109,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="400"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -155,6 +155,9 @@
                 </Grid>
             </GroupBox>
         </Grid>
+        <GroupBox Grid.Row="4" Header="Model" Margin="10, 0" Grid.Column="1">
+            <ComboBox></ComboBox>
+        </GroupBox>
         <GroupBox Grid.Row="5" Header="Gesture" Grid.RowSpan="4" Grid.Column="1" Margin="10,0">
             <TextBlock Name="textGestureEvent" FontSize="26" Foreground="#FF000000"
                        FontFamily="Segoe UI"/>

@@ -90,7 +90,7 @@ namespace GesturesViewer {
         if (trimmed.StartsWith("#") || trimmed.StartsWith("Rest", true, null))
           continue;
         var tokens = trimmed.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-        gestureList.Add(tokens[0], tokens[1]);
+        gestureList.Add(tokens[0].Trim(), tokens[1].Trim());
         selectedItems.Add(tokens[0], tokens[1]);
       }
       NumRepitions = DefaultNumRepitions;
@@ -156,6 +156,7 @@ namespace GesturesViewer {
     String GetHelpText(String gesture) {
       Object type;
       gestureList.TryGetValue(gesture, out type);
+      Log.DebugFormat("type = {0}", type);
       if (type != null && type.Equals("S")) {
         if (!charEnumerator.MoveNext()) {
           charEnumerator.Reset();
