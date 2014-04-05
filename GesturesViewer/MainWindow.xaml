@@ -156,7 +156,8 @@
             </GroupBox>
         </Grid>
         <GroupBox Grid.Row="4" Header="Model" Margin="10, 0" Grid.Column="1">
-            <ComboBox></ComboBox>
+            <ComboBox x:Name="modelComboBox" ItemsSource="{Binding ModelFiles}" 
+                      SelectedItem="{Binding SelectedModel}" />
         </GroupBox>
         <GroupBox Grid.Row="5" Header="Gesture" Grid.RowSpan="4" Grid.Column="1" Margin="10,0">
             <TextBlock Name="textGestureEvent" FontSize="26" Foreground="#FF000000"

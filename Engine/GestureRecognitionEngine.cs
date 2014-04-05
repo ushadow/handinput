@@ -16,22 +16,25 @@ using HandInput.Util;
 using System.Windows.Media.Media3D;
 
 namespace HandInput.Engine {
-  public class GestureRecognitionEngine {
+  public class GestureRecognitionEngine : IDisposable {
 
     MProcessor processor;
     bool reset = true;
-    String modelFile;
 
     public GestureRecognitionEngine(String modelFile) {
-      this.modelFile = modelFile;
-      processor = new MProcessor(HandInputParams.FeatureImageWidth,
-          HandInputParams.FeatureImageWidth, modelFile);
+      Init(modelFile);
     }
 
     public int GetSampleRate() {
       return processor.KinectSampleRate();
     }
 
+    /// <summary>
+    /// Synchronized method.
+    /// </summary>
+    /// <param name="result"></param>
+    /// <param name="visualize"></param>
+    /// <returns></returns>
     public String Update(TrackingResult result, bool visualize = false) {
       String gesture = "";
       if (result.RightHandRelPos.IsSome && result.DepthBoundingBoxes.Count > 0) {
@@ -39,18 +42,51 @@ namespace HandInput.Engine {
         var image = result.DepthImage;
         var skin = result.ColorImage;
         image.ROI = result.DepthBoundingBoxes.Last();
-        gesture = processor.Update((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr,
-                                    skin.Ptr, visualize);
+        lock (this) {
+          gesture = processor.Update((float)pos.X, (float)pos.Y, (float)pos.Z, image.Ptr,
+                                      skin.Ptr, visualize);
+          reset = false;
+        }
         image.ROI = Rectangle.Empty;
-        reset = false;
       } else {
         // No hand detected (hand may be out of field of view).
         if (!reset) {
           reset = true;
-          processor.Reset();
+          lock (this) {
+            processor.Reset();
+          }
         }
       }
       return gesture;
+    }
+
+    /// <summary>
+    /// Synchronized method.
+    /// </summary>
+    /// <param name="modelFile"></param>
+    public void ResetModel(String modelFile) {
+      Dispose();
+      lock (this) {
+        Init(modelFile);
+      }
+    }
+
+    /// <summary>
+    /// Synchronized method.
+    /// </summary>
+    public void Dispose() {
+      lock (this) {
+        if (processor != null) {
+          processor.Dispose();
+          processor = null;
+        }
+      }
+    }
+
+    private void Init(String modelFile) {
+      processor = new MProcessor(HandInputParams.FeatureImageWidth,
+          HandInputParams.FeatureImageWidth, modelFile);
+      reset = true;
     }
 
   }

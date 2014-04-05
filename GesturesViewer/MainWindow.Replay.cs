@@ -78,8 +78,8 @@ namespace GesturesViewer {
             HandInputParams.DepthHeight, replay.GetKinectParams());
       }
 
-      Log.DebugFormat("model file: {0}", ModelFile);
-      recogEngine = new GestureRecognitionEngine(ModelFile);
+      Log.DebugFormat("model file: {0}", modelSelector.SelectedModel);
+      recogEngine = new GestureRecognitionEngine(modelSelector.SelectedModel);
       sampleRate = recogEngine.GetSampleRate();
       timer = new DispatcherTimer();
       timer.Interval = new TimeSpan(0, 0, 0, 0, (1000 / FPS));
@@ -161,6 +161,8 @@ namespace GesturesViewer {
         }
       }
 
+      if (recogEngine != null)
+        recogEngine.Dispose();
       recogEngine = null;
     }
 

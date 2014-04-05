@@ -33,7 +33,8 @@ namespace GesturesViewer {
     enum DisplayOption { DEPTH, COLOR };
 
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
-    static readonly String ModelFile = Path.GetFullPath(ConfigurationManager.AppSettings["model_file"]);
+    static readonly String ModelDir = Path.GetFullPath(
+        ConfigurationManager.AppSettings["model_dir"]);
     static readonly int NOptionPerLine = 5;
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
@@ -45,11 +46,10 @@ namespace GesturesViewer {
         HandInputParams.DepthWidth, HandInputParams.DepthHeight);
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
+    
+    AudioStreamManager audioManager;
 
     IDictionary<Key, Action> keyActions;
-    KinectSensor kinectSensor;
-
-    AudioStreamManager audioManager;
 
     // Display options.
     bool displayDebug = false;
@@ -57,16 +57,17 @@ namespace GesturesViewer {
     bool viewHog = false;
     bool viewSkeleton = true;
 
+    KinectSensor kinectSensor;
     KinectRecorder recorder;
     KinectAllFramesReplay replay;
+    IHandTracker handTracker;
+    GestureRecognitionEngine recogEngine;
+    GestureServer inputServer = new GestureServer(IpAddress, Port);
 
     int depthFrameNumber;
     BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
-    IHandTracker handTracker;
-    GestureRecognitionEngine recogEngine;
     FPSCounter fpsCounter = new FPSCounter();
-
-    GestureServer inputServer = new GestureServer(IpAddress, Port);
+    ModelSelector modelSelector = new ModelSelector(ModelDir);
 
     /// <summary>
     /// Initializes UI.
@@ -84,6 +85,7 @@ namespace GesturesViewer {
       gestureComboBox.DataContext = trainingManager;
       repitionsTextBox.DataContext = trainingManager;
       pidTextBox.DataContext = trainingManager;
+      showStopCheckBox.DataContext = trainingManager;
 
       var binding = new Binding("Status");
       binding.Mode = BindingMode.OneWay;
@@ -97,7 +99,8 @@ namespace GesturesViewer {
       binding.Converter = new ColorConverter();
       statusTextBox.SetBinding(TextBox.ForegroundProperty, binding);
 
-      showStopCheckBox.DataContext = trainingManager;
+      modelComboBox.DataContext = modelSelector;
+      modelComboBox.SelectedItem = modelSelector.SelectedModel;
 
       inputServer.Start();
     }
@@ -222,7 +225,7 @@ namespace GesturesViewer {
       StartKinect();
       handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
           HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
-      recogEngine = new GestureRecognitionEngine(ModelFile);
+      recogEngine = new GestureRecognitionEngine(modelSelector.SelectedModel);
     }
 
     void SetStatus(String status) {

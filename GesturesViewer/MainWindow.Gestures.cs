@@ -99,7 +99,7 @@ namespace GesturesViewer {
 
     void TrainModel() {
       var args = String.Format("-nodisplay -nosplash -nodesktop -r \"train('{0}', '{1}'); pause(1); exit;\"",
-          OutputDir, ModelFile);
+          OutputDir, modelSelector.SelectedModel);
       ExecuteCommand(MatlabExe, args, false, false);
     }
   }

@@ -7,7 +7,7 @@ namespace handinput {
   public:
     MProcessor(int w, int h, System::String^ model_file);
     ~MProcessor() { this->!MProcessor(); }
-    !MProcessor() { delete processor_; }
+    !MProcessor() { delete processor_; } // Finalizer is called by Garbage Collector.
     System::String^ Update(float x, float y, float z, System::IntPtr image, System::IntPtr skin, 
                bool visualize);
     void Reset() { processor_->Reset(); } 
