@@ -30,6 +30,7 @@ namespace handinput {
 
     // 1-based label index.
     int MostLikelyLabelIndex();
+    int MostLikelyState() { return most_likely_hidden_state_; }
     std::string MostLikelyStage();
 
     void Fwdback(const Eigen::Ref<const Eigen::VectorXf> x);

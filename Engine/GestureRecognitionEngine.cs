@@ -18,11 +18,13 @@ using System.Windows.Media.Media3D;
 namespace HandInput.Engine {
   public class GestureRecognitionEngine : IDisposable {
 
+    String modelFile;
     MProcessor processor;
     bool reset = true;
 
     public GestureRecognitionEngine(String modelFile) {
-      Init(modelFile);
+      this.modelFile = modelFile;
+      Init();
     }
 
     public int GetSampleRate() {
@@ -65,25 +67,31 @@ namespace HandInput.Engine {
     /// </summary>
     /// <param name="modelFile"></param>
     public void ResetModel(String modelFile) {
-      Dispose();
       lock (this) {
-        Init(modelFile);
+        Dispose();
+        this.modelFile = modelFile;
+        Init();
       }
     }
 
     /// <summary>
     /// Synchronized method.
     /// </summary>
-    public void Dispose() {
+    public void Reset() {
       lock (this) {
-        if (processor != null) {
-          processor.Dispose();
-          processor = null;
-        }
+        Dispose();
+        Init();
       }
     }
 
-    private void Init(String modelFile) {
+    public void Dispose() {
+      if (processor != null) {
+        processor.Dispose();
+        processor = null;
+      }
+    }
+
+    private void Init() {
       processor = new MProcessor(HandInputParams.FeatureImageWidth,
           HandInputParams.FeatureImageWidth, modelFile);
       reset = true;

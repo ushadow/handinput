@@ -28,7 +28,6 @@ namespace handinput {
     mxArray* std_mu_mx = mxGetField(std_model, 0, "mu");
     mxArray* std_sigma_mx = mxGetField(std_model, 0, "sigma");
 
-
     descriptor_len_ = (int) mxGetN(principal_comp_mx);
     n_principal_comps_ = (int) mxGetM(principal_comp_mx);
     feature_len_ = (int) mxGetM(std_mu_mx);

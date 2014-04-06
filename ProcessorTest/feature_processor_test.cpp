@@ -84,4 +84,5 @@ TEST(FeatureProcessorTest, ComputeMotionFeature) {
   ASSERT_EQ(-3, feature[5]);
   ASSERT_EQ(-2, feature[6]);
   ASSERT_EQ(-4, feature[7]);
-  ASSERT_EQ(-6, feature[8]);}
+  ASSERT_EQ(-6, feature[8]);
+}

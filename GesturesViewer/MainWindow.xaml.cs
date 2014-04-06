@@ -24,6 +24,7 @@ using System.Text;
 using System.IO;
 using System.Windows.Data;
 using System.Windows.Controls;
+using System.ComponentModel;
 
 namespace GesturesViewer {
   /// <summary>
@@ -46,7 +47,7 @@ namespace GesturesViewer {
         HandInputParams.DepthWidth, HandInputParams.DepthHeight);
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
-    
+
     AudioStreamManager audioManager;
 
     IDictionary<Key, Action> keyActions;
@@ -101,6 +102,7 @@ namespace GesturesViewer {
 
       modelComboBox.DataContext = modelSelector;
       modelComboBox.SelectedItem = modelSelector.SelectedModel;
+      modelSelector.PropertyChanged += ModelSelectorSelectedItemChanged;
 
       inputServer.Start();
     }
@@ -225,7 +227,16 @@ namespace GesturesViewer {
       StartKinect();
       handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
           HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
-      recogEngine = new GestureRecognitionEngine(modelSelector.SelectedModel);
+      ResetGestureEngine();
+    }
+
+    void ResetGestureEngine() {
+      Log.DebugFormat("model file: {0}", modelSelector.SelectedModel);
+      if (recogEngine == null) {
+        recogEngine = new GestureRecognitionEngine(modelSelector.SelectedModel);
+      } else {
+        recogEngine.Reset();
+      }
     }
 
     void SetStatus(String status) {
@@ -396,6 +407,12 @@ namespace GesturesViewer {
       inputServer.Stop();
     }
 
+    #region Actions
+
+    void ModelSelectorSelectedItemChanged(object sender, PropertyChangedEventArgs e) {
+      ResetGestureEngine();
+    }
+
     void Button_Click(object sender, RoutedEventArgs e) {
       displayDebug = !displayDebug;
 
@@ -456,4 +473,5 @@ namespace GesturesViewer {
       Log.DebugFormat("depth = {0}", DepthUtil.RawToDepth(raw));
     }
   }
+    #endregion
 }

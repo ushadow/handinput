@@ -7,7 +7,8 @@ namespace handinput {
   const std::string FeatureProcessor::kColorWindowName = "Color";
 
   FeatureProcessor::FeatureProcessor(int w, int h, int buffer_size) : w_(w), h_(h), 
-      pos_buffer_(buffer_size), temporal_mask_(buffer_size, 1.0f / buffer_size) {
+      buffer_size_(buffer_size), pos_buffer_(buffer_size), 
+      temporal_mask_(buffer_size, 1.0f / buffer_size) {
     hog_.reset(new HOGDescriptor(w, h, kCellSize, kNBins));
     resized_image_.reset(new cv::Mat(h, w, CV_8U)); 
     float_image_.reset(new cv::Mat(h, w, CV_32F));

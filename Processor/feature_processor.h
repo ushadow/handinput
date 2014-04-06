@@ -40,7 +40,7 @@ namespace handinput {
     static void CopyMatToArray(const cv::Mat& v, float* a, int start_index);
     
     std::unique_ptr<HOGDescriptor> hog_; 
-    int w_, h_;
+    int w_, h_, buffer_size_;
     std::unique_ptr<cv::Mat> resized_image_, float_image_;
     // HOG descriptor.
     std::unique_ptr<float[]> feature_;
