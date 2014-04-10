@@ -1,7 +1,7 @@
 #include "pcheader.h"
 #include "mixgaussian.h"
 
-#define ABS_ERROR 1e-9
+#define ABS_ERROR 1e-5
 
 namespace handinput {
   // gaussians: the referenced object is moved to the member variable of MixGaussian and it becomes 
@@ -32,7 +32,10 @@ namespace handinput {
   void MixGaussian::CheckRI() {
     if (mix_.size() != gaussians_.size())
       throw std::invalid_argument("Invalid arguments: number of mixtures is not consistent");
-    if (abs(mix_.sum() - 1) > ABS_ERROR)
-      throw std::invalid_argument("The sum of mixture probabilities is not 1.");
+    if (abs(mix_.sum() - 1) > ABS_ERROR) {
+      char buffer[128];
+      sprintf(buffer, "The sum of mixture probabilities is %.9f, but should be 1.", mix_.sum());
+      throw std::invalid_argument(buffer);
+    }
   }
 }

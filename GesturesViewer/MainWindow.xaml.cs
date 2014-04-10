@@ -231,7 +231,6 @@ namespace GesturesViewer {
     }
 
     void ResetGestureEngine() {
-      Log.DebugFormat("model file: {0}", modelSelector.SelectedModel);
       if (recogEngine == null) {
         recogEngine = new GestureRecognitionEngine(modelSelector.SelectedModel);
       } else {
@@ -390,6 +389,7 @@ namespace GesturesViewer {
       if (audioManager != null) {
         audioManager.Dispose();
         audioManager = null;
+        Log.Info("Stopped audio manager.");
       }
 
       if (recorder != null) {
@@ -400,6 +400,7 @@ namespace GesturesViewer {
       if (kinectSensor != null && kinectSensor.IsRunning) {
         kinectSensor.AllFramesReady -= kinectRuntime_AllFrameReady;
         kinectSensor.Stop();
+        Log.Info("Stopped Kinect sensor.");
       }
       kinectSensor = null;
 
@@ -410,7 +411,9 @@ namespace GesturesViewer {
     #region Actions
 
     void ModelSelectorSelectedItemChanged(object sender, PropertyChangedEventArgs e) {
-      ResetGestureEngine();
+      if (recogEngine != null) {
+        recogEngine.ResetModel(modelSelector.SelectedModel);
+      }
     }
 
     void Button_Click(object sender, RoutedEventArgs e) {

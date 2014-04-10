@@ -6,17 +6,19 @@ using System.Threading.Tasks;
 using System.Configuration;
 using System.Drawing;
 using System.IO;
+using System.Windows.Media.Media3D;
 using window = System.Windows;
 
 using Newtonsoft.Json;
+using Common.Logging;
 
 using handinput;
 
 using HandInput.Util;
-using System.Windows.Media.Media3D;
 
 namespace HandInput.Engine {
   public class GestureRecognitionEngine : IDisposable {
+    private static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
     String modelFile;
     MProcessor processor;
@@ -92,6 +94,7 @@ namespace HandInput.Engine {
     }
 
     private void Init() {
+      Log.DebugFormat("Initialize with model file: {0}", modelFile);
       processor = new MProcessor(HandInputParams.FeatureImageWidth,
           HandInputParams.FeatureImageWidth, modelFile);
       reset = true;

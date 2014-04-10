@@ -47,7 +47,7 @@ namespace handinput {
     mxArray* gesture_labels = mxGetField(param, 0, "gestureLabel");
     mxArray* kinect_sample_rate_mx = mxGetField(param, 0, "kinectSampleRate");
     mxArray* lag_max = mxGetField(param, 0, "L");
-
+    
     kinect_sample_rate_ = (int)mxGetScalar(kinect_sample_rate_mx);
     n_vocabularies_ = (int)mxGetScalar(vocabulary_size_mx);
     InitGestureLabels(gesture_labels);

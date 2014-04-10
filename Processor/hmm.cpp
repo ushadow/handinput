@@ -34,6 +34,7 @@ namespace handinput {
     float* sigma_data = (float*) mxGetData(mx_sigma);
 
     int n_states = (int) mxGetNumberOfElements(mx_prior);
+    // Get number of columns.
     int n_mixtures = (int) mxGetN(mx_mixmat);
     size_t feature_len = mxGetM(mx_mu);
     size_t sigma_len = feature_len * feature_len;
@@ -50,7 +51,8 @@ namespace handinput {
 
     vector<unique_ptr<const MixGaussian>> mixgaussians;
     for (int i = 0; i < n_states; i++) {
-      // mixmat_data is m x n matrix where each colum is the mixture probability for a state.
+      // mixmat_data is n_states x n_mixtures matrix where each row is the mixture probability for 
+      // a state.
       Map<VectorXf, 0, InnerStride<>> mix(mixmat_data + i, n_mixtures, 
         InnerStride<>(n_states));  
       vector<unique_ptr<const Gaussian>> gaussians;
