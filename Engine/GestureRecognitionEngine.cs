@@ -94,10 +94,10 @@ namespace HandInput.Engine {
     }
 
     private void Init() {
-      Log.DebugFormat("Initialize with model file: {0}", modelFile);
       processor = new MProcessor(HandInputParams.FeatureImageWidth,
           HandInputParams.FeatureImageWidth, modelFile);
       reset = true;
+      Log.DebugFormat("Initialized with model file: {0}", modelFile);
     }
 
   }
