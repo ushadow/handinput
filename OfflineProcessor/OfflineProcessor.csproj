@@ -64,7 +64,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DropboxRelease|x64'">
-    <OutputPath>..\..\..\Dropbox\handinput\OfflineProcessor\bin\x64\DropboxRealease\</OutputPath>
+    <OutputPath>..\..\..\Dropbox\handinput\OfflineProcessor\bin\x64\DropboxRelease\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>

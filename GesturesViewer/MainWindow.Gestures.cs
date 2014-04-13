@@ -65,6 +65,7 @@ namespace GesturesViewer {
       args = argsPrefix + "-t=gt";
       ExecuteCommand(OfflineProcessorExe, args);
       Log.Info("Finished offline processing.");
+      CopyGestureDefFile(OutputDir);
     }
 
     void ExecuteCommand(String command, String args, bool redirectError = true,
@@ -101,6 +102,13 @@ namespace GesturesViewer {
       var args = String.Format("-nodisplay -nosplash -nodesktop -r \"train('{0}', '{1}'); pause(1); exit;\"",
           OutputDir, modelSelector.SelectedModel);
       ExecuteCommand(MatlabExe, args, false, false);
+    }
+
+    void CopyGestureDefFile(String outputDir) {
+      var fileName = Path.GetFileName(TrainingManager.GestureDefFile);
+      var outputFile = Path.Combine(outputDir, fileName);
+      if (!File.Exists(outputFile))
+        File.Copy(TrainingManager.GestureDefFile, outputFile);
     }
   }
 }

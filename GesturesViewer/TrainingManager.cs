@@ -29,6 +29,8 @@ namespace GesturesViewer {
     public static readonly String RestLabel = "Rest";
     public static readonly String DoneLabel = "Done";
     public static readonly String StartLabel = "Starting...";
+    public static readonly String GestureDefFile = Path.GetFullPath(
+        ConfigurationManager.AppSettings["gesture_def"]);
 
     static readonly char[] Alphabet = new char[] {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k',
         'l', 'm', 'n'};
@@ -36,7 +38,7 @@ namespace GesturesViewer {
     static readonly String DefaultPid = ConfigurationManager.AppSettings["pid"];
     static readonly int GestureWaitTimeShort = 2000;
     static readonly int GestureWaitTime = 3000; //ms
-    static readonly int GestureMaxWaitTime = 6000;
+    static readonly int GestureMaxWaitTime = 3000;
     static readonly int GestureStopWaitTime = 1000;
     static readonly int StartWaitTime = 8000;
     static readonly int DefaultNumRepitions = 3;
@@ -83,15 +85,23 @@ namespace GesturesViewer {
     Random rnd = new Random();
 
     public TrainingManager() {
-      var gestures = Properties.Resources.Gestures.Split(new char[] { '\r', '\n' },
-          StringSplitOptions.RemoveEmptyEntries);
-      foreach (var s in gestures) {
-        var trimmed = s.Trim();
-        if (trimmed.StartsWith("#") || trimmed.StartsWith("Rest", true, null))
-          continue;
-        var tokens = trimmed.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-        gestureList.Add(tokens[0].Trim(), tokens[1].Trim());
-        selectedItems.Add(tokens[0], tokens[1]);
+      try {
+        using (var sr = new StreamReader(GestureDefFile)) {
+          var lines = sr.ReadToEnd();
+          var gestures = lines.Split(new char[] { '\r', '\n' },
+              StringSplitOptions.RemoveEmptyEntries);
+          foreach (var s in gestures) {
+            var trimmed = s.Trim();
+            if (trimmed.StartsWith("#") || trimmed.StartsWith("Rest", true, null))
+              continue;
+            var tokens = trimmed.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            gestureList.Add(tokens[0].Trim(), tokens[1].Trim());
+            selectedItems.Add(tokens[0], tokens[1]);
+          }
+        }
+      } catch (Exception e) {
+        Log.Error(e); 
+        Log.ErrorFormat("File {0} could not be read", GestureDefFile);
       }
       NumRepitions = DefaultNumRepitions;
       Pid = DefaultPid;

@@ -76,8 +76,8 @@ namespace GesturesViewer {
     public MainWindow() {
       InitializeComponent();
       keyActions = new Dictionary<Key, Action>() {
-        {Key.Space, RecordGesture}, {Key.D, ToggleDebugDisplayOption}, {Key.H, ToggleViewHog}, 
-        {Key.K, ToggleViewSkeleton}, {Key.N, StepForward}, {Key.P, TogglePlay}, 
+        {Key.Space, RecordGesture}, {Key.D, ToggleDebugDisplayOption}, {Key.E, ExecuteOfflineProcessor},
+        {Key.H, ToggleViewHog}, {Key.K, ToggleViewSkeleton}, {Key.N, StepForward}, {Key.P, TogglePlay}, 
         {Key.S, StartKinect}, {Key.T, StartTracking}, 
       };
       labelKeys.Content = GetKeyOptionString();
