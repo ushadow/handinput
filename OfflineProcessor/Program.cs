@@ -21,7 +21,7 @@ namespace HandInput.OfflineProcessor {
     static readonly String GTPattern = "{0}DataGTD_*.txt";
     static readonly String KinectRegex = @"KinectData_(\d+).bin";
     static readonly String GTRegex = @"{0}DataGTD_(\d+).txt";
-    static readonly String PidRegex = @"PID-0*([1-9]+\d*)$";
+    static readonly String PidRegex = @"PID-0*([1-9a-z]+0*)$";
     static readonly String IndexRegex = @"(\d+)-?(\d+)?";
     static readonly String Ext = "csv";
 
@@ -177,15 +177,15 @@ namespace HandInput.OfflineProcessor {
     /// <param name="inputFolder">Main database folder.</param>
     /// <param name="outputFolder"></param>
     private static void ProcessPids(String inputFolder, String outputFolder) {
-      Log.DebugFormat("Process PIDs in the range: {0} - {1}", pidList.First(), pidList.Last());
       var dirs = Directory.GetDirectories(inputFolder);
       foreach (var dir in dirs) {
         var dirInfo = new DirectoryInfo(dir);
         var match = Regex.Match(dirInfo.Name, PidRegex);
         if (match.Success) {
-          var pid = Int32.Parse(match.Groups[1].Value);
-          if (pidList.Contains(pid)) {
-            Log.InfoFormat("Porcess pid: {0}", pid);
+          var s = match.Groups[1].Value;
+          int pid;
+          var isInt = Int32.TryParse(s, out pid);
+          if (!isInt || pidList.Contains(pid)) {
             var outputPidDir = Path.Combine(outputFolder, dirInfo.Name);
             ProcessSessions(dir, outputPidDir);
           }

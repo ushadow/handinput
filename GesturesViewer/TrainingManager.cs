@@ -156,7 +156,6 @@ namespace GesturesViewer {
     String GetHelpText(String gesture) {
       Object type;
       gestureList.TryGetValue(gesture, out type);
-      Log.DebugFormat("type = {0}", type);
       if (type != null && type.Equals("S")) {
         if (!charEnumerator.MoveNext()) {
           charEnumerator.Reset();
