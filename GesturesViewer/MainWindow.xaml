@@ -148,9 +148,7 @@
                     <Button Content="Train" Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Width="Auto"
                     x:Name="trainButton" Click="trainButton_Click"/>
                     <GroupBox Header="Prompt" Grid.Row="5" Grid.ColumnSpan="2">
-                        <TextBox x:Name="statusTextBox" FontSize="56"  
-                 ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"
-                 TextWrapping="Wrap" Text="{Binding Status}"/>
+                        <TextBlock x:Name="statusTextBlock" FontSize="56"  TextWrapping="Wrap" Text="{Binding Status}"/>
                     </GroupBox>
                 </Grid>
             </GroupBox>

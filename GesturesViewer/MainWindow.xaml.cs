@@ -89,7 +89,7 @@ namespace GesturesViewer {
 
       var binding = new Binding("Status");
       binding.Converter = new ColorConverter();
-      statusTextBox.SetBinding(TextBox.ForegroundProperty, binding);
+      statusTextBlock.SetBinding(TextBlock.ForegroundProperty, binding);
 
       speechTextBlock.DataContext = this;
       binding = new Binding("SpeechJson");
@@ -244,11 +244,6 @@ namespace GesturesViewer {
       } else {
         recogEngine.Reset();
       }
-    }
-
-    void SetStatus(String status) {
-      statusTextBox.AppendText(status + '\n');
-      statusTextBox.ScrollToEnd();
     }
 
     void UpdateDisplay(TrackingResult result) {
