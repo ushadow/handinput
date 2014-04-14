@@ -11,7 +11,19 @@ using HandInput.Engine;
 
 namespace GesturesViewer {
   partial class MainWindow {
+    public String SpeechJson {
+      get {
+        return speechJson;
+      } 
+      
+      set {
+        speechJson = value;
+        OnPropertyChagned("SpeechJson");
+      }
+    }
+    
     SpeechManager speechManager;
+    String speechJson;
 
     void StartSpeechRecognition() {
       using (var memoryStream = new MemoryStream(
@@ -25,7 +37,8 @@ namespace GesturesViewer {
     }
 
     void SpeechRecognized(object sender, String s) {
-      speechTextBox.Text = s;
+      SpeechJson = s;
+      Log.Debug(s);
       lock (inputServer)
         inputServer.Send(s);
     }

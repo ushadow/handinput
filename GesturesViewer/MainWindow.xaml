@@ -89,7 +89,7 @@
             <Label Content="#" Width="50" DockPanel.Dock="Right" Name="labelIndexNumber"/>
             <Slider Minimum="0" x:Name="frameSlider"
                 Margin="5" ValueChanged="frameSlider_ValueChanged"/>
-        </DockPanel>        <GroupBox Header="Stability" Grid.Row="6">            <ListBox x:Name="stabilitiesList" FontSize="20">                <ListBox.ItemTemplate>                    <DataTemplate>                        <StackPanel Orientation="Horizontal">                            <TextBlock Text="{Binding Key}"/>                            <TextBlock Text=": "/>                            <TextBlock Text="{Binding Value}"/>                        </StackPanel>                    </DataTemplate>                </ListBox.ItemTemplate>            </ListBox>        </GroupBox>        <GroupBox Header="Speech" Grid.Row="7">            <TextBlock x:Name="speechTextBox" FontSize="34" FontFamily="Segoe UI"/>        </GroupBox>        <StackPanel Grid.Row="8" Margin="212,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+        </DockPanel>        <GroupBox Header="Stability" Grid.Row="6">            <ListBox x:Name="stabilitiesList" FontSize="20">                <ListBox.ItemTemplate>                    <DataTemplate>                        <StackPanel Orientation="Horizontal">                            <TextBlock Text="{Binding Key}"/>                            <TextBlock Text=": "/>                            <TextBlock Text="{Binding Value}"/>                        </StackPanel>                    </DataTemplate>                </ListBox.ItemTemplate>            </ListBox>        </GroupBox>        <GroupBox Header="Speech" Grid.Row="7">            <TextBlock x:Name="speechTextBlock" FontSize="34" FontFamily="Segoe UI"                       Text="{Binding SpeechJson}"/>        </GroupBox>        <StackPanel Grid.Row="8" Margin="212,0" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Rectangle x:Name="audioBeamAngle" Height="20" Width="300" Margin="5">
                 <Rectangle.Fill>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1, 0">
@@ -117,7 +117,7 @@
                 <Button Content="Record" x:Name="recordOption" Click="recordOption_Click" VerticalAlignment="Center" Width="129" Margin="10,6,0,6"/>
             </StackPanel>
             <Button Content="Replay" x:Name="replayButton" Click="replayButton_Click" VerticalAlignment="Center" Grid.Row="1" Width="Auto"/>
-            <GroupBox Grid.Row="2" Header="Training">
+            <GroupBox Grid.Row="2" Header="Training" x:Name="trainingGroupBox">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width=".38*"/>
@@ -150,7 +150,7 @@
                     <GroupBox Header="Prompt" Grid.Row="5" Grid.ColumnSpan="2">
                         <TextBox x:Name="statusTextBox" FontSize="56"  
                  ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"
-                 TextWrapping="Wrap"/>
+                 TextWrapping="Wrap" Text="{Binding Status}"/>
                     </GroupBox>
                 </Grid>
             </GroupBox>

@@ -30,7 +30,7 @@ namespace GesturesViewer {
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// </summary>
-  public partial class MainWindow {
+  public partial class MainWindow : INotifyPropertyChanged {
     enum DisplayOption { DEPTH, COLOR };
 
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
@@ -47,6 +47,8 @@ namespace GesturesViewer {
         HandInputParams.DepthWidth, HandInputParams.DepthHeight);
     readonly TrainingManager trainingManager = new TrainingManager();
     readonly ContextTracker contextTracker = new ContextTracker();
+
+    public event PropertyChangedEventHandler PropertyChanged;
 
     AudioStreamManager audioManager;
 
@@ -83,22 +85,16 @@ namespace GesturesViewer {
       labelKeys.Content = GetKeyOptionString();
 
       trainingManager.TrainingEvent += OnTrainingEvent;
-      gestureComboBox.DataContext = trainingManager;
-      repitionsTextBox.DataContext = trainingManager;
-      pidTextBox.DataContext = trainingManager;
-      showStopCheckBox.DataContext = trainingManager;
+      trainingGroupBox.DataContext = trainingManager;
 
       var binding = new Binding("Status");
-      binding.Mode = BindingMode.OneWay;
-      binding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-      statusTextBox.DataContext = trainingManager;
-      statusTextBox.SetBinding(TextBox.TextProperty, binding);
-
-      binding = new Binding("Status");
-      binding.Mode = BindingMode.OneWay;
-      binding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
       binding.Converter = new ColorConverter();
       statusTextBox.SetBinding(TextBox.ForegroundProperty, binding);
+
+      speechTextBlock.DataContext = this;
+      binding = new Binding("SpeechJson");
+      binding.Converter = new ColorConverter();
+      speechTextBlock.SetBinding(TextBlock.ForegroundProperty, binding);
 
       modelComboBox.DataContext = modelSelector;
       modelComboBox.SelectedItem = modelSelector.SelectedModel;
@@ -420,6 +416,13 @@ namespace GesturesViewer {
       StopReplay();
       inputServer.Stop();
     }
+
+    void OnPropertyChagned(String info) {
+      if (PropertyChanged != null) {
+        Log.Debug("Property changed.");
+        PropertyChanged(this, new PropertyChangedEventArgs(info));
+      }
+    } 
 
     #region Actions
 
