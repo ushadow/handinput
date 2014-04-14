@@ -208,7 +208,7 @@ namespace GesturesViewer {
     /// Starts Kinect if it is not started. This call takes some time.
     /// </summary>
     void StartKinect() {
-      if (kinectSensor == null || kinectSensor.IsRunning)
+      if (kinectSensor == null || IsKinectRunning())
         return;
 
       if (replay != null) {
@@ -221,6 +221,11 @@ namespace GesturesViewer {
       StartSpeechRecognition();
     }
 
+    bool IsKinectRunning() {
+      return kinectSensor != null && kinectSensor.IsRunning;
+    }
+
+    // Starts hand tracking and gesture recognition.
     void StartTracking() {
       StopReplay();
       Log.Debug("Start tracking.");
@@ -228,6 +233,13 @@ namespace GesturesViewer {
       handTracker = new SimpleSkeletonHandTracker(HandInputParams.DepthWidth,
           HandInputParams.DepthHeight, kinectSensor.CoordinateMapper);
       ResetGestureEngine();
+    }
+
+    void StopTracking() {
+      handTracker = null;
+      if (recogEngine != null)
+        recogEngine.Dispose();
+      recogEngine = null;
     }
 
     void ResetGestureEngine() {
@@ -294,6 +306,7 @@ namespace GesturesViewer {
     }
 
     void kinectRuntime_AllFrameReady(object sender, AllFramesReadyEventArgs e) {
+      // If replaying, bypass this.
       if (replay != null && !replay.IsFinished)
         return;
 

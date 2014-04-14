@@ -3,11 +3,13 @@ using System.IO;
 using System.Windows;
 using System.Configuration;
 using System.Diagnostics;
+using System.Threading;
 
 namespace GesturesViewer {
   // Manages gesture recording.
   partial class MainWindow {
 
+    static readonly String TimeFormat = "{0:yyyy-MM-dd_HH-mm}";
     static readonly int BatchIndex = 1;
     static readonly String DataDir = ConfigurationManager.AppSettings["data_dir"];
     static readonly String OutputDir = Path.Combine(DataDir,
@@ -25,16 +27,18 @@ namespace GesturesViewer {
     }
 
     void RecordGesture() {
-      StartKinect();
+      StopTracking();
 
-      var time = String.Format("{0:yyyy-MM-dd_HH-mm}", DateTime.Now);
+      if (!IsKinectRunning())
+        StartKinect();
+
+      var time = String.Format(TimeFormat, DateTime.Now);
       var dir = Path.Combine(DataDir, trainingManager.Pid, time);
       Directory.CreateDirectory(dir);
       var fileName = Path.Combine(dir, String.Format(TrainingManager.KinectDataPattern, BatchIndex));
       var gtFile = Path.Combine(dir, String.Format(TrainingManager.KinectGTDPattern, BatchIndex));
       sw = new StreamWriter(File.Create(gtFile));
       DirectRecord(fileName);
-
       trainingManager.Start();
     }
 
@@ -79,17 +83,17 @@ namespace GesturesViewer {
       var process = Process.Start(processInfo);
       process.WaitForExit();
 
-      var output = process.StandardOutput.ReadToEnd();
-      var error = process.StandardError.ReadToEnd();
+      if (redirectOutput) {
+        var output = process.StandardOutput.ReadToEnd();
+        Log.DebugFormat("output>>{0}", String.IsNullOrEmpty(output) ? "(none)" : output);
+      }
+
+      if (redirectError) {
+        var error = process.StandardError.ReadToEnd();
+        Log.DebugFormat("error>>{0}", String.IsNullOrEmpty(error) ? "(none)" : error);
+      }
 
       var exitCode = process.ExitCode;
-
-      if (redirectOutput)
-        Log.DebugFormat("output>>{0}", String.IsNullOrEmpty(output) ? "(none)" : output);
-
-      if (redirectError)
-        Log.DebugFormat("error>>{0}", String.IsNullOrEmpty(error) ? "(none)" : error);
-
       Log.DebugFormat("exit code = {0}", exitCode.ToString());
       process.Close();
     }
@@ -99,16 +103,21 @@ namespace GesturesViewer {
     }
 
     void TrainModel() {
+      var time = String.Format(TimeFormat, DateTime.Now);
+      var fileName = time + ".mat";
+      var path = Path.Combine(ModelDir, fileName);
       var args = String.Format("-nodisplay -nosplash -nodesktop -r \"train('{0}', '{1}'); pause(1); exit;\"",
-          OutputDir, modelSelector.SelectedModel);
+          OutputDir, path);
       ExecuteCommand(MatlabExe, args, false, false);
+      modelSelector.Refresh();
+      modelComboBox.SelectedItem = modelSelector.SelectedModel;
     }
 
     void CopyGestureDefFile(String outputDir) {
       var fileName = Path.GetFileName(TrainingManager.GestureDefFile);
       var outputFile = Path.Combine(outputDir, fileName);
-      if (!File.Exists(outputFile))
-        File.Copy(TrainingManager.GestureDefFile, outputFile);
+      File.Copy(TrainingManager.GestureDefFile, outputFile, true);
+      Log.InfoFormat("Copied file {0} to {1}", TrainingManager.GestureDefFile, outputFile);
     }
   }
 }

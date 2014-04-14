@@ -4,14 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 using Common.Logging;
-using System.ComponentModel;
 
 namespace GesturesViewer {
   class ModelSelector : INotifyPropertyChanged {
-    static readonly String ModelFilePattern = "model*.mat";
-    static readonly String BaseModelName = "model_base.mat";
+    static readonly String ModelFilePattern = "*.mat";
+    static readonly String TimeRegex = @"\d{4}-\d{2}-\d{2}_\d{2}-\d{2}.mat$";
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -26,14 +27,20 @@ namespace GesturesViewer {
       }
     }
 
-    String selectedModel;
+    String selectedModel, dir;
 
     public ModelSelector(String dir) {
+      this.dir = dir;
+      ModelFiles = new List<String>();
+      Refresh();
+    }
+
+    public void Refresh() {
       var files = Directory.GetFiles(dir, ModelFilePattern);
-      ModelFiles = new List<string>();
+      ModelFiles.Clear();
       foreach (var f in files) {
         ModelFiles.Add(f);
-        if (!f.Equals(BaseModelName) && SelectedModel == null)
+        if (SelectedModel == null || Regex.IsMatch(f, TimeRegex)) 
           SelectedModel = f;
       }
     }
