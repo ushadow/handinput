@@ -11,7 +11,9 @@ using Common.Logging;
 
 namespace GesturesViewer {
   class ModelSelector : INotifyPropertyChanged {
+    static readonly ILog Log = LogManager.GetCurrentClassLogger();
     static readonly String ModelFilePattern = "*.mat";
+    // File names that ends with time stamp.
     static readonly String TimeRegex = @"\d{4}-\d{2}-\d{2}_\d{2}-\d{2}.mat$";
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -36,6 +38,7 @@ namespace GesturesViewer {
     }
 
     public void Refresh() {
+      Log.Debug("Refresh models."); 
       var files = Directory.GetFiles(dir, ModelFilePattern);
       ModelFiles.Clear();
       foreach (var f in files) {

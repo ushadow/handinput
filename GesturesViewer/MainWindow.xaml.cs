@@ -77,10 +77,13 @@ namespace GesturesViewer {
     /// </summary>
     public MainWindow() {
       InitializeComponent();
+
+      InitDataDir();
+       
       keyActions = new Dictionary<Key, Action>() {
         {Key.Space, RecordGesture}, {Key.D, ToggleDebugDisplayOption}, {Key.E, ExecuteOfflineProcessor},
         {Key.H, ToggleViewHog}, {Key.K, ToggleViewSkeleton}, {Key.N, StepForward}, {Key.P, TogglePlay}, 
-        {Key.S, StartKinect}, {Key.T, StartTracking}, 
+        {Key.R, RefreshModel}, {Key.S, StartKinect}, {Key.T, StartTracking}, 
       };
       labelKeys.Content = GetKeyOptionString();
 

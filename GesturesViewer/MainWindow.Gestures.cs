@@ -11,9 +11,6 @@ namespace GesturesViewer {
 
     static readonly String TimeFormat = "{0:yyyy-MM-dd_HH-mm}";
     static readonly int BatchIndex = 1;
-    static readonly String DataDir = ConfigurationManager.AppSettings["data_dir"];
-    static readonly String OutputDir = Path.Combine(DataDir,
-            ConfigurationManager.AppSettings["processor_output_dir"]);
     static readonly String OfflineProcessorExe = Path.GetFullPath(ConfigurationManager.AppSettings[
         "offline_processor"]);
     static readonly String MatlabExe = "matlab";
@@ -21,7 +18,14 @@ namespace GesturesViewer {
     StreamWriter sw;
     bool processFeature = !String.IsNullOrEmpty(
         ConfigurationManager.AppSettings["process_feature"]);
+    String dataDir, outputDir;
 
+    void InitDataDir() {
+      var rootDir = Directory.GetDirectoryRoot(AppDomain.CurrentDomain.BaseDirectory);
+      dataDir = Path.Combine(rootDir,  ConfigurationManager.AppSettings["data_dir"]);
+      outputDir = Path.Combine(dataDir, ConfigurationManager.AppSettings["processor_output_dir"]);
+    }
+      
     void recordGesture_Click(object sender, RoutedEventArgs e) {
       RecordGesture();
     }
@@ -33,7 +37,7 @@ namespace GesturesViewer {
         StartKinect();
 
       var time = String.Format(TimeFormat, DateTime.Now);
-      var dir = Path.Combine(DataDir, trainingManager.Pid, time);
+      var dir = Path.Combine(dataDir, trainingManager.Pid, time);
       Directory.CreateDirectory(dir);
       var fileName = Path.Combine(dir, String.Format(TrainingManager.KinectDataPattern, BatchIndex));
       var gtFile = Path.Combine(dir, String.Format(TrainingManager.KinectGTDPattern, BatchIndex));
@@ -63,13 +67,13 @@ namespace GesturesViewer {
     }
 
     void ExecuteOfflineProcessor() {
-      var argsPrefix = String.Format("-i={0} -o={1} -k ", DataDir, OutputDir);
+      var argsPrefix = String.Format("-i={0} -o={1} -k ", dataDir, outputDir);
       var args = argsPrefix + "--data=standing --tracker=simple --processor=hog";
       ExecuteCommand(OfflineProcessorExe, args);
       args = argsPrefix + "-t=gt";
       ExecuteCommand(OfflineProcessorExe, args);
       Log.Info("Finished offline processing.");
-      CopyGestureDefFile(OutputDir);
+      CopyGestureDefFile(outputDir);
     }
 
     void ExecuteCommand(String command, String args, bool redirectError = true,
@@ -107,8 +111,12 @@ namespace GesturesViewer {
       var fileName = time + ".mat";
       var path = Path.Combine(ModelDir, fileName);
       var args = String.Format("-nodisplay -nosplash -nodesktop -r \"train('{0}', '{1}'); pause(1); exit;\"",
-          OutputDir, path);
+          outputDir, path);
       ExecuteCommand(MatlabExe, args, false, false);
+      RefreshModel();
+    }
+
+    void RefreshModel() {
       modelSelector.Refresh();
       modelComboBox.SelectedItem = modelSelector.SelectedModel;
     }
