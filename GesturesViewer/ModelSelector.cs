@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
 
 using Common.Logging;
 
@@ -18,7 +15,7 @@ namespace GesturesViewer {
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public List<String> ModelFiles { get; private set; }
+    public ObservableCollection<String> ModelFiles { get; private set; }
     public String SelectedModel {
       get {
         return selectedModel;
@@ -33,7 +30,7 @@ namespace GesturesViewer {
 
     public ModelSelector(String dir) {
       this.dir = dir;
-      ModelFiles = new List<String>();
+      ModelFiles = new ObservableCollection<String>();
       Refresh();
     }
 
