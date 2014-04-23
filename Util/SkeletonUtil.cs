@@ -143,7 +143,7 @@ namespace HandInput.Util {
       var dir = SkeletonUtil.Sub(hand, elbow);
       var angle = new Vector3D();
       // Angle in radians, between -pi and pi.
-      angle.Z = Math.Atan2(dir.X, dir.Z);
+      angle.X = Math.Atan2(dir.X, dir.Z);
       angle.Y = Math.Atan2(dir.Y, dir.Z);
       return angle;
     }
