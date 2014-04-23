@@ -213,6 +213,7 @@ namespace HandInput.OfflineProcessor {
         var dirInfo = new DirectoryInfo(dir);
         var inputSession = Path.Combine(inputFolder, dirInfo.Name);
         var outputSession = Path.Combine(outputFolder, dirInfo.Name);
+        // Create all directories specified in the path unless they already exist.
         Directory.CreateDirectory(outputSession);
         ProcessBatches(inputSession, outputSession);
       }

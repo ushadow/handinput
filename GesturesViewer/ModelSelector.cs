@@ -14,7 +14,7 @@ namespace GesturesViewer {
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
     static readonly String ModelFilePattern = "*.mat";
     // File names that ends with time stamp.
-    static readonly String TimeRegex = @"\d{4}-\d{2}-\d{2}_\d{2}-\d{2}.mat$";
+    static readonly String TimeRegex = @"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}";
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -43,7 +43,8 @@ namespace GesturesViewer {
       ModelFiles.Clear();
       foreach (var f in files) {
         ModelFiles.Add(f);
-        if (SelectedModel == null || Regex.IsMatch(f, TimeRegex)) 
+        var fileName = Path.GetFileName(f);
+        if (SelectedModel == null || Regex.IsMatch(fileName, TimeRegex)) 
           SelectedModel = f;
       }
     }

@@ -102,20 +102,8 @@ namespace HandInput.Util {
       return new Vector3D(sp1.X - sp2.X, sp1.Y - sp2.Y, sp1.Z - sp2.Z);
     }
 
-    /// <summary>
-    /// Relative position to the shoulder center joint in world coordinates.
-    /// </summary>
-    /// <param name="rect"></param>
-    /// <param name="depthData"></param>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    /// <param name="skeleton"></param>
-    /// <param name="mapper"></param>
-    /// <returns></returns>
-    public static Vector3D RelativePosToShoulder(Rectangle rect, byte[, ,] depthData, int width,
-      int height, Skeleton skeleton, CoordinateConverter mapper) {
-      var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);
-
+    public static SkeletonPoint DepthToSkeleton(Rectangle rect, byte[,,] depthData, int width,
+        int height, CoordinateConverter mapper) {
       var aveDepth = 0.0;
       var count = 0;
       for (int y = rect.Top; y < rect.Top + rect.Height && y < height; y++)
@@ -132,12 +120,35 @@ namespace HandInput.Util {
       centerX = Math.Min(centerX, width);
       var centerY = Math.Max(0, center.Y);
       centerY = Math.Min(centerY, height);
-      var salientPoint = mapper.MapDepthPointToSkeletonPoint((int)centerX, (int)centerY, depth);
-      var relPos = SkeletonUtil.Sub(salientPoint, shoulderCenterJoint.Position);
+      return mapper.MapDepthPointToSkeletonPoint((int)centerX, (int)centerY, depth);
+    }
+
+    /// <summary>
+    /// Relative position to the shoulder center joint in world coordinates.
+    /// </summary>
+    /// <param name="rect"></param>
+    /// <param name="depthData"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="skeleton"></param>
+    /// <param name="mapper"></param>
+    /// <returns></returns>
+    public static Vector3D RelativePosToShoulder(SkeletonPoint point, Skeleton skeleton) {
+      var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);
+      var relPos = SkeletonUtil.Sub(point, shoulderCenterJoint.Position);
       return relPos;
     }
 
-    private static float Distance2(SkeletonPoint p1, SkeletonPoint p2) {
+    public static Vector3D PointDirection(SkeletonPoint hand, SkeletonPoint elbow) {
+      var dir = SkeletonUtil.Sub(hand, elbow);
+      var angle = new Vector3D();
+      // Angle in radians, between -pi and pi.
+      angle.Z = Math.Atan2(dir.X, dir.Z);
+      angle.Y = Math.Atan2(dir.Y, dir.Z);
+      return angle;
+    }
+
+    static float Distance2(SkeletonPoint p1, SkeletonPoint p2) {
       return (p1.X - p2.X) * (p1.X - p2.X) + (p1.Y - p2.Y) * (p1.Y - p2.Y) + (p1.Z - p2.Z) *
           (p1.Z - p2.Z);
     }

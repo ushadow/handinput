@@ -23,23 +23,27 @@ namespace HandInput.Engine {
     /// Absolute position of the right hand in the depth frame.
     /// </summary>
     public Option<window.Point> RightHandAbsPos { get; private set; }
+    // Can be null.
     public Image<Gray, Byte> DepthImage { get; private set; }
     // Can be null.
     public Image<Gray, Byte> ColorImage { get; private set; }
     public List<Rectangle> DepthBoundingBoxes { get; private set; }
     public List<Rectangle> ColorBoundingBoxes { get; private set; }
+    public Option<Vector3D> RightHandAngle { get; private set; }
 
     public TrackingResult() {
       RightHandRelPos = new None<Vector3D>();
+      RightHandAngle = new None<Vector3D>();
       RightHandAbsPos = new None<window.Point>();
       DepthBoundingBoxes = new List<Rectangle>();
       ColorBoundingBoxes = new List<Rectangle>();
     }
 
-    public TrackingResult(Option<Vector3D> relPos, Image<Gray, Byte> smoothedDepth,
-        List<Rectangle> depthBox, Image<Gray, Byte> skin = null, 
-        List<Rectangle> colorBox = null) {
+    public TrackingResult(Option<Vector3D> relPos, Option<Vector3D> angle, 
+        Image<Gray, Byte> smoothedDepth, List<Rectangle> depthBox, 
+        Image<Gray, Byte> skin = null, List<Rectangle> colorBox = null) {
       RightHandRelPos = relPos;
+      RightHandAngle = angle;
       DepthImage = smoothedDepth;
       DepthBoundingBoxes = depthBox;
 

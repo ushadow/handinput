@@ -270,8 +270,11 @@ namespace GesturesViewer {
         }
       }
       if (displayDebug) {
-        debugDepthDisplayManager.UpdateBitmap(result.DepthImage.Bytes);
-        debugColorDisplayManager.UpdateBitmap(result.ColorImage.Bytes);
+        if (result.DepthImage != null)
+          debugDepthDisplayManager.UpdateBitmap(result.DepthImage.Bytes);
+
+        if (result.ColorImage != null)
+          debugColorDisplayManager.UpdateBitmap(result.ColorImage.Bytes);
       }
     }
 

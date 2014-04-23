@@ -89,7 +89,8 @@ namespace HandInput.Engine {
       depthBBs.Add(HandRect);
       var colorBBs = new List<Rectangle>();
       colorBBs.Add(HandRect);
-      return new TrackingResult(new None<Vector3D>(), SmoothedDepth, depthBBs, null, colorBBs);
+      return new TrackingResult(new None<Vector3D>(), new None<Vector3D>(), SmoothedDepth, 
+                                depthBBs, null, colorBBs);
     }
 
     void Init(int width, int height) {

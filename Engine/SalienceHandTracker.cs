@@ -86,6 +86,7 @@ namespace HandInput.Engine {
       t++;
 
       Option<Vector3D> relPos = new None<Vector3D>();
+      Option<Vector3D> angle = new None<Vector3D>();
 
       if (skeleton == null || depthFrame == null)
         return new TrackingResult();
@@ -128,10 +129,14 @@ namespace HandInput.Engine {
               }
             }
           PrevBoundingBoxes = FindBestBoundingBox(depthFrame, skeleton);
-          if (PrevBoundingBoxes.LastOrDefault().Width > 0)
-            relPos = new Some<Vector3D>(SkeletonUtil.RelativePosToShoulder(PrevBoundingBoxes.Last(),
-                TrackedDepthFrame.Data, width, height, skeleton, mapper));
-        }
+          if (PrevBoundingBoxes.LastOrDefault().Width > 0) {
+            var handSkeletonPoint = SkeletonUtil.DepthToSkeleton(PrevBoundingBoxes.Last(),
+                TrackedDepthFrame.Data, width, height, mapper);
+            relPos = new Some<Vector3D>(SkeletonUtil.RelativePosToShoulder(handSkeletonPoint, 
+                                                                           skeleton));
+            angle = new Some<Vector3D>(SkeletonUtil.PointDirection(handSkeletonPoint,
+                SkeletonUtil.GetJoint(skeleton, JointType.ElbowRight).Position));
+          } }
       }
       List<Rectangle> colorBBs = new List<Rectangle>();
       foreach (var bb in PrevBoundingBoxes) {
@@ -139,8 +144,8 @@ namespace HandInput.Engine {
         playerDetector.SmoothSkin(colorBox);
         colorBBs.Add(colorBox);
       }
-      return new TrackingResult(relPos, TrackedDepthFrame, PrevBoundingBoxes, playerDetector.SkinImage,
-                                colorBBs);
+      return new TrackingResult(relPos, angle, TrackedDepthFrame, PrevBoundingBoxes, 
+          playerDetector.SkinImage, colorBBs);
     }
 
     void Init(int width, int height, int bufferSize) {

@@ -112,11 +112,14 @@ namespace HandInput.Engine {
           var shoulderCenterJoint = SkeletonUtil.GetJoint(skeleton, JointType.ShoulderCenter);
           var detectSkeHandJointPos = FindHand(depthData, HandCandidates.First());
           var relPos = SkeletonUtil.Sub(detectSkeHandJointPos, shoulderCenterJoint.Position);
+          var angle = SkeletonUtil.PointDirection(detectSkeHandJointPos, 
+              SkeletonUtil.GetJoint(skeleton, JointType.ElbowRight).Position);
           var depthBBs = new List<Rectangle>();
           depthBBs.Add( new Rectangle((int)(HandBox.center.X - HandBox.size.Width / 2),
               (int)(HandBox.center.Y - HandBox.size.Height / 2), (int)(HandBox.size.Width),
               (int)HandBox.size.Height));
-          return new TrackingResult(new Some<Vector3D>(relPos), HandImage, depthBBs);
+          return new TrackingResult(new Some<Vector3D>(relPos), 
+                                    new Some<Vector3D>(angle), HandImage, depthBBs);
         }
       }
 

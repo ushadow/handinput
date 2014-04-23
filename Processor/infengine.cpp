@@ -100,8 +100,8 @@ namespace handinput {
         stage = hmm_->MostLikelyStage();
       }
 
-      result["rightX"] = motion_feature[0];
-      result["rightY"] = motion_feature[1];
+      result["rightX"] = (int) (motion_feature[0] * 1000);
+      result["rightY"] = (int) (motion_feature[1] * 1000);
     }
 
     const string& gesture_label = gesture_labels_[gesture_index];

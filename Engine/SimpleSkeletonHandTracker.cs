@@ -77,14 +77,17 @@ namespace HandInput.Engine {
           HandRect = FindBestBoundingBox(InitialHandRect);
 
           if (!HandRect.IsEmpty) {
-            var relPos = SkeletonUtil.RelativePosToShoulder(HandRect, SmoothedDepth.Data, width,
-                height, skeleton, mapper);
+            var handSkeletonPoint = SkeletonUtil.DepthToSkeleton(HandRect, SmoothedDepth.Data, 
+                width, height, mapper);
+            var relPos = SkeletonUtil.RelativePosToShoulder(handSkeletonPoint, skeleton);
+            var angle = SkeletonUtil.PointDirection(handSkeletonPoint,
+                SkeletonUtil.GetJoint(skeleton, JointType.ElbowRight).Position);
             var depthBBs = new List<Rectangle>();
             var colorBBs = new List<Rectangle>();
             depthBBs.Add(HandRect);
             colorBBs.Add(InitialHandRect);
-            return new TrackingResult(new Some<Vector3D>(relPos), SmoothedDepth,
-                                      depthBBs, playerDetector.SkinImage, colorBBs);
+            return new TrackingResult(new Some<Vector3D>(relPos), new Some<Vector3D>(angle), 
+                SmoothedDepth, depthBBs, playerDetector.SkinImage, colorBBs);
           }
         }
       }
