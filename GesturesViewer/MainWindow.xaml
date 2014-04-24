@@ -135,10 +135,10 @@
                     <control:MultiSelectComboBox x:Name="gestureComboBox" ItemsSource="{Binding Items}"
                                              SelectedItems="{Binding SelectedItems}" Width="250"
                                              Margin="5,6,5,6" Grid.Column="1"/>
-                    <TextBlock Grid.Row="1" VerticalAlignment="Center">Repitions</TextBlock>
+                    <TextBlock Grid.Row="1" VerticalAlignment="Center"># Examples per gesture</TextBlock>
                     <TextBox Grid.Row="1" Grid.Column="1" Margin="5,6,5,6" Width="250" VerticalAlignment="Center" 
                          Text="{Binding NumRepitions}" Name="repitionsTextBox"></TextBox>
-                    <TextBlock Grid.Row="2" VerticalAlignment="Center">PID</TextBlock>
+                    <TextBlock Grid.Row="2" VerticalAlignment="Center">User ID</TextBlock>
                     <TextBox Grid.Row="2" Grid.Column="1" Margin="5,6,5,6" Width="250" VerticalAlignment="Center" 
                          Text="{Binding Pid}" Name="pidTextBox"></TextBox>
                     <CheckBox Grid.Row="3" Content="Show Stop" x:Name="showStopCheckBox" 
