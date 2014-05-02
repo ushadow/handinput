@@ -23,6 +23,7 @@
           <item>open</item>
           <item>display</item>
           <item>go to</item>
+          <item>go</item>
         </one-of>
       </item>
     </one-of>
