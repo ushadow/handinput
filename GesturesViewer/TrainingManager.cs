@@ -92,7 +92,7 @@ namespace GesturesViewer {
               StringSplitOptions.RemoveEmptyEntries);
           foreach (var s in gestures) {
             var trimmed = s.Trim();
-            if (trimmed.StartsWith("#") || trimmed.StartsWith("Rest", true, null))
+            if (trimmed.StartsWith("#"))
               continue;
             var tokens = trimmed.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             gestureList.Add(tokens[0].Trim(), tokens[1].Trim());

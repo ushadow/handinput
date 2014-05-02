@@ -10,7 +10,7 @@ namespace handinput {
     void Reset();
   private:
     static const int MIN_NUCLEUS_LEN = 5;
-    std::string prev_stage_, prev_event_, prev_gesture_;
+    std::string prev_phase_, prev_event_, prev_gesture_;
     long long time_step_, start_gesture_time_;
   };
 }

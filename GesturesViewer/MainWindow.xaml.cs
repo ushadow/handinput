@@ -252,10 +252,6 @@ namespace GesturesViewer {
     void UpdateDisplay(TrackingResult result) {
       colorCanvas.Children.Clear();
       depthCanvas.Children.Clear();
-      if (result.ColorBoundingBoxes.Count > 0) {
-        VisualUtil.DrawRectangle(colorCanvas, result.ColorBoundingBoxes.Last(), Brushes.Red,
-            (float)colorCanvas.ActualWidth / HandInputParams.ColorWidth);
-      }
       if (result.DepthBoundingBoxes.Count > 0) {
         VisualUtil.DrawRectangle(depthCanvas, result.DepthBoundingBoxes.Last(), Brushes.Red,
                     (float)depthCanvas.ActualWidth / HandInputParams.DepthWidth);
