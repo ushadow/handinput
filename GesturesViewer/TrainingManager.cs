@@ -41,6 +41,7 @@ namespace GesturesViewer {
     static readonly int GestureMaxWaitTime = 3000;
     static readonly int GestureStopWaitTime = 1000;
     static readonly int StartWaitTime = 8000;
+    static readonly int InitStartTime = 1000;
     static readonly int DefaultNumRepitions = 3;
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
@@ -81,7 +82,11 @@ namespace GesturesViewer {
 
     String status;
     Timer timer;
-    Boolean started = false, gestureStop = false;
+    Boolean started = false; 
+    /// <summary>
+    /// Flag to indicate whether to show "Rest" prompt. Toggled every time.
+    /// </summary>
+    Boolean gestureStop = false;
     Random rnd = new Random();
 
     public TrainingManager() {
@@ -112,13 +117,21 @@ namespace GesturesViewer {
     /// Starts gesture training recording procedure.
     /// </summary>
     public void Start() {
+      Init();
+      Status = StartLabel;
+      timer = new Timer(InitStartTime);
+      timer.Elapsed += new ElapsedEventHandler(OnTimeEvent);
+      timer.Enabled = true;
+    }
+
+    /// <summary>
+    /// Initialization of the training process.
+    /// </summary>
+    void Init() {
       gestureEnumerator = new GestureList(new List<String>(selectedItems.Keys),
                                           NumRepitions).GetRandomList();
       gestureStop = false;
-      Status = StartLabel;
-      timer = new Timer(1000);
-      timer.Elapsed += new ElapsedEventHandler(OnTimeEvent);
-      timer.Enabled = true;
+      started = false;
     }
 
     void OnPropertyChanged(String propName) {
