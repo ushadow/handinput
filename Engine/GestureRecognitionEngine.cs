@@ -34,7 +34,7 @@ namespace HandInput.Engine {
     }
 
     /// <summary>
-    /// Synchronized method.
+    /// Synchronized method. Updates gesture recognition with the current input.
     /// </summary>
     /// <param name="result"></param>
     /// <param name="visualize"></param>
