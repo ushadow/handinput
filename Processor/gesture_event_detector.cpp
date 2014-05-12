@@ -15,6 +15,7 @@ namespace handinput {
     string gesture_event; // Default to be an empty string.
     string nucleus = gesture;
 
+    //When gesture phase changes.
     if (phase != prev_phase_) {
 #ifdef _DEBUG
       std::cout << "prev event = " << prev_event_ << std::endl;
@@ -22,15 +23,15 @@ namespace handinput {
       if (phase == "PreStroke") {
         gesture_event = "StartPreStroke";
         start_gesture_time_ = time_step_;
-      } else if (phase == "Gesture") {
-        gesture_event = "StartGesture";
+      } else if (phase == "Nucleus") {
+        gesture_event = "StartNucleus";
         start_gesture_time_ = time_step_;
-      } else if (phase == "PostStroke" && prev_event_ == "StartGesture") {
+      } else if (phase == "PostStroke" && prev_event_ == "StartNucleus") {
         if (time_step_ - start_gesture_time_ > MIN_NUCLEUS_LEN) {
           gesture_event = "StartPostStroke";
           nucleus = prev_gesture_;
         }
-      } else if (phase == "Rest" && prev_event_ == "StartGesture") {
+      } else if (phase == "Rest" && prev_event_ == "StartNucleus") {
         if (time_step_ - start_gesture_time_ > MIN_NUCLEUS_LEN) {
           gesture_event = "StartRest";
           nucleus = prev_gesture_;

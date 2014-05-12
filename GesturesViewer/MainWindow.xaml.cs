@@ -103,6 +103,10 @@ namespace GesturesViewer {
       modelComboBox.SelectedItem = modelSelector.SelectedModel;
       modelSelector.PropertyChanged += ModelSelectorSelectedItemChanged;
 
+      kinectDisplay.DataContext = colorManager;
+      maskDispay.DataContext = debugColorDisplayManager;
+      depthDisplay.DataContext = depthManager;
+
       inputServer.Start();
     }
 
@@ -193,9 +197,6 @@ namespace GesturesViewer {
       });
       skeletonDisplayManager = new SkeletonDisplayManager(kinectSensor.CoordinateMapper,
                                                           skeletonCanvas);
-      kinectDisplay.DataContext = colorManager;
-      maskDispay.DataContext = debugColorDisplayManager;
-      depthDisplay.DataContext = depthManager;
 
       HandInputParams.ColorFocalLength = kinectSensor.ColorStream.NominalFocalLengthInPixels;
       HandInputParams.DepthFocalLength = kinectSensor.DepthStream.NominalFocalLengthInPixels;
@@ -351,7 +352,7 @@ namespace GesturesViewer {
       }
 
       try {
-        if (viewSkeleton) {
+        if (viewSkeleton && skeletonDisplayManager != null) {
           skeletonDisplayManager.Draw(frame.Skeletons, false,
                                       HandInputParams.ColorImageFormat);
         } else {
