@@ -4,13 +4,13 @@ Hand tracking and gesture recognition
 
 ## Dependencies
 ### To run
+* Windows 7 64bit
 * .NET 4.5.1
 * [Kinect SDK 1.8] (http://www.microsoft.com/en-us/kinectforwindowsdev/Downloads.aspx)
 * Matlab 2013b 64bit (define $MATLAB evironment variable)
   * Make sure `<path to matlab>\bin\win64` is in `Path`
 
 ### To compile
-* Windows 7 64bit
 * Visual Studio 2012
 * [Visual C++ Compiler November 2012 CTP] (http://www.microsoft.com/en-us/download/details.aspx?id=35515)
 * NuGet 2.7 ([with package restore during build enabled] (http://docs.nuget.org/docs/workflows/using-nuget-without-committing-packages))
