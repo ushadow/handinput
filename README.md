@@ -10,6 +10,8 @@ Hand tracking and gesture recognition
 * Matlab 2013b 64bit 
   * Define $MATLAB evironment variable pointing to the main folder of the installation, e.g. C:\Program Files\MATLAB\R2013b.
   * Make sure `%MATLAB%\bin\win64` is in `Path`
+* [Gesture recognition training code in Matlab] (https://github.com/uShadow/gesture-recog)
+  * Make sure these folders are in Matlab path. 
 
 ### To compile
 * Use Visual Studio 2012 to build the solution
