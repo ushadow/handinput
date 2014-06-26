@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GesturesViewer", "GesturesV
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Util", "Util\Util.csproj", "{0E934DEE-D1F2-49B9-B8E9-06164D72E4AC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GpuProcessor", "GpuProcessor\GpuProcessor.vcxproj", "{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcessorTest", "ProcessorTest\ProcessorTest.vcxproj", "{4D9FDFB5-986A-4139-823C-F4EE0ED481A2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Processor", "Processor\Processor.vcxproj", "{2DBE5776-DA79-425D-A462-3600E8760FDB}"
@@ -98,34 +96,6 @@ Global
 		{0E934DEE-D1F2-49B9-B8E9-06164D72E4AC}.Release|x64.ActiveCfg = Release|x64
 		{0E934DEE-D1F2-49B9-B8E9-06164D72E4AC}.Release|x64.Build.0 = Release|x64
 		{0E934DEE-D1F2-49B9-B8E9-06164D72E4AC}.Release|x86.ActiveCfg = Release|Any CPU
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Debug|Any CPU.Build.0 = Debug|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Debug|Win32.ActiveCfg = Debug|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Debug|Win32.Build.0 = Debug|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Debug|x64.ActiveCfg = Debug|x64
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Debug|x64.Build.0 = Debug|x64
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Debug|x86.ActiveCfg = Debug|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Debug|x86.Build.0 = Debug|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.DropboxRelease|Any CPU.ActiveCfg = DropboxRelease|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.DropboxRelease|Mixed Platforms.ActiveCfg = DropboxRelease|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.DropboxRelease|Mixed Platforms.Build.0 = DropboxRelease|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.DropboxRelease|Win32.ActiveCfg = DropboxRelease|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.DropboxRelease|Win32.Build.0 = DropboxRelease|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.DropboxRelease|x64.ActiveCfg = DropboxRelease|x64
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.DropboxRelease|x86.ActiveCfg = DropboxRelease|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.DropboxRelease|x86.Build.0 = DropboxRelease|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|Any CPU.ActiveCfg = Release|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|Any CPU.Build.0 = Release|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|Mixed Platforms.Build.0 = Release|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|Win32.ActiveCfg = Release|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|Win32.Build.0 = Release|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|x64.ActiveCfg = Release|x64
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|x64.Build.0 = Release|x64
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|x86.ActiveCfg = Release|Win32
-		{69AC9F89-EA8B-4FE2-A8E9-812C5324CF3F}.Release|x86.Build.0 = Release|Win32
 		{4D9FDFB5-986A-4139-823C-F4EE0ED481A2}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{4D9FDFB5-986A-4139-823C-F4EE0ED481A2}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{4D9FDFB5-986A-4139-823C-F4EE0ED481A2}.Debug|Mixed Platforms.Build.0 = Debug|Win32

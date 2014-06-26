@@ -62,6 +62,8 @@ namespace handinput {
     matClose(file);
   }
 
+  // Updates the inference result.
+  // Hand position is in mm.
   std::string InfEngine::Update(float* raw_feature) {
     using Eigen::Map;
     using Eigen::VectorXf;

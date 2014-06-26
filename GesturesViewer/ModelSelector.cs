@@ -22,7 +22,8 @@ namespace GesturesViewer {
       }
       set {
         selectedModel = value;
-        OnPropteryChanged("SelectedModel");
+        if (selectedModel != null)
+          OnPropteryChanged("SelectedModel");
       }
     }
 
@@ -38,10 +39,12 @@ namespace GesturesViewer {
       Log.Debug("Refresh models."); 
       var files = Directory.GetFiles(dir, ModelFilePattern);
       ModelFiles.Clear();
-      foreach (var f in files) {
+      SelectedModel = null;
+      for (var i = files.Length - 1; i >= 0; i--) {
+        var f = files[i];
         ModelFiles.Add(f);
         var fileName = Path.GetFileName(f);
-        if (SelectedModel == null || Regex.IsMatch(fileName, TimeRegex)) 
+        if (SelectedModel == null && Regex.IsMatch(fileName, TimeRegex)) 
           SelectedModel = f;
       }
     }

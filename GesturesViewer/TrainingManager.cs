@@ -38,7 +38,8 @@ namespace GesturesViewer {
     static readonly String DefaultPid = ConfigurationManager.AppSettings["pid"];
     static readonly int GestureWaitTimeShort = 2000;
     static readonly int GestureWaitTime = 3000; //ms
-    static readonly int GestureMaxWaitTime = 3000;
+    static readonly int GestureMaxWaitTime = Int32.Parse(
+        ConfigurationManager.AppSettings["gesture_max_wait_time"]);
     static readonly int GestureStopWaitTime = 1000;
     static readonly int StartWaitTime = 8000;
     static readonly int InitStartTime = 1000;
@@ -184,7 +185,7 @@ namespace GesturesViewer {
           charEnumerator.Reset();
           charEnumerator.MoveNext();
         }
-        return String.Format("draw \"{0}\" slowly", charEnumerator.Current);
+        return String.Format("move slowly");
       }
       return "";
     }

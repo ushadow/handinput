@@ -91,10 +91,6 @@
       <HintPath>..\lib\libemgucv-windows-universal-gpu-2.4.9.1847\Emgu.CV.GPU\bin\x64\Release\Emgu.Util.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Kinect, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.Kinect.Toolkit, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Microsoft.Kinect.Toolkit\bin\Release\Microsoft.Kinect.Toolkit.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Speech, Version=11.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files\Microsoft SDKs\Speech\v11.0\Assembly\Microsoft.Speech.dll</HintPath>
@@ -122,7 +118,6 @@
     <Compile Include="IFeatureProcessor.cs" />
     <Compile Include="SimpleSkeletonHandTracker.cs" />
     <Compile Include="SkeletonHandTracker.cs" />
-    <Compile Include="HandInputEngine.cs" />
     <Compile Include="HandInputEvent.cs" />
     <Compile Include="HandJointTracker.cs" />
     <Compile Include="IHandTracker.cs" />

@@ -18,13 +18,6 @@ namespace GesturesViewer {
     StreamWriter sw;
     bool processFeature = !String.IsNullOrEmpty(
         ConfigurationManager.AppSettings["process_feature"]);
-    String dataDir, outputDir;
-
-    void InitDataDir() {
-      var rootDir = Directory.GetDirectoryRoot(AppDomain.CurrentDomain.BaseDirectory);
-      dataDir = Path.Combine(rootDir,  ConfigurationManager.AppSettings["data_dir"]);
-      outputDir = Path.Combine(dataDir, ConfigurationManager.AppSettings["processor_output_dir"]);
-    }
       
     void recordGesture_Click(object sender, RoutedEventArgs e) {
       RecordGesture();
@@ -57,6 +50,8 @@ namespace GesturesViewer {
             trainingManager.Status = "Start processing";
             ExecuteOfflineProcessor();
             trainingManager.Status = "Done processing";
+            TrainModel();
+            trainingManager.Status = "Done training";
           }
           break;
         case TrainingEventType.StartGesture:
@@ -109,7 +104,7 @@ namespace GesturesViewer {
     void TrainModel() {
       var time = String.Format(TimeFormat, DateTime.Now);
       var fileName = time + ".mat";
-      var path = Path.Combine(ModelDir, fileName);
+      var path = Path.Combine(modelDir, fileName);
       var args = String.Format("-nodisplay -nosplash -nodesktop -r \"train('{0}', '{1}'); pause(1); exit;\"",
           outputDir, path);
       ExecuteCommand(MatlabExe, args, false, false);

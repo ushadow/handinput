@@ -34,8 +34,9 @@ namespace GesturesViewer {
     enum DisplayOption { DEPTH, COLOR };
 
     static readonly ILog Log = LogManager.GetCurrentClassLogger();
-    static readonly String ModelDir = Path.GetFullPath(
-        ConfigurationManager.AppSettings["model_dir"]);
+
+    static readonly String IpAddress = ConfigurationManager.AppSettings["ip"];
+    static readonly int Port = int.Parse(ConfigurationManager.AppSettings["port"]);
     static readonly int NOptionPerLine = 5;
 
     readonly ColorStreamManager colorManager = new ColorStreamManager();
@@ -49,8 +50,6 @@ namespace GesturesViewer {
     readonly ContextTracker contextTracker = new ContextTracker();
 
     public event PropertyChangedEventHandler PropertyChanged;
-
-    AudioStreamManager audioManager;
 
     IDictionary<Key, Action> keyActions;
 
@@ -70,7 +69,8 @@ namespace GesturesViewer {
     int depthFrameNumber;
     BlockingCollection<KinectDataPacket> buffer = new BlockingCollection<KinectDataPacket>();
     FPSCounter fpsCounter = new FPSCounter();
-    ModelSelector modelSelector = new ModelSelector(ModelDir);
+    ModelSelector modelSelector;
+    String dataDir, outputDir, modelDir;
 
     /// <summary>
     /// Initializes UI.
@@ -79,7 +79,8 @@ namespace GesturesViewer {
       InitializeComponent();
 
       InitDataDir();
-       
+      modelSelector = new ModelSelector(modelDir);
+
       keyActions = new Dictionary<Key, Action>() {
         {Key.Space, RecordGesture}, {Key.D, ToggleDebugDisplayOption}, {Key.E, ExecuteOfflineProcessor},
         {Key.H, ToggleViewHog}, {Key.K, ToggleViewSkeleton}, {Key.N, StepForward}, {Key.P, TogglePlay}, 
@@ -108,6 +109,14 @@ namespace GesturesViewer {
       depthDisplay.DataContext = depthManager;
 
       inputServer.Start();
+    }
+
+    void InitDataDir() {
+      // Use the root directory of the executing program.
+      var rootDir = Directory.GetDirectoryRoot(AppDomain.CurrentDomain.BaseDirectory);
+      dataDir = Path.Combine(rootDir, ConfigurationManager.AppSettings["data_dir"]);
+      outputDir = Path.Combine(dataDir, ConfigurationManager.AppSettings["processor_output_dir"]);
+      modelDir = Path.Combine(dataDir, ConfigurationManager.AppSettings["model_dir"]);
     }
 
     void Kinects_StatusChanged(object sender, StatusChangedEventArgs e) {
@@ -180,9 +189,6 @@ namespace GesturesViewer {
     void InitializeKinect() {
       if (kinectSensor == null)
         return;
-
-      audioManager = new AudioStreamManager(kinectSensor.AudioSource);
-      audioBeamAngle.DataContext = audioManager;
 
       kinectSensor.ColorStream.Enable(HandInputParams.ColorImageFormat);
 
@@ -279,6 +285,8 @@ namespace GesturesViewer {
       SimpleSkeletonHandTracker ssht = (SimpleSkeletonHandTracker)handTracker;
       VisualUtil.DrawRectangle(depthCanvas, ssht.InitialHandRect, Brushes.Green,
           (float)depthCanvas.ActualWidth / HandInputParams.DepthWidth);
+      VisualUtil.DrawRectangle(depthCanvas, ssht.ShiftedRect, Brushes.AliceBlue,
+           (float)depthCanvas.ActualWidth / HandInputParams.DepthWidth);
     }
 
     void UpdateStipHandTrackerDisplay() {
@@ -361,8 +369,6 @@ namespace GesturesViewer {
       } catch (Exception e) {
         Log.Error(e.Message);
       }
-
-      stabilitiesList.ItemsSource = stabilities;
     }
 
     void ToggleViewSkeleton() {
@@ -393,11 +399,6 @@ namespace GesturesViewer {
     /// </summary>
     void Clean() {
       Log.Info("Cleaning.");
-      if (audioManager != null) {
-        audioManager.Dispose();
-        audioManager = null;
-        Log.Info("Stopped audio manager.");
-      }
 
       if (recorder != null) {
         recorder.Close();
@@ -420,10 +421,15 @@ namespace GesturesViewer {
         Log.Debug("Property changed.");
         PropertyChanged(this, new PropertyChangedEventArgs(info));
       }
-    } 
+    }
 
     #region Actions
 
+    /// <summary>
+    /// If recognitin engine is not null, reset the model when selected model is changed.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     void ModelSelectorSelectedItemChanged(object sender, PropertyChangedEventArgs e) {
       if (recogEngine != null) {
         recogEngine.ResetModel(modelSelector.SelectedModel);

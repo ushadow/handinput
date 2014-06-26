@@ -31,19 +31,18 @@
             <ColumnDefinition Width="480"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="350"/>
             <RowDefinition Height="50"/>
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="300"/>
+            <RowDefinition Height="50"/>
             <RowDefinition Height="100"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="100"/>
-            <RowDefinition Height="100" />
+            <RowDefinition Height="50" />
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <Button Content="View Debug" Grid.RowSpan="2"  
                 HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click" x:Name="viewButton"/>
-        <Viewbox Margin="5" Grid.RowSpan="3">
+        <Viewbox Margin="5" Grid.RowSpan="1" Grid.Row="1">
             <StackPanel Orientation="Horizontal">
                 <Grid Width="320" Height="240" ClipToBounds="True">
                     <Image x:Name="kinectDisplay" Source="{Binding Bitmap}"/>
@@ -64,7 +63,7 @@
                 <Label Content="#" Name="labelKeys"/>
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Row ="4" Header="GroundTruth">
+        <GroupBox Header="Speech" Grid.Row="4">            <TextBlock x:Name="speechTextBlock" FontSize="34" FontFamily="Segoe UI"                       Text="{Binding SpeechJson}"/>        </GroupBox>        <GroupBox Grid.Row ="5" Header="GroundTruth">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -85,47 +84,26 @@
                 <Label Content="Session" Grid.Row="1" Grid.Column="2"/>
                 <Label Content="" Name="labelSession" Grid.Row="1" Grid.Column="3"/>
             </Grid>
-        </GroupBox>        <DockPanel Grid.Row="5">            <Label Content="#" Width="50" DockPanel.Dock="Right" Name="labelFrameNumber"/>
+        </GroupBox>        <DockPanel Grid.Row="6">            <Label Content="#" Width="50" DockPanel.Dock="Right" Name="labelFrameNumber"/>
             <Label Content="#" Width="50" DockPanel.Dock="Right" Name="labelIndexNumber"/>
             <Slider Minimum="0" x:Name="frameSlider"
                 Margin="5" ValueChanged="frameSlider_ValueChanged"/>
-        </DockPanel>        <GroupBox Header="Speech" Grid.Row="6">            <TextBlock x:Name="speechTextBlock" FontSize="34" FontFamily="Segoe UI"                       Text="{Binding SpeechJson}"/>        </GroupBox>        <GroupBox Header="Stability" Grid.Row="7">            <ListBox x:Name="stabilitiesList" FontSize="20">                <ListBox.ItemTemplate>                    <DataTemplate>                        <StackPanel Orientation="Horizontal">                            <TextBlock Text="{Binding Key}"/>                            <TextBlock Text=": "/>                            <TextBlock Text="{Binding Value}"/>                        </StackPanel>                    </DataTemplate>                </ListBox.ItemTemplate>            </ListBox>        </GroupBox>        <StackPanel Grid.Row="8" Margin="212,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Rectangle x:Name="audioBeamAngle" Height="20" Width="300" Margin="5">
-                <Rectangle.Fill>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1, 0">
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStopCollection>
-                                <GradientStop Offset="0" Color="Black"/>
-                                <GradientStop Offset="{Binding BeamAngle}" Color="Orange"/>
-                                <GradientStop Offset="1" Color="Black"/>
-                            </GradientStopCollection>
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
-                </Rectangle.Fill>
-            </Rectangle>
-        </StackPanel>
-
-        <GroupBox Grid.Row="0" Header="Gesture" Grid.RowSpan="3" Grid.Column="1" Margin="10,0">
+        </DockPanel>        <GroupBox Grid.Row="0" Header="Gesture" Grid.RowSpan="2" Grid.Column="1" Margin="10,0">
             <TextBlock Name="textGestureEvent" FontSize="26" Foreground="#FF000000"
                        FontFamily="Segoe UI"/>
         </GroupBox>
-        <GroupBox Grid.Row="3" Header="Model" Margin="10, 0" Grid.Column="1">
+        <GroupBox Grid.Row="2" Header="Model" Margin="10, 0" Grid.Column="1">
             <ComboBox x:Name="modelComboBox" ItemsSource="{Binding ModelFiles}" 
                       SelectedItem="{Binding SelectedModel}" />
         </GroupBox>
-        <Grid Margin="10" Grid.Column="1" Grid.Row="4" Grid.RowSpan="4">
+        <Grid Margin="10" Grid.Column="1" Grid.Row="3" Grid.RowSpan="4">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="400"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <CheckBox Content="Audio" x:Name="audioControl" VerticalAlignment="Center" d:LayoutOverrides="Width"/>
-                <Button Content="Record" x:Name="recordOption" Click="recordOption_Click" VerticalAlignment="Center" Width="129" Margin="10,6,0,6"/>
-            </StackPanel>
-            <Button Content="Replay" x:Name="replayButton" Click="replayButton_Click" VerticalAlignment="Center" Grid.Row="1" Width="Auto"/>
-            <GroupBox Grid.Row="2" Header="Training" x:Name="trainingGroupBox">
+            <GroupBox Grid.Row="0" Header="Training" x:Name="trainingGroupBox">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width=".38*"/>
@@ -160,6 +138,11 @@
                     </GroupBox>
                 </Grid>
             </GroupBox>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="1">
+                <CheckBox Content="Audio" x:Name="audioControl" VerticalAlignment="Center" d:LayoutOverrides="Width"/>
+                <Button Content="Record" x:Name="recordOption" Click="recordOption_Click" VerticalAlignment="Center" Width="129" Margin="10,6,0,6"/>
+            </StackPanel>
+            <Button Content="Replay" x:Name="replayButton" Click="replayButton_Click" VerticalAlignment="Center" Grid.Row="2" Width="Auto"/>
         </Grid>
     </Grid>
 </Window>

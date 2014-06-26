@@ -28,12 +28,12 @@ namespace handinput {
         start_gesture_time_ = time_step_;
       } else if (phase == "PostStroke" && prev_event_ == "StartNucleus") {
         if (time_step_ - start_gesture_time_ > MIN_NUCLEUS_LEN) {
-          gesture_event = "StartPostStroke";
+          gesture_event = "StopNucleus";
           nucleus = prev_gesture_;
         }
       } else if (phase == "Rest" && prev_event_ == "StartNucleus") {
         if (time_step_ - start_gesture_time_ > MIN_NUCLEUS_LEN) {
-          gesture_event = "StartRest";
+          gesture_event = "StopNucleus";
           nucleus = prev_gesture_;
         }
       }

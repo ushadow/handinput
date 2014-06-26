@@ -33,12 +33,18 @@ namespace HandInput.Engine {
     public Rectangle InitialHandRect { get; private set; }
     public Image<Gray, Byte> SmoothedDepth { get; private set; }
     public Image<Gray, Byte> HandMask { get; private set; }
+    public Rectangle ShiftedRect {
+      get {
+        return shiftedRect.MinAreaRect();
+      }
+    }
 
     int width, height;
     CoordinateConverter mapper;
     PlayerDetector playerDetector;
     MCvConnectedComp connectedComp = new MCvConnectedComp();
     MCvBox2D shiftedRect = new MCvBox2D();
+    bool useShiftedRect = true;
 
     public SimpleSkeletonHandTracker(int width, int height, Byte[] kinectParams,
                                      int bufferSize = 1) {
@@ -126,8 +132,14 @@ namespace HandInput.Engine {
       if (!initialRect.IsEmpty) {
         CvInvoke.cvCamShift(SmoothedDepth.Ptr, initialRect, new MCvTermCriteria(CamShiftIter),
             out connectedComp, out shiftedRect);
-        if (!connectedComp.rect.IsEmpty)
-          return connectedComp.rect;
+        Rectangle rect;
+        if (useShiftedRect) {
+          rect = shiftedRect.MinAreaRect();
+        } else {
+          rect = connectedComp.rect;
+        }
+        if (rect.Width > 0 && rect.Height > 0)
+          return rect;
       }
       return Rectangle.Empty;
     }
