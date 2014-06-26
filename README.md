@@ -12,7 +12,7 @@ Hand tracking and gesture recognition
   * Make sure `%MATLAB%\bin\win64` is in `Path`
 
 ### To compile
-* Visual Studio 2012
+* Use Visual Studio 2012 to build the solution
 * [Visual C++ Compiler November 2012 CTP] (http://www.microsoft.com/en-us/download/details.aspx?id=35515)
 * NuGet 2.7 ([with package restore during build enabled] (http://docs.nuget.org/docs/workflows/using-nuget-without-committing-packages))
 * NVIDIA CUDA 5.5 and [NVIDIA Nsight] (https://developer.nvidia.com/rdp/nsight-visual-studio-edition-downloads) >3.1 (WIN64)
@@ -23,9 +23,9 @@ Hand tracking and gesture recognition
 * [Eigen 3.2.0] (http://eigen.tuxfamily.org/index.php?title=Main_Page)
 
 ## Run
-* Use Visual Studio to build the solution.
-* GestuerViewer.exe in the GesturesViewer project is the main interface to run the program. There are shortcut keys listed for diffesrent functinalities.   
-  * T: start tracking and geseture recognition  
+GestuerViewer.exe in the GesturesViewer project is the main interface to run the program. 
+1. Record training examples 
+2. T: start tracking and geseture recognition  
 
 ## Modules
 * GesturesViewer: UI Interface for recording geseture training examples and viewing debug information.
