@@ -24,7 +24,8 @@ Hand tracking and gesture recognition
 
 ## Run
 * Use Visual Studio to build the solution.
-* GestuerViewer.exe in the GestureViewer project is the main interface to run the program. 
+* GestuerViewer.exe in the GesturesViewer project is the main interface to run the program. There are shortcut keys listed for diffesrent functinalities.   
+  * T: start tracking and geseture recognition  
 
 ## Modules
 * GesturesViewer: UI Interface for recording geseture training examples and viewing debug information.
