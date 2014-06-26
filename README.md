@@ -24,7 +24,9 @@ Hand tracking and gesture recognition
 
 ## Run
 GestuerViewer.exe in the GesturesViewer project is the main interface to run the program. 
+
 1. Record training examples 
+  1. Click "Capture Gesture" button 
 2. T: start tracking and geseture recognition  
 
 ## Modules
