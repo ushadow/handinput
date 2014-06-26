@@ -27,7 +27,7 @@ Hand tracking and gesture recognition
 * GestuerViewer.exe in the GestureViewer project is the main interface to run the program. 
 
 ## Modules
-* GestureViewer: UI Interface.
+* GesturesViewer: UI Interface for recording geseture training examples and viewing debug information.
 * Util: reusable utility functions.
 
 
