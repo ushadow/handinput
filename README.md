@@ -9,7 +9,7 @@ Hand tracking and gesture recognition
 * [Kinect SDK 1.8] (http://www.microsoft.com/en-us/kinectforwindowsdev/Downloads.aspx)
 * Matlab 2013b 64bit 
   * Define $MATLAB evironment variable pointing to the main folder of the installation, e.g. C:\Program Files\MATLAB\R2013b.
-  * Make sure `%MATLAB%\bin\win64` is in `Path`
+  * Make sure `%MATLAB%\bin\win64` is in `Path`.
 * [Gesture recognition training code in Matlab] (https://github.com/uShadow/gesture-recog)
   * Make sure these folders are in Matlab path. 
 
