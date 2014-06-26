@@ -18,7 +18,6 @@ Hand tracking and gesture recognition
 * [Emgu] (http://sourceforge.net/projects/emgucv/files/emgucv/2.4.9-alpha/libemgucv-windows-universal-gpu-2.4.9.1847.zip/download) (version: Windows, universal, GPU, 2.4.9.1847)
   * Using x64 version dlls, which requires a rebuild of the source by changing the platform to x64 instead of Any CPU.
 * [Modified Kinect Toolbox] (https://github.com/uShadow/kinect-toolbox)
-* Microsoft.Kinect.Toolkit (placed in the same directory as this solution).
 * [Eigen 3.2.0] (http://eigen.tuxfamily.org/index.php?title=Main_Page) for linear algebra.
 
 ## Run
@@ -26,7 +25,7 @@ GestuerViewer.exe in the GesturesViewer project is the main interface to run the
 
 1. Record training examples 
   1. Click "Capture Gesture" button 
-2. T: start tracking and geseture recognition  
+2. Press "T" to start tracking and geseture recognition  
 
 ## Modules
 * GesturesViewer: UI Interface for recording geseture training examples and viewing debug information.
