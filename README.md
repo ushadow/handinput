@@ -25,11 +25,11 @@ Hand tracking and gesture recognition
 * [Eigen 3.2.0] (http://eigen.tuxfamily.org/index.php?title=Main_Page) for linear algebra.
 
 ## Run
-GestureViewer.exe in the GesturesViewer project is the main interface to run the program. 
+GesturesViewer.exe in the GesturesViewer project is the main interface to run the program. 
 
 1. Record training examples 
   1. Click "Capture Gesture" button 
-2. Press "T" to start tracking and geseture recognition  
+2. Press "T" to start tracking and gesture recognition  
 
 ## Modules
 * GesturesViewer: UI Interface for recording geseture training examples and viewing debug information.
