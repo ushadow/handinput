@@ -25,7 +25,12 @@ Hand tracking and gesture recognition
 * [Eigen 3.2.0] (http://eigen.tuxfamily.org/index.php?title=Main_Page) for linear algebra.
 
 ## Run
-GesturesViewer.exe in the GesturesViewer project is the main interface to run the program. 
+GesturesViewer.exe in the GesturesViewer project is the main interface to run the program. Once the program starts, the "Keys" panel shows the shortcut keys for certain actions. The most important keys are:
+
+* S: Start the kinect
+* T: Start tracking and gesture recognition
+
+To improve the accuracy of gesture recognition, you need to train your own model.
 
 1. Record training examples 
   1. Click "Capture Gesture" button 
