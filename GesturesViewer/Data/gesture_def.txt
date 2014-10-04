@@ -1,0 +1,8 @@
+#name,          form,	repeat,	nHiddenStates
+Swipe_Left,     D,    0,      4
+Swipe_Right,    D,    0,      3
+Next_Point,     D,    0,      3
+Circle,         D,    0,      4
+Horizontal_Wave,D,    1,      4
+Point,          S,    0,      1
+Palm_Up,        S,    0,      1
