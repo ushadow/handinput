@@ -28,7 +28,7 @@ Hand tracking and gesture recognition
 GesturesViewer.exe in the GesturesViewer project is the main interface to run the program. Once the program starts, the "Keys" panel shows the shortcut keys for certain actions. The most important keys are:
 
 * S: Start the kinect, no gesture recognition.
-* T: Start tracking and gesture recognition. The gestures are defined in [gesture_def.txt](https://github.com/uShadow/handinput/blob/master/GesturesViewer/Data/gesture_def.txt).
+* T: Start tracking and gesture recognition. The gestures are defined in [gesture_def.txt](https://github.com/uShadow/handinput/blob/master/GesturesViewer/Data/gesture_def.txt). See the [illustraion](https://groups.csail.mit.edu/mug/projects/gesture_kinect/images/gesture.png) of how to do these gestures.
 
 To improve the accuracy of gesture recognition, you need to train your own model.
 
