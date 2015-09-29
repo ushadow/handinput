@@ -34,7 +34,7 @@ To improve the accuracy of gesture recognition, you need to train your own model
 
 1. Record training examples 
   1. Click "Capture Gesture" button.
-  2. Follow the prompt to give training gesture examples. The gesture raw data will be saved in the <data_dir>/PID-<user_pid>/<time> directory. data_dir s specified in the GesturesViewer/App.config file.
+  2. Follow the prompt to give training gesture examples. The gesture raw data will be saved in the \<data_dir\>/PID-<user_pid>/<time> directory. data_dir s specified in the GesturesViewer/App.config file.
   3. In the end, the program will process and train a new model using all the data recorded in the data_dir directory.
 2. Press "T" to start tracking and gesture recognition  
 
