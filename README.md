@@ -33,7 +33,9 @@ GesturesViewer.exe in the GesturesViewer project is the main interface to run th
 To improve the accuracy of gesture recognition, you need to train your own model.
 
 1. Record training examples 
-  1. Click "Capture Gesture" button 
+  1. Click "Capture Gesture" button.
+  2. Follow the prompt to give training gesture examples.
+  3. In the end, the program will process and train a new model using all the data.
 2. Press "T" to start tracking and gesture recognition  
 
 ## Modules
