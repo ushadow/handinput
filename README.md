@@ -1,6 +1,7 @@
 # handinput
 
-Hand tracking and gesture recognition
+Real-time hand tracking and gesture recognition system based on PhD thesis: [Real-time Continuous Gesture Recognition for Natural
+Multimodal Interaction](http://groups.csail.mit.edu/mug/pubs/Yin2014Thesis.pdf).
 
 ## Dependencies
 ### To run
