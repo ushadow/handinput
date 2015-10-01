@@ -41,7 +41,7 @@ To improve the accuracy of gesture recognition, you need to train your own model
 
 ### How to interpret the recognition result
 The gesture tracking and recognition result outputs the follow result in a JSON string for each frame:
-{ eventType: \<type of geseture event: StartNucleus|StopNucleus\>, gesture: \<name of the gesture\>, phase: \<PreStroke|Nucleus|PostStroke\>, rightX: \<x coordinate of right hand\>, rightY: \<y coordinate of right hand\>} 
+{ eventType: \<type of geseture event: StartPreStroke|StartNucleus|StopNucleus\>, gesture: \<name of the gesture\>, phase: \<PreStroke|Nucleus|PostStroke|Rest\>, rightX: \<x coordinate of right hand\>, rightY: \<y coordinate of right hand\>} 
 
 ## Modules
 * GesturesViewer: UI Interface for recording geseture training examples and viewing debug information.
