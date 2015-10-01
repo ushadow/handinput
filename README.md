@@ -39,6 +39,10 @@ To improve the accuracy of gesture recognition, you need to train your own model
   3. In the end, the program will process and train a new model using all the data recorded in the data_dir directory.
 2. Press "T" to start tracking and gesture recognition  
 
+### How to interpret the recognition result
+The gesture tracking and recognition result outputs the follow result in a JSON string for each frame:
+{ eventType: \<type of geseture event: StartNucleus|StopNucleus\>, gesture: \<name of the gesture\>, phase: \<PreStroke|Nucleus|PostStroke\>, rightX: \<x coordinate of right hand\>, rightY: \<y coordinate of right hand\>} 
+
 ## Modules
 * GesturesViewer: UI Interface for recording geseture training examples and viewing debug information.
 * Util: reusable utility functions.
